@@ -1,97 +1,78 @@
-name: Release
+name: A'lochi App Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
 
 env:
-  FLUTTER_VERSION: '3.24.3'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  API_URL: https://api.alochi.uz
+
+permissions:
+  contents: write
 
 jobs:
-  # ─── Android ────────────────────────────────────────────────────────────────
+
   android:
     name: Android (APK + AAB)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
-          cache: true
-      - name: Setup Java
-        uses: actions/setup-java@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.4'
+          channel: stable
+          cache: true
       - run: flutter pub get
-      - name: Build APK
-        run: flutter build apk --release --dart-define=API_URL=https://api.alochi.uz
-      - name: Build AAB
-        run: flutter build appbundle --release --dart-define=API_URL=https://api.alochi.uz
+      - run: flutter build apk --release --dart-define=API_URL=${{ env.API_URL }}
+      - run: flutter build appbundle --release --dart-define=API_URL=${{ env.API_URL }}
       - uses: actions/upload-artifact@v5
         with:
-          name: android-artifacts
+          name: android
           path: |
             build/app/outputs/flutter-apk/app-release.apk
             build/app/outputs/bundle/release/app-release.aab
 
-  # ─── iOS ────────────────────────────────────────────────────────────────────
   ios:
     name: iOS (IPA)
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          flutter-version: '3.27.4'
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Build iOS (no codesign)
-        run: flutter build ios --release --no-codesign --dart-define=API_URL=https://api.alochi.uz
-      - name: Archive IPA
-        run: |
-          mkdir -p build/ios/ipa/Payload
-          cp -r build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
-          cd build/ios/ipa && zip -r alochi.ipa Payload/
+      - run: flutter build ios --release --no-codesign --dart-define=API_URL=${{ env.API_URL }}
+      - run: cd build/ios/iphoneos && zip -r ../../../alochi-ios.zip Runner.app
       - uses: actions/upload-artifact@v5
         with:
-          name: ios-artifact
-          path: build/ios/ipa/alochi.ipa
+          name: ios
+          path: alochi-ios.zip
 
-  # ─── macOS ──────────────────────────────────────────────────────────────────
   macos:
     name: macOS (DMG)
-    runs-on: macos-15
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          flutter-version: '3.27.4'
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Build macOS
-        run: flutter build macos --release --dart-define=API_URL=https://api.alochi.uz
-      - name: Create DMG
-        run: |
-          brew install create-dmg
-          create-dmg \
-            --volname "A'lochi" \
-            --window-size 800 400 \
-            --icon-size 100 \
-            --app-drop-link 600 185 \
-            alochi.dmg \
-            "build/macos/Build/Products/Release/alochi.app"
+      - run: flutter build macos --release --dart-define=API_URL=${{ env.API_URL }}
+      - run: cd build/macos/Build/Products/Release && zip -r ../../../../../alochi-macos.zip alochi_app.app
       - uses: actions/upload-artifact@v5
         with:
-          name: macos-artifact
-          path: alochi.dmg
+          name: macos
+          path: alochi-macos.zip
 
-  # ─── Windows ────────────────────────────────────────────────────────────────
   windows:
     name: Windows (NSIS Installer)
     runs-on: windows-latest
@@ -99,87 +80,72 @@ jobs:
       - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          flutter-version: '3.27.4'
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Build Windows
-        run: flutter build windows --release --dart-define=API_URL=https://api.alochi.uz
-      - name: Build NSIS installer
-        run: |
-          choco install nsis -y
-          makensis windows/installer.nsi
+      - run: flutter build windows --release --dart-define=API_URL=${{ env.API_URL }}
+      - name: Install NSIS
+        run: choco install nsis -y
+      - name: Build installer
+        uses: joncloud/makensis-action@v4
+        with:
+          script-file: windows/installer.nsi
+          arguments: /V3
       - uses: actions/upload-artifact@v5
         with:
-          name: windows-artifact
-          path: windows/alochi-setup.exe
+          name: windows
+          path: AlochiApp-Setup.exe
 
-  # ─── Linux ──────────────────────────────────────────────────────────────────
   linux:
     name: Linux (deb + AppImage)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            clang cmake ninja-build \
+            libgtk-3-dev liblzma-dev \
+            libstdc++-12-dev \
+            libglib2.0-dev libpango1.0-dev
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
+          flutter-version: '3.27.4'
           channel: stable
           cache: true
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - run: flutter pub get
-      - name: Build Linux
-        run: flutter build linux --release --dart-define=API_URL=https://api.alochi.uz
-      - name: Package deb
+      - run: flutter build linux --release --dart-define=API_URL=${{ env.API_URL }}
+      - name: Package Linux build
         run: |
-          mkdir -p alochi_1.0.0_amd64/DEBIAN
-          mkdir -p alochi_1.0.0_amd64/usr/bin
-          mkdir -p alochi_1.0.0_amd64/usr/share/applications
-          cp -r build/linux/x64/release/bundle alochi_1.0.0_amd64/usr/lib/alochi
-          echo '#!/bin/sh' > alochi_1.0.0_amd64/usr/bin/alochi
-          echo 'exec /usr/lib/alochi/alochi "$@"' >> alochi_1.0.0_amd64/usr/bin/alochi
-          chmod +x alochi_1.0.0_amd64/usr/bin/alochi
-          cat > alochi_1.0.0_amd64/DEBIAN/control <<EOF
-          Package: alochi
-          Version: 1.0.0
-          Section: education
-          Priority: optional
-          Architecture: amd64
-          Maintainer: Alochi <info@alochi.uz>
-          Description: A'lochi learning platform
-          EOF
-          dpkg-deb --build alochi_1.0.0_amd64
+          mkdir -p alochi-linux
+          cp -r build/linux/x64/release/bundle/* alochi-linux/
+          tar -czf alochi-linux.tar.gz alochi-linux/
       - uses: actions/upload-artifact@v5
         with:
-          name: linux-artifacts
-          path: |
-            alochi_1.0.0_amd64.deb
+          name: linux
+          path: alochi-linux.tar.gz
 
-  # ─── GitHub Release ─────────────────────────────────────────────────────────
   release:
     name: Create GitHub Release
     needs: [android, ios, macos, windows, linux]
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
+      - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
         with:
-          path: artifacts/
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
         with:
+          generate_release_notes: true
           name: "A'lochi ${{ github.ref_name }}"
-          draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
           files: |
-            artifacts/android-artifacts/app-release.apk
-            artifacts/android-artifacts/app-release.aab
-            artifacts/ios-artifact/alochi.ipa
-            artifacts/macos-artifact/alochi.dmg
-            artifacts/windows-artifact/alochi-setup.exe
-            artifacts/linux-artifacts/alochi_1.0.0_amd64.deb
+            app-release.apk
+            app-release.aab
+            alochi-ios.zip
+            alochi-macos.zip
+            AlochiApp-Setup.exe
+            alochi-linux.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
