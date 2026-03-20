@@ -1,0 +1,311 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'dart:async';
+import '../../../shared/constants/colors.dart';
+import '../../../shared/widgets/loading_widget.dart';
+import '../../../core/api/student_api.dart';
+import '../../../core/models/test_model.dart';
+
+class TestPlayScreen extends StatefulWidget {
+  final String id;
+  const TestPlayScreen({super.key, required this.id});
+
+  @override
+  State<TestPlayScreen> createState() => _TestPlayScreenState();
+}
+
+class _TestPlayScreenState extends State<TestPlayScreen> {
+  List<QuestionModel> _questions = [];
+  final Map<String, String> _answers = {};
+  int _current = 0;
+  bool _loading = true;
+  bool _submitting = false;
+  int _secondsLeft = 1800;
+  Timer? _timer;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTest();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadTest() async {
+    try {
+      final data = await StudentApi().getTestDetail(widget.id);
+      final questions = (data['questions'] as List? ?? [])
+          .map((q) => QuestionModel.fromJson(q as Map<String, dynamic>))
+          .toList();
+      final minutes = data['time_limit_minutes'] as int? ?? 30;
+      setState(() {
+        _questions = questions;
+        _secondsLeft = minutes * 60;
+        _loading = false;
+      });
+      _startTimer();
+    } catch (e) {
+      setState(() {
+        _error = 'Test yuklanmadi: $e';
+        _loading = false;
+      });
+    }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_secondsLeft <= 0) {
+        _timer?.cancel();
+        _submit();
+      } else {
+        setState(() => _secondsLeft--);
+      }
+    });
+  }
+
+  void _next() {
+    if (_current < _questions.length - 1) setState(() => _current++);
+  }
+
+  void _prev() {
+    if (_current > 0) setState(() => _current--);
+  }
+
+  Future<void> _showSubmitDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: kBgCard,
+        title: const Text('Testni yakunlash?',
+            style: TextStyle(color: kTextPrimary)),
+        content: Text(
+            'Javob berilgan: ${_answers.length}/${_questions.length}',
+            style: const TextStyle(color: kTextSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Bekor',
+                style: TextStyle(color: kTextSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Yuborish'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) _submit();
+  }
+
+  Future<void> _submit() async {
+    _timer?.cancel();
+    setState(() => _submitting = true);
+    try {
+      final result = await StudentApi().submitTest(widget.id, _answers);
+      if (mounted) {
+        context.go('/student/tests/${widget.id}/result', extra: result);
+      }
+    } catch (e) {
+      setState(() {
+        _submitting = false;
+        _error = 'Yuborishda xatolik: $e';
+      });
+    }
+  }
+
+  String get _timerText {
+    final m = _secondsLeft ~/ 60;
+    final s = _secondsLeft % 60;
+    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  Color get _timerColor {
+    if (_secondsLeft < 60) return kRed;
+    if (_secondsLeft < 300) return kYellow;
+    return kOrange;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+          backgroundColor: kBgMain, body: LoadingOverlay());
+    }
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: kBgMain,
+        body: Center(
+            child: Text(_error!,
+                style: const TextStyle(color: kRed))),
+      );
+    }
+
+    final q = _questions[_current];
+    final progress = (_current + 1) / _questions.length;
+
+    return Scaffold(
+      backgroundColor: kBgMain,
+      appBar: AppBar(
+        title: Text('${_current + 1} / ${_questions.length}'),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: _timerColor.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(_timerText,
+                style: TextStyle(
+                    color: _timerColor,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16)),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          ClipRRect(
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: kBgBorder,
+              color: kOrange,
+              minHeight: 4,
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (q.image != null)
+                    Container(
+                      height: 180,
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: kBgCard,
+                        borderRadius: BorderRadius.circular(12),
+                        image: DecorationImage(
+                          image: NetworkImage(q.image!),
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                  Text(q.text,
+                      style: const TextStyle(
+                          color: kTextPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 24),
+                  ...q.options.map((opt) {
+                    final isSelected = _answers[q.id] == opt.id;
+                    return GestureDetector(
+                      onTap: () => setState(
+                          () => _answers[q.id] = opt.id),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? kOrange.withOpacity(0.15)
+                              : kBgCard,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color:
+                                isSelected ? kOrange : kBgBorder,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? kOrange
+                                    : kBgBorder,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(opt.label,
+                                    style: TextStyle(
+                                        color: isSelected
+                                            ? Colors.white
+                                            : kTextSecondary,
+                                        fontWeight:
+                                            FontWeight.w700)),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(opt.text,
+                                  style: TextStyle(
+                                      color: isSelected
+                                          ? kTextPrimary
+                                          : kTextSecondary)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: kBgCard,
+              border: Border(top: BorderSide(color: kBgBorder)),
+            ),
+            child: Row(
+              children: [
+                if (_current > 0)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _prev,
+                      icon: const Icon(Icons.arrow_back_rounded),
+                      label: const Text('Oldingi'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: kTextSecondary,
+                        side: const BorderSide(color: kBgBorder),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14),
+                      ),
+                    ),
+                  ),
+                if (_current > 0) const SizedBox(width: 12),
+                Expanded(
+                  child: _current < _questions.length - 1
+                      ? ElevatedButton.icon(
+                          onPressed: _next,
+                          icon: const Icon(
+                              Icons.arrow_forward_rounded),
+                          label: const Text('Keyingi'),
+                        )
+                      : ElevatedButton.icon(
+                          onPressed: _submitting
+                              ? null
+                              : _showSubmitDialog,
+                          icon: const Icon(Icons.check_rounded),
+                          label: const Text('Yuborish'),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
