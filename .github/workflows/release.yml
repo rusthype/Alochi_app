@@ -61,25 +61,6 @@ jobs:
           name: ios-artifact
           path: build/ios/ipa/alochi.ipa
 
-  # ─── Web ────────────────────────────────────────────────────────────────────
-  web:
-    name: Web
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: stable
-          cache: true
-      - run: flutter pub get
-      - name: Build Web
-        run: flutter build web --release --dart-define=API_URL=https://api.alochi.uz --base-href=/
-      - uses: actions/upload-artifact@v4
-        with:
-          name: web-artifact
-          path: build/web/
-
   # ─── macOS ──────────────────────────────────────────────────────────────────
   macos:
     name: macOS (DMG)
@@ -178,7 +159,7 @@ jobs:
   # ─── GitHub Release ─────────────────────────────────────────────────────────
   release:
     name: Create GitHub Release
-    needs: [android, ios, web, macos, windows, linux]
+    needs: [android, ios, macos, windows, linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
