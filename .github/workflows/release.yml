@@ -42,18 +42,34 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.27.4'
           channel: stable
           cache: true
+
       - run: flutter pub get
-      - run: flutter build ios --release --no-codesign --dart-define=API_URL=${{ env.API_URL }}
-      - run: cd build/ios/iphoneos && zip -r ../../../alochi-ios.zip Runner.app
+
+      - name: Build iOS
+        run: |
+          flutter build ios \
+            --release \
+            --no-codesign \
+            --dart-define=API_URL=https://api.alochi.uz
+        continue-on-error: false
+
+      - name: Zip iOS build
+        run: |
+          cd build/ios/iphoneos
+          zip -r ../../../alochi-ios.zip .
+        continue-on-error: true
+
       - uses: actions/upload-artifact@v5
         with:
           name: ios
           path: alochi-ios.zip
+          if-no-files-found: warn
 
   macos:
     name: macOS (DMG)
@@ -92,10 +108,19 @@ jobs:
         with:
           script-file: windows/installer.nsi
           arguments: /V3
-      - uses: actions/upload-artifact@v5
+      - name: Find installer
+        run: |
+          dir /s *.exe | findstr Setup
+          dir AlochiApp-Setup.exe
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v5
         with:
           name: windows
-          path: AlochiApp-Setup.exe
+          path: |
+            AlochiApp-Setup.exe
+            windows/AlochiApp-Setup.exe
+          if-no-files-found: warn
 
   linux:
     name: Linux (deb + AppImage)

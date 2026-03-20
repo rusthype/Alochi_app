@@ -8,7 +8,7 @@
 !define INSTALL_DIR "$PROGRAMFILES64\${APP_NAME}"
 
 Name "${APP_NAME}"
-OutFile "alochi-setup.exe"
+OutFile "AlochiApp-Setup.exe"
 InstallDir "${INSTALL_DIR}"
 InstallDirRegKey HKLM "Software\${APP_NAME}" ""
 RequestExecutionLevel admin
