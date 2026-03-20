@@ -51,6 +51,9 @@ jobs:
 
       - run: flutter pub get
 
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods && cd ios && pod install --repo-update
+
       - name: Build iOS
         run: |
           flutter build ios \
@@ -110,22 +113,20 @@ jobs:
           arguments: /V3
       - name: Find and verify installer
         run: |
-          Get-ChildItem -Recurse -Filter "*.exe" | Select-Object FullName
+          Get-ChildItem -Recurse -Filter "*.exe" | Select-Object -ExpandProperty FullName
           if (Test-Path "AlochiApp-Setup.exe") {
             Write-Host "Found: AlochiApp-Setup.exe"
           } else {
-            Write-Host "Not found in root, searching..."
-            Get-ChildItem -Recurse -Filter "AlochiApp-Setup.exe" | Select-Object FullName
+            Write-Error "AlochiApp-Setup.exe not found in workspace root"
+            exit 1
           }
 
       - name: Upload installer
         uses: actions/upload-artifact@v5
         with:
           name: windows
-          path: |
-            AlochiApp-Setup.exe
-            windows/AlochiApp-Setup.exe
-          if-no-files-found: warn
+          path: AlochiApp-Setup.exe
+          if-no-files-found: error
 
   linux:
     name: Linux (deb + AppImage)

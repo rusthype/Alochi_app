@@ -8,7 +8,7 @@
 !define INSTALL_DIR "$PROGRAMFILES64\${APP_NAME}"
 
 Name "${APP_NAME}"
-OutFile "AlochiApp-Setup.exe"
+OutFile "$%GITHUB_WORKSPACE%\AlochiApp-Setup.exe"
 InstallDir "${INSTALL_DIR}"
 InstallDirRegKey HKLM "Software\${APP_NAME}" ""
 RequestExecutionLevel admin
