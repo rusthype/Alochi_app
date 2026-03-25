@@ -63,18 +63,18 @@ class ParentDashboardScreen extends ConsumerWidget {
         ),
         data: (children) {
           if (children.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.child_care_rounded,
+                  Icon(Icons.child_care_rounded,
                       size: 64, color: kTextMuted),
-                  const SizedBox(height: 16),
-                  const Text("Bolalar bog'lanmagan",
+                  SizedBox(height: 16),
+                  Text("Bolalar bog'lanmagan",
                       style: TextStyle(
                           color: kTextPrimary, fontSize: 18)),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: 8),
+                  Text(
                       'Farzandingizning ilovasidan sizga invite kodi yuboring',
                       style: TextStyle(
                           color: kTextSecondary, fontSize: 14),

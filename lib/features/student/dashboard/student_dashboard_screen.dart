@@ -49,7 +49,7 @@ class StudentDashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
                 _StatsRow(data: data),
                 const SizedBox(height: 20),
-                _QuickActions(),
+                const _QuickActions(),
                 const SizedBox(height: 20),
                 _WeeklyChart(data: data),
                 const SizedBox(height: 20),

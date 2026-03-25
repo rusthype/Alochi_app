@@ -140,12 +140,12 @@ class _ChallengeResultScreenState
                         border: Border.all(
                             color: kOrange.withOpacity(0.3)),
                       ),
-                      child: Row(
+                      child: const Row(
                         children: [
-                          const Icon(Icons.bolt_rounded,
+                          Icon(Icons.bolt_rounded,
                               color: kOrange, size: 28),
-                          const SizedBox(width: 12),
-                          const Expanded(
+                          SizedBox(width: 12),
+                          Expanded(
                             child: Column(
                               crossAxisAlignment:
                                   CrossAxisAlignment.start,

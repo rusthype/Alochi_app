@@ -78,9 +78,9 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                 style: const TextStyle(color: kRed))),
         data: (words) {
           if (words.isEmpty) {
-            return Center(
+            return const Center(
               child: Text("So'zlar topilmadi",
-                  style: const TextStyle(color: kTextSecondary)),
+                  style: TextStyle(color: kTextSecondary)),
             );
           }
           final word = words[_current];

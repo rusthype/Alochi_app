@@ -163,7 +163,7 @@ class _ChildDetail extends StatelessWidget {
               ),
               child: BarChart(
                 BarChartData(
-                  gridData: FlGridData(show: false),
+                  gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     leftTitles: const AxisTitles(

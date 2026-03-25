@@ -28,13 +28,15 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build apk --release --dart-define=API_URL=${{ env.API_URL }}
+      - run: flutter build apk --release --split-per-abi --dart-define=API_URL=${{ env.API_URL }}
       - run: flutter build appbundle --release --dart-define=API_URL=${{ env.API_URL }}
       - uses: actions/upload-artifact@v5
         with:
           name: android
           path: |
-            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-x86_64-release.apk
             build/app/outputs/bundle/release/app-release.aab
 
   ios:
@@ -172,7 +174,9 @@ jobs:
           generate_release_notes: true
           name: "A'lochi ${{ github.ref_name }}"
           files: |
-            app-release.apk
+            app-armeabi-v7a-release.apk
+            app-arm64-v8a-release.apk
+            app-x86_64-release.apk
             app-release.aab
             alochi-ios.zip
             alochi-macos.zip

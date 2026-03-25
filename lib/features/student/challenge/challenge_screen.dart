@@ -101,7 +101,7 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
               const Icon(Icons.error_outline_rounded,
                   color: kRed, size: 48),
               const SizedBox(height: 16),
-              Text('Musobaqa topilmadi', style: const TextStyle(color: kTextSecondary)),
+              const Text('Musobaqa topilmadi', style: TextStyle(color: kTextSecondary)),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => context.go('/student/dashboard'),

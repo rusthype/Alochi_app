@@ -132,21 +132,21 @@ class StudentShell extends ConsumerWidget {
 
   List<_Destination> _buildDestinations(int unread) {
     return [
-      _Destination(
-          icon: const Icon(Icons.dashboard_outlined),
-          selectedIcon: const Icon(Icons.dashboard_rounded),
+      const _Destination(
+          icon: Icon(Icons.dashboard_outlined),
+          selectedIcon: Icon(Icons.dashboard_rounded),
           label: 'Bosh sahifa'),
-      _Destination(
-          icon: const Icon(Icons.quiz_outlined),
-          selectedIcon: const Icon(Icons.quiz_rounded),
+      const _Destination(
+          icon: Icon(Icons.quiz_outlined),
+          selectedIcon: Icon(Icons.quiz_rounded),
           label: 'Testlar'),
-      _Destination(
-          icon: const Icon(Icons.leaderboard_outlined),
-          selectedIcon: const Icon(Icons.leaderboard_rounded),
+      const _Destination(
+          icon: Icon(Icons.leaderboard_outlined),
+          selectedIcon: Icon(Icons.leaderboard_rounded),
           label: 'Reyting'),
-      _Destination(
-          icon: const Icon(Icons.person_outline_rounded),
-          selectedIcon: const Icon(Icons.person_rounded),
+      const _Destination(
+          icon: Icon(Icons.person_outline_rounded),
+          selectedIcon: Icon(Icons.person_rounded),
           label: 'Profil'),
     ];
   }

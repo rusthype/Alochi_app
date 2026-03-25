@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -54,8 +55,12 @@ class PurchasesScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: p.item.imageUrl != null
-                          ? Image.network(p.item.imageUrl!,
-                              fit: BoxFit.cover)
+                          ? CachedNetworkImage(
+                              imageUrl: p.item.imageUrl!,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+                              errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
+                            )
                           : const Icon(
                               Icons.card_giftcard_rounded,
                               color: kTextMuted),

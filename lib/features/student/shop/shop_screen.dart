@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:confetti/confetti.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
@@ -295,8 +296,12 @@ class _ShopItemCard extends StatelessWidget {
                     top: Radius.circular(16)),
               ),
               child: item.imageUrl != null
-                  ? Image.network(item.imageUrl!,
-                      fit: BoxFit.contain)
+                  ? CachedNetworkImage(
+                      imageUrl: item.imageUrl!,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+                      errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
+                    )
                   : const Center(
                       child: Icon(Icons.card_giftcard_rounded,
                           size: 48, color: kTextMuted),
