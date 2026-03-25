@@ -55,7 +55,6 @@ class StudentShell extends ConsumerWidget {
         final width = constraints.maxWidth;
         final isMobile = width < 600;
         final isTablet = width >= 600 && width < 1200;
-        final isDesktop = width >= 1200;
 
         final destinations = _buildDestinations(unread);
 

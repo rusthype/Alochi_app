@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:confetti/confetti.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../core/models/test_model.dart';
+import '../../../core/api/student_api.dart';
+import '../../../shared/widgets/loading_widget.dart';
 
 class TestResultScreen extends StatefulWidget {
   final String id;
@@ -17,14 +19,37 @@ class TestResultScreen extends StatefulWidget {
 
 class _TestResultScreenState extends State<TestResultScreen> {
   late final ConfettiController _confetti;
+  TestResultModel? _result;
+  bool _loading = false;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
     _confetti =
         ConfettiController(duration: const Duration(seconds: 3));
-    if (widget.result != null && widget.result!.score >= 80) {
-      _confetti.play();
+    if (widget.result != null) {
+      _result = widget.result;
+      if (_result!.score >= 80) _confetti.play();
+    } else {
+      _fetchResult();
+    }
+  }
+
+  Future<void> _fetchResult() async {
+    setState(() => _loading = true);
+    try {
+      final result = await StudentApi().getAttemptResult(widget.id);
+      setState(() {
+        _result = result;
+        _loading = false;
+      });
+      if (result.score >= 80) _confetti.play();
+    } catch (e) {
+      setState(() {
+        _error = 'Natija yuklanmadi: $e';
+        _loading = false;
+      });
     }
   }
 
@@ -36,7 +61,30 @@ class _TestResultScreenState extends State<TestResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final result = widget.result;
+    if (_loading) {
+      return const Scaffold(
+          backgroundColor: kBgMain, body: LoadingOverlay());
+    }
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: kBgMain,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_error!,
+                  style: const TextStyle(color: kTextSecondary)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/student/dashboard'),
+                child: const Text('Bosh sahifaga'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final result = _result;
     if (result == null) {
       return Scaffold(
         backgroundColor: kBgMain,

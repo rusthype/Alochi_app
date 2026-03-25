@@ -4,7 +4,7 @@ import '../storage/storage.dart';
 
 const _baseUrl = String.fromEnvironment(
   'API_URL',
-  defaultValue: 'https://api.alochi.uz',
+  defaultValue: 'https://alochi.org',
 );
 
 final _logger = Logger();
@@ -17,7 +17,7 @@ class ApiClient {
 
   ApiClient._() {
     dio = Dio(BaseOptions(
-      baseUrl: '$_baseUrl/api',
+      baseUrl: '$_baseUrl/api/v1',
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
       headers: {'Content-Type': 'application/json'},
@@ -53,16 +53,17 @@ class ApiClient {
 
   Future<bool> _refreshToken() async {
     try {
-      final refresh = await AppStorage.getRefreshToken();
-      if (refresh == null) return false;
+      final oldRefresh = await AppStorage.getRefreshToken();
+      if (oldRefresh == null) return false;
       final response = await Dio().post(
-        '$_baseUrl/auth/refresh/',
-        data: {'refresh': refresh},
+        '$_baseUrl/api/v1/auth/token/refresh/',
+        data: {'refresh': oldRefresh},
       );
-      await AppStorage.saveTokens(
-        response.data['access'] as String,
-        refresh,
-      );
+      final newAccess = response.data['access'] as String?;
+      if (newAccess == null) return false;
+      final newRefresh =
+          response.data['refresh'] as String? ?? oldRefresh;
+      await AppStorage.saveTokens(newAccess, newRefresh);
       return true;
     } catch (_) {
       await AppStorage.clearAll();

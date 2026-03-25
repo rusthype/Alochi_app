@@ -16,7 +16,8 @@ class TestPlayScreen extends StatefulWidget {
 
 class _TestPlayScreenState extends State<TestPlayScreen> {
   List<QuestionModel> _questions = [];
-  final Map<String, String> _answers = {};
+  // Maps questionId -> selected option index (0-based)
+  final Map<String, int> _answers = {};
   int _current = 0;
   bool _loading = true;
   bool _submitting = false;
@@ -106,7 +107,15 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
     _timer?.cancel();
     setState(() => _submitting = true);
     try {
-      final result = await StudentApi().submitTest(widget.id, _answers);
+      final api = StudentApi();
+      // Step 1: create attempt
+      final attemptId = await api.createAttempt(widget.id);
+      // Step 2: submit each answer
+      await api.submitAnswers(attemptId, _answers);
+      // Step 3: finalize
+      await api.finalizeAttempt(attemptId);
+      // Step 4: fetch result
+      final result = await api.getAttemptResult(attemptId);
       if (mounted) {
         context.go('/student/tests/${widget.id}/result', extra: result);
       }
@@ -205,11 +214,13 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                           fontSize: 16,
                           fontWeight: FontWeight.w600)),
                   const SizedBox(height: 24),
-                  ...q.options.map((opt) {
-                    final isSelected = _answers[q.id] == opt.id;
+                  ...q.options.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final opt = entry.value;
+                    final isSelected = _answers[q.id] == idx;
                     return GestureDetector(
                       onTap: () => setState(
-                          () => _answers[q.id] = opt.id),
+                          () => _answers[q.id] = idx),
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),

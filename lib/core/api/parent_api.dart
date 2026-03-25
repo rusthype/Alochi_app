@@ -5,7 +5,7 @@ class ParentApi {
   final _client = ApiClient.instance;
 
   Future<List<Map<String, dynamic>>> getChildren() async {
-    final data = await _client.get('/parent/');
+    final data = await _client.get('/parent/children/');
     final list = (data is Map
             ? data['children'] ?? data['results'] ?? data
             : data) as List? ??

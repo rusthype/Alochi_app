@@ -36,15 +36,32 @@ class StudentApi {
   Future<Map<String, dynamic>> getTestDetail(String id) async =>
       await _client.get('/tests/$id/') as Map<String, dynamic>;
 
-  Future<TestResultModel> submitTest(String id, Map<String, String> answers) async {
-    // Step 1: create attempt
-    final attemptData = await _client.post('/tests/$id/attempt/',
+  Future<String> createAttempt(String testId) async {
+    final data = await _client.post('/tests/$testId/attempt',
         data: <String, dynamic>{}) as Map<String, dynamic>;
-    final attemptId = attemptData['id']?.toString() ?? attemptData['attempt_id']?.toString();
+    final attemptId = data['id']?.toString();
     if (attemptId == null) throw Exception('Failed to create attempt');
-    // Step 2: submit answers
-    final data = await _client.post('/attempts/$attemptId/submit/',
-        data: {'answers': answers}) as Map<String, dynamic>;
+    return attemptId;
+  }
+
+  Future<void> submitAnswers(
+      String attemptId, Map<String, int> answers) async {
+    for (final entry in answers.entries) {
+      await _client.post('/attempts/$attemptId/answers', data: {
+        'question': entry.key,
+        'selected_option': entry.value,
+      });
+    }
+  }
+
+  Future<void> finalizeAttempt(String attemptId) async {
+    await _client.post('/attempts/$attemptId/submit',
+        data: <String, dynamic>{});
+  }
+
+  Future<TestResultModel> getAttemptResult(String attemptId) async {
+    final data = await _client.get('/attempts/$attemptId/result')
+        as Map<String, dynamic>;
     return TestResultModel.fromJson(data);
   }
 

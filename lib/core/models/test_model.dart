@@ -96,14 +96,19 @@ class TestResultModel {
     return TestResultModel(
       attemptId:
           json['attempt_id']?.toString() ?? json['id']?.toString() ?? '',
-      score: (json['score'] as num?)?.toDouble() ?? 0.0,
+      score: (json['score_percent'] as num?)?.toDouble() ??
+          (json['score'] as num?)?.toDouble() ??
+          0.0,
       correct: json['correct_count'] ?? json['correct'] ?? 0,
-      wrong: json['wrong_count'] ?? json['wrong'] ?? 0,
+      wrong: json['incorrect_count'] ??
+          json['wrong_count'] ??
+          json['wrong'] ??
+          0,
       skipped: json['skipped_count'] ?? json['skipped'] ?? 0,
-      xpEarned: json['xp_earned'] ?? 0,
+      xpEarned: json['xp_earned'] ?? json['xp_reward'] ?? 0,
       coinsEarned: json['coins_earned'] ?? 0,
       answers: (json['answers'] as List? ?? [])
-          .map((a) => AnswerReviewModel.fromJson(a))
+          .map((a) => AnswerReviewModel.fromJson(a as Map<String, dynamic>))
           .toList(),
     );
   }

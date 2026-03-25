@@ -220,9 +220,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                           icon: Icons.storefront_outlined);
                     }
                     final balance =
-                        walletAsync.value?['coins'] ??
-                            walletAsync.value?['balance'] ??
-                            0;
+                        (walletAsync.value?['coins'] ??
+                                walletAsync.value?['balance'] ??
+                                0) as int;
                     return LayoutBuilder(
                         builder: (ctx, constraints) {
                       final cols =
@@ -239,9 +239,9 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         itemCount: items.length,
                         itemBuilder: (ctx, i) => _ShopItemCard(
                           item: items[i],
-                          balance: balance as int,
+                          balance: balance,
                           onPurchase: () =>
-                              _purchase(items[i], balance as int),
+                              _purchase(items[i], balance),
                         ),
                       );
                     });

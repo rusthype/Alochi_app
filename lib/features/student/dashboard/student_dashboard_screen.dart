@@ -11,7 +11,16 @@ import '../../auth/auth_provider.dart';
 
 final _dashboardProvider =
     FutureProvider<Map<String, dynamic>>((ref) async {
-  return StudentApi().getProfile();
+  final api = StudentApi();
+  final profile = await api.getProfile();
+  // Fetch coins from separate endpoint
+  try {
+    final wallet = await api.getWallet();
+    final coins = wallet['balance'] ?? wallet['coins'] ?? 0;
+    return {...profile, 'coins': coins};
+  } catch (_) {
+    return profile;
+  }
 });
 
 class StudentDashboardScreen extends ConsumerWidget {
@@ -66,7 +75,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final xp = data['xp'] ?? data['total_xp'] ?? 0;
+    final xp = data['total_xp'] ?? data['xp'] ?? 0;
     final level = data['level'] ?? 1;
     final xpToNext = data['xp_to_next_level'] ?? 1000;
     final progress = xpToNext > 0 ? ((xp % xpToNext) / xpToNext).clamp(0.0, 1.0) : 0.0;
@@ -150,7 +159,7 @@ class _StatsRow extends StatelessWidget {
         StatCard(
             icon: Icons.bolt_rounded,
             label: 'XP',
-            value: '${data['xp'] ?? data['total_xp'] ?? 0}',
+            value: '${data['total_xp'] ?? data['xp'] ?? 0}',
             color: kOrange),
         StatCard(
             icon: Icons.monetization_on_rounded,
@@ -165,7 +174,8 @@ class _StatsRow extends StatelessWidget {
         StatCard(
             icon: Icons.local_fire_department_rounded,
             label: 'Seriya',
-            value: '${data['streak'] ?? data['day_streak'] ?? 0} kun',
+            value:
+                '${data['consecutive_days_active'] ?? data['streak'] ?? data['day_streak'] ?? 0} kun',
             color: kRed),
       ],
     );
