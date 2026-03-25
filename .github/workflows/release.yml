@@ -6,7 +6,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  API_URL: https://api.alochi.uz
+  API_URL: https://alochi.org
 
 permissions:
   contents: write
@@ -59,7 +59,7 @@ jobs:
           flutter build ios \
             --release \
             --no-codesign \
-            --dart-define=API_URL=https://api.alochi.uz
+            --dart-define=API_URL=https://alochi.org
         continue-on-error: false
 
       - name: Zip iOS build
