@@ -155,9 +155,9 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                                   transform: Matrix4.identity()
                                     ..rotateY(3.14159),
                                   child: _CardFace(
-                                    color: kOrange.withOpacity(0.1),
+                                    color: kOrange.withValues(alpha: 0.1),
                                     borderColor:
-                                        kOrange.withOpacity(0.4),
+                                        kOrange.withValues(alpha: 0.4),
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -278,7 +278,7 @@ class _CardFace extends StatelessWidget {
             color: borderColor ?? kBgBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

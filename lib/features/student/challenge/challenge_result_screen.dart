@@ -79,7 +79,7 @@ class _ChallengeResultScreenState
                           height: 120,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: color.withOpacity(0.15),
+                            color: color.withValues(alpha: 0.15),
                             border: Border.all(color: color, width: 4),
                           ),
                           child: Center(
@@ -135,10 +135,10 @@ class _ChallengeResultScreenState
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: kOrange.withOpacity(0.1),
+                        color: kOrange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                            color: kOrange.withOpacity(0.3)),
+                            color: kOrange.withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         children: [
@@ -216,7 +216,7 @@ class _Stat extends StatelessWidget {
         decoration: BoxDecoration(
           color: kBgCard,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [

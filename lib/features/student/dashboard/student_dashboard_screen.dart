@@ -104,9 +104,9 @@ class _Header extends StatelessWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: kOrange.withOpacity(0.15),
+                color: kOrange.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kOrange.withOpacity(0.3)),
+                border: Border.all(color: kOrange.withValues(alpha: 0.3)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -388,18 +388,18 @@ class _DailyChallengeCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
-            kOrange.withOpacity(0.3),
-            kPurple.withOpacity(0.3)
+            kOrange.withValues(alpha: 0.3),
+            kPurple.withValues(alpha: 0.3)
           ]),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: kOrange.withOpacity(0.4)),
+          border: Border.all(color: kOrange.withValues(alpha: 0.4)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: kOrange.withOpacity(0.2),
+                color: kOrange.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.bolt_rounded, color: kOrange, size: 28),

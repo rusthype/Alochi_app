@@ -111,7 +111,7 @@ class _TopicCard extends StatelessWidget {
                       '/student/vocabulary/${topic.id}/flashcard'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: kBlue,
-                    side: BorderSide(color: kBlue.withOpacity(0.5)),
+                    side: BorderSide(color: kBlue.withValues(alpha: 0.5)),
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     textStyle: const TextStyle(fontSize: 11),
                   ),

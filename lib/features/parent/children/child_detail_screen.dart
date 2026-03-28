@@ -267,7 +267,7 @@ class _ChildDetail extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.15),
+                        color: color.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text('$score%',
@@ -306,7 +306,7 @@ class _ChildDetail extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                         color: unlocked
-                            ? kOrange.withOpacity(0.4)
+                            ? kOrange.withValues(alpha: 0.4)
                             : kBgBorder),
                   ),
                   child: Row(

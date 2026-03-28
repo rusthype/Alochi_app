@@ -137,12 +137,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [
-                        kYellow.withOpacity(0.2),
-                        kOrange.withOpacity(0.2)
+                        kYellow.withValues(alpha: 0.2),
+                        kOrange.withValues(alpha: 0.2)
                       ]),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: kYellow.withOpacity(0.3)),
+                          color: kYellow.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [

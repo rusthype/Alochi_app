@@ -100,12 +100,12 @@ class _Node extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: nodeColor.withOpacity(
-                        isLocked ? 0.1 : 0.2),
+                    color: nodeColor.withValues(
+                        alpha: isLocked ? 0.1 : 0.2),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: nodeColor.withOpacity(
-                          isLocked ? 0.3 : 1),
+                      color: nodeColor.withValues(
+                          alpha: isLocked ? 0.3 : 1),
                       width: isCurrent ? 3 : 1,
                     ),
                   ),
@@ -154,7 +154,7 @@ class _Node extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isCurrent
-                        ? kOrange.withOpacity(0.5)
+                        ? kOrange.withValues(alpha: 0.5)
                         : kBgBorder,
                   ),
                 ),

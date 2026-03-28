@@ -237,10 +237,10 @@ class _PodiumSlot extends StatelessWidget {
           width: 60,
           height: height,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius:
                 const BorderRadius.vertical(top: Radius.circular(8)),
-            border: Border.all(color: color.withOpacity(0.4)),
+            border: Border.all(color: color.withValues(alpha: 0.4)),
           ),
           child: Center(
             child: Text('#${entry.rank}',
@@ -269,12 +269,12 @@ class _RankRow extends StatelessWidget {
           horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: isCurrentUser
-            ? kOrange.withOpacity(0.1)
+            ? kOrange.withValues(alpha: 0.1)
             : kBgCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isCurrentUser
-              ? kOrange.withOpacity(0.5)
+              ? kOrange.withValues(alpha: 0.5)
               : kBgBorder,
           width: isCurrentUser ? 2 : 1,
         ),

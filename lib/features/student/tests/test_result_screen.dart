@@ -222,8 +222,8 @@ class _TestResultScreenState extends State<TestResultScreen> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: a.isCorrect
-                                ? kGreen.withOpacity(0.3)
-                                : kRed.withOpacity(0.3),
+                                ? kGreen.withValues(alpha: 0.3)
+                                : kRed.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -334,9 +334,9 @@ class _RewardChip extends StatelessWidget {
       padding:
           const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

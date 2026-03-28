@@ -89,9 +89,9 @@ class _HeroSection extends StatelessWidget {
           padding:
               const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: kOrange.withOpacity(0.1),
+            color: kOrange.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: kOrange.withOpacity(0.3)),
+            border: Border.all(color: kOrange.withValues(alpha: 0.3)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -252,7 +252,7 @@ class _FeatureCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -320,9 +320,9 @@ class _CtaSection extends StatelessWidget {
       padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-            colors: [kOrange.withOpacity(0.2), kPurple.withOpacity(0.2)]),
+            colors: [kOrange.withValues(alpha: 0.2), kPurple.withValues(alpha: 0.2)]),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: kOrange.withOpacity(0.3)),
+        border: Border.all(color: kOrange.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [

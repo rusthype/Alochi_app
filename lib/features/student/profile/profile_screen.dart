@@ -243,7 +243,7 @@ class _AchievementCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: a.isUnlocked
-              ? kOrange.withOpacity(0.4)
+              ? kOrange.withValues(alpha: 0.4)
               : kBgBorder,
         ),
       ),

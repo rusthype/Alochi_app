@@ -103,7 +103,7 @@ class _NotificationCard extends StatelessWidget {
         color: n.isRead ? kBgCard : kBgCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: n.isRead ? kBgBorder : color.withOpacity(0.3),
+          color: n.isRead ? kBgBorder : color.withValues(alpha: 0.3),
           width: n.isRead ? 1 : 1.5,
         ),
       ),
@@ -114,7 +114,7 @@ class _NotificationCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Center(

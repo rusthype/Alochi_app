@@ -159,7 +159,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _timerColor.withOpacity(0.15),
+              color: _timerColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(_timerText,
@@ -218,7 +218,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? kOrange.withOpacity(0.15)
+                              ? kOrange.withValues(alpha: 0.15)
                               : kBgCard,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(

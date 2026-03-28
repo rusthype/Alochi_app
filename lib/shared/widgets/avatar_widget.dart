@@ -20,9 +20,9 @@ class AvatarWidget extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: c.withOpacity(0.2),
+        color: c.withValues(alpha: 0.2),
         shape: BoxShape.circle,
-        border: Border.all(color: c.withOpacity(0.5)),
+        border: Border.all(color: c.withValues(alpha: 0.5)),
       ),
       child: Center(
         child: Text(

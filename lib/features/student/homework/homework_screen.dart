@@ -201,10 +201,10 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: kRed.withOpacity(0.1),
+                  color: kRed.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                   border:
-                      Border.all(color: kRed.withOpacity(0.3)),
+                      Border.all(color: kRed.withValues(alpha: 0.3)),
                 ),
                 child: Text(_error!,
                     style: const TextStyle(color: kRed)),
@@ -237,7 +237,7 @@ class _ResultCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: kBgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +257,7 @@ class _ResultCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text('$score%',

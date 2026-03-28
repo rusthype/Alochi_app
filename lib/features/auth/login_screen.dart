@@ -53,7 +53,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: kOrange.withOpacity(0.15),
+                    color: kOrange.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.school_rounded, color: kOrange, size: 40),
@@ -83,9 +83,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           padding: const EdgeInsets.all(12),
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: kRed.withOpacity(0.1),
+                            color: kRed.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: kRed.withOpacity(0.3)),
+                            border: Border.all(color: kRed.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [

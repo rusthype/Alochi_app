@@ -57,7 +57,7 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
       'correct': isCorrect,
     });
     _bgAnim = ColorTween(
-      begin: isCorrect ? kGreen.withOpacity(0.1) : kRed.withOpacity(0.1),
+      begin: isCorrect ? kGreen.withValues(alpha: 0.1) : kRed.withValues(alpha: 0.1),
       end: Colors.transparent,
     ).animate(_feedbackCtrl);
     _feedbackCtrl.forward(from: 0).then((_) {
@@ -230,14 +230,14 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
                       if (_answered) {
                         if (i == correctIdx) {
                           borderColor = kGreen;
-                          bgColor = kGreen.withOpacity(0.15);
+                          bgColor = kGreen.withValues(alpha: 0.15);
                         } else if (i == _selected) {
                           borderColor = kRed;
-                          bgColor = kRed.withOpacity(0.15);
+                          bgColor = kRed.withValues(alpha: 0.15);
                         }
                       } else if (_selected == i) {
                         borderColor = kOrange;
-                        bgColor = kOrange.withOpacity(0.15);
+                        bgColor = kOrange.withValues(alpha: 0.15);
                       }
                       return GestureDetector(
                         onTap: () => _onSelect(
@@ -256,7 +256,7 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
                                 width: 28,
                                 height: 28,
                                 decoration: BoxDecoration(
-                                  color: borderColor.withOpacity(0.2),
+                                  color: borderColor.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Center(
@@ -341,7 +341,7 @@ class _OpponentCardState extends State<_OpponentCard> {
       decoration: BoxDecoration(
         color: kBgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kOrange.withOpacity(0.3)),
+        border: Border.all(color: kOrange.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -349,7 +349,7 @@ class _OpponentCardState extends State<_OpponentCard> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-                color: kPurple.withOpacity(0.2),
+                color: kPurple.withValues(alpha: 0.2),
                 shape: BoxShape.circle),
             child: const Center(
               child: Icon(Icons.person_rounded,

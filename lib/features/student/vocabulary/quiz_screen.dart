@@ -164,14 +164,14 @@ class _QuizScreenState extends State<QuizScreen> {
                   if (_answered) {
                     if (isCorrect) {
                       border = kGreen;
-                      bg = kGreen.withOpacity(0.15);
+                      bg = kGreen.withValues(alpha: 0.15);
                     } else if (isSelected) {
                       border = kRed;
-                      bg = kRed.withOpacity(0.15);
+                      bg = kRed.withValues(alpha: 0.15);
                     }
                   } else if (isSelected) {
                     border = kOrange;
-                    bg = kOrange.withOpacity(0.15);
+                    bg = kOrange.withValues(alpha: 0.15);
                   }
                   return GestureDetector(
                     onTap: () => _select(opt, word),

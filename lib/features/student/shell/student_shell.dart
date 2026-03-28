@@ -275,7 +275,7 @@ class _DesktopSidebar extends StatelessWidget {
                     child: ListTile(
                       selected: isSelected,
                       selectedTileColor:
-                          kOrange.withOpacity(0.1),
+                          kOrange.withValues(alpha: 0.1),
                       selectedColor: kOrange,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
