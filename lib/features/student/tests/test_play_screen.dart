@@ -107,15 +107,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
     _timer?.cancel();
     setState(() => _submitting = true);
     try {
-      final api = StudentApi();
-      // Step 1: create attempt
-      final attemptId = await api.createAttempt(widget.id);
-      // Step 2: submit each answer
-      await api.submitAnswers(attemptId, _answers);
-      // Step 3: finalize
-      await api.finalizeAttempt(attemptId);
-      // Step 4: fetch result
-      final result = await api.getAttemptResult(attemptId);
+      final result = await StudentApi().submitTest(widget.id, _answers);
       if (mounted) {
         context.go('/student/tests/${widget.id}/result', extra: result);
       }
