@@ -93,9 +93,9 @@ class _HeroSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: kOrange.withValues(alpha: 0.3)),
           ),
-          child: Row(
+          child: const Row(
             mainAxisSize: MainAxisSize.min,
-            children: const [
+            children: [
               Icon(Icons.bolt_rounded, color: kOrange, size: 16),
               SizedBox(width: 4),
               Text("O'zbek ta'lim platformasi",

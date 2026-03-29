@@ -23,7 +23,7 @@ class StudentShell extends ConsumerWidget {
     if (loc.startsWith('/student/dashboard')) return 0;
     if (loc.startsWith('/student/tests')) return 1;
     if (loc.startsWith('/student/leaderboard') ||
-        loc.startsWith('/leaderboard')) return 2;
+        loc.startsWith('/leaderboard')) { return 2; }
     if (loc.startsWith('/student/profile')) return 3;
     return 0;
   }
