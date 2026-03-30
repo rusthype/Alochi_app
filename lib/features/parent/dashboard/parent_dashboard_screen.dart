@@ -83,23 +83,35 @@ class ParentDashboardScreen extends ConsumerWidget {
               ),
             );
           }
-          return ListView(
+          return ListView.builder(
             padding: const EdgeInsets.all(16),
-            children: [
-              const Text('Farzandlarim',
-                  style: TextStyle(
-                      color: kTextPrimary,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700)),
-              const SizedBox(height: 16),
-              ...children.map((child) => _ChildCard(
-                    child: child,
-                    onTap: () => context
-                        .go('/parent/children/${child['id']}'),
-                  )),
-              const SizedBox(height: 24),
-              _SummarySection(children: children),
-            ],
+            // header + children + spacing + summary footer
+            itemCount: 2 + children.length + 1,
+            itemBuilder: (ctx, i) {
+              if (i == 0) {
+                return const Padding(
+                  padding: EdgeInsets.only(bottom: 16),
+                  child: Text('Farzandlarim',
+                      style: TextStyle(
+                          color: kTextPrimary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700)),
+                );
+              }
+              if (i <= children.length) {
+                final child = children[i - 1];
+                return _ChildCard(
+                  child: child,
+                  onTap: () =>
+                      context.go('/parent/children/${child['id']}'),
+                );
+              }
+              // Footer: spacing + summary
+              return Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: _SummarySection(children: children),
+              );
+            },
           );
         },
       ),

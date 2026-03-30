@@ -81,27 +81,54 @@ class LeaderboardScreen extends ConsumerWidget {
                 final isInTop = currentEntry != null &&
                     currentEntry.rank <= 10;
 
-                return ListView(
+                // Build flat item list for ListView.builder
+                final hasPodium = top3.length >= 2;
+                final stickyEntry =
+                    (currentEntry != null && !isInTop) ? currentEntry : null;
+                // Indices: 0 = podium (if present), 1..N = rest rows,
+                // then optional divider + sticky current user + trailing space
+                final int podiumCount = hasPodium ? 1 : 0;
+                final int stickyCount = stickyEntry != null ? 3 : 0; // divider + row + space
+                final itemCount =
+                    podiumCount + 1 + rest.length + stickyCount;
+
+                return ListView.builder(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16),
-                  children: [
-                    if (top3.length >= 2) _Podium(entries: top3),
-                    const SizedBox(height: 16),
-                    ...rest.map((e) => _RankRow(
-                          entry: e,
-                          isCurrentUser: e.isCurrentUser ||
-                              (currentUserId != null &&
-                                  e.userId == currentUserId),
-                        )),
-                    if (currentEntry != null && !isInTop) ...[
-                      const SizedBox(height: 8),
-                      const Divider(color: kBgBorder),
-                      _RankRow(
-                          entry: currentEntry,
-                          isCurrentUser: true),
-                    ],
-                    const SizedBox(height: 16),
-                  ],
+                  itemCount: itemCount,
+                  itemBuilder: (ctx, i) {
+                    if (hasPodium && i == 0) {
+                      return _Podium(entries: top3);
+                    }
+                    final afterPodium = i - podiumCount;
+                    if (afterPodium == 0) {
+                      return const SizedBox(height: 16);
+                    }
+                    final restIdx = afterPodium - 1;
+                    if (restIdx < rest.length) {
+                      final e = rest[restIdx];
+                      return _RankRow(
+                        entry: e,
+                        isCurrentUser: e.isCurrentUser ||
+                            (currentUserId != null &&
+                                e.userId == currentUserId),
+                      );
+                    }
+                    if (stickyEntry != null) {
+                      final stickyOffset = afterPodium - 1 - rest.length;
+                      if (stickyOffset == 0) {
+                        return const SizedBox(height: 8);
+                      }
+                      if (stickyOffset == 1) {
+                        return const Divider(color: kBgBorder);
+                      }
+                      if (stickyOffset == 2) {
+                        return _RankRow(
+                            entry: stickyEntry, isCurrentUser: true);
+                      }
+                    }
+                    return const SizedBox(height: 16);
+                  },
                 );
               },
             ),

@@ -4,7 +4,7 @@ import '../storage/storage.dart';
 
 const _baseUrl = String.fromEnvironment(
   'API_URL',
-  defaultValue: 'https://alochi.org',
+  defaultValue: 'https://api.alochi.org',
 );
 
 final _logger = Logger();
@@ -72,17 +72,43 @@ class ApiClient {
   }
 
   Future<dynamic> get(String path, {Map<String, dynamic>? params}) async {
-    final response = await dio.get(path, queryParameters: params);
-    return response.data;
+    try {
+      final response = await dio.get(path, queryParameters: params);
+      return response.data;
+    } on DioException catch (e) {
+      throw _mapError(e);
+    }
   }
 
   Future<dynamic> post(String path, {dynamic data}) async {
-    final response = await dio.post(path, data: data);
-    return response.data;
+    try {
+      final response = await dio.post(path, data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw _mapError(e);
+    }
   }
 
   Future<dynamic> patch(String path, {dynamic data}) async {
-    final response = await dio.patch(path, data: data);
-    return response.data;
+    try {
+      final response = await dio.patch(path, data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw _mapError(e);
+    }
+  }
+
+  Exception _mapError(DioException e) {
+    final status = e.response?.statusCode;
+    if (status == 401) return Exception('Avtorizatsiya xatosi');
+    if (status == 403) return Exception('Ruxsat yo\'q');
+    if (status == 404) return Exception('Ma\'lumot topilmadi');
+    if (status == 429) return Exception('Juda ko\'p so\'rov. Biroz kuting.');
+    if (e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout) {
+      return Exception('Internet aloqasi yo\'q');
+    }
+    _logger.e('API Error ${status ?? 'unknown'}: ${e.message}');
+    return Exception('Server xatosi');
   }
 }
