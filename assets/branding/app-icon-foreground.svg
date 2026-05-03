@@ -1,0 +1,29 @@
+<svg width="432" height="432" viewBox="0 0 432 432" xmlns="http://www.w3.org/2000/svg">
+  <!-- Android Adaptive Icon · Foreground layer · 432×432
+       Safe zone is center 264×264 (system masks corners differently per launcher)
+       Background is set via res/values/ic_launcher_background.xml = #1F6F65 -->
+
+  <g transform="translate(56, 56) scale(0.625)" fill="#FFFFFF">
+    <path d="M 256 388 C 230 392, 200 398, 170 412 C 140 426, 115 444, 100 460 L 110 462 C 130 446, 158 430, 188 420 C 218 410, 240 405, 256 405 Z" opacity="0.85"/>
+    <path d="M 256 388 C 282 392, 312 398, 342 412 C 372 426, 397 444, 412 460 L 402 462 C 382 446, 354 430, 324 420 C 294 410, 272 405, 256 405 Z" opacity="0.85"/>
+    <path d="M 256 392 C 248 410, 240 432, 232 458 C 226 478, 222 488, 220 492 L 230 492 C 234 480, 240 462, 246 442 C 252 422, 256 408, 256 400 Z" opacity="0.7"/>
+    <path d="M 256 392 C 264 410, 272 432, 280 458 C 286 478, 290 488, 292 492 L 282 492 C 278 480, 272 462, 266 442 C 260 422, 256 408, 256 400 Z" opacity="0.7"/>
+    <rect x="244" y="220" width="24" height="180" rx="4"/>
+    <path d="M 256 230 C 250 200, 235 175, 215 158 C 195 142, 175 134, 160 132 L 162 142 C 178 144, 196 152, 213 168 C 230 184, 244 208, 256 240 Z"/>
+    <path d="M 256 230 C 262 200, 277 175, 297 158 C 317 142, 337 134, 352 132 L 350 142 C 334 144, 316 152, 299 168 C 282 184, 268 208, 256 240 Z"/>
+    <path d="M 220 200 C 200 188, 178 184, 158 188 L 162 198 C 178 196, 196 200, 215 210 Z" opacity="0.85"/>
+    <path d="M 292 200 C 312 188, 334 184, 354 188 L 350 198 C 334 196, 316 200, 297 210 Z" opacity="0.85"/>
+    <ellipse cx="256" cy="115" rx="28" ry="34"/>
+    <ellipse cx="195" cy="125" rx="22" ry="28" transform="rotate(-25 195 125)"/>
+    <ellipse cx="155" cy="155" rx="20" ry="26" transform="rotate(-40 155 155)"/>
+    <ellipse cx="135" cy="195" rx="18" ry="24" transform="rotate(-55 135 195)"/>
+    <ellipse cx="220" cy="90" rx="20" ry="26" transform="rotate(-15 220 90)"/>
+    <ellipse cx="317" cy="125" rx="22" ry="28" transform="rotate(25 317 125)"/>
+    <ellipse cx="357" cy="155" rx="20" ry="26" transform="rotate(40 357 155)"/>
+    <ellipse cx="377" cy="195" rx="18" ry="24" transform="rotate(55 377 195)"/>
+    <ellipse cx="292" cy="90" rx="20" ry="26" transform="rotate(15 292 90)"/>
+    <ellipse cx="170" cy="105" rx="16" ry="22" transform="rotate(-30 170 105)"/>
+    <ellipse cx="342" cy="105" rx="16" ry="22" transform="rotate(30 342 105)"/>
+    <ellipse cx="256" cy="170" rx="22" ry="26" opacity="0.85"/>
+  </g>
+</svg>
