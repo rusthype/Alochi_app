@@ -2,7 +2,7 @@
 
 **Version:** 1.0
 **Date:** 2026-05-03
-**Owner:** Max (rusthype)
+**Owner:** Maxammadjon Rustamov (rusthype)
 **Target release:** v1.1.0 (7 kun)
 **Repo:** `rusthype/Alochi_app` (Flutter, branch: `v1.1-mobile-redesign`)
 **Backend:** `rusthype/alochi` (Django, **NO new endpoints** — only use existing)
@@ -50,7 +50,7 @@
 | Tab | Index | Screens (top-level) | Web sahifalardan kelib chiqdi |
 |---|---|---|---|
 | **Bosh** | 0 | Dashboard | `/teacher/`, `/teacher/dashboard` |
-| **Guruhlar** | 1 | Guruhlar list → Guruh detail (4 tabs: O'quvchilar / Davomat / Baholar / Tahlil) | `/teacher/classes`, `/teacher/students`, `/teacher/attendance` |
+| **Sinflar** | 1 | Sinflar list → Sinf detail (4 tabs: O'quvchilar / Davomat / Baholar / Tahlil) | `/teacher/classes`, `/teacher/students`, `/teacher/attendance` |
 | **Vazifalar** | 2 | Vazifalar list → Vazifa detail / Yangi vazifa | `/teacher/homework`, `/teacher/tests` |
 | **Xabarlar** | 3 | Xabarlar list → Chat thread | `/teacher/messages`, `/teacher/notifications` |
 | **Profil** | 4 | Profil → Edit / Parol / Telegram / Bildirishnomalar | `/teacher/profile`, `/teacher/settings` |
@@ -65,39 +65,33 @@
 
 ```
 SplashRoute
-  ├─→ OnboardingRoute (1 screen V1.1 — Welcome only)
-  │     └─→ AuthRoute
+  ├─→ OnboardingRoute (3 screens, faqat birinchi marta)
+  │     └─→ TelegramSetupOnboard → AuthRoute
   └─→ AuthRoute → LoginScreen → AppShell (5 tabs)
                                   ├─ tab 0: Dashboard
-                                  │     ├─ /lesson/:lessonId  (Dars boshqaruvi #27 — unified workflow)
-                                  │     │     └─ inline steps: Davomat → Vazifa review → Baho → Yangi vazifa
-                                  │     ├─ /todos  (concerns expanded)
-                                  │     └─ /notifications
-                                  ├─ tab 1: GroupsList (Sinflar → Guruhlar)
-                                  │     └─ /groups/:id
-                                  │           ├─ tab: students → /groups/:id/students/:studentId (Bola profili)
-                                  │           ├─ tab: attendance (history)
+                                  │     ├─ /attendance/take?classId=X
+                                  │     ├─ /grades/enter?classId=X
+                                  │     ├─ /homework/create?classId=X
+                                  │     └─ /ai
+                                  ├─ tab 1: ClassesList
+                                  │     └─ /classes/:id
+                                  │           ├─ tab: students → /classes/:id/students/:studentId (Bola profili)
+                                  │           ├─ tab: attendance → /classes/:id/attendance (history)
                                   │           ├─ tab: grades
-                                  │           └─ tab: analytics  (V1.2)
+                                  │           └─ tab: analytics
                                   ├─ tab 2: HomeworkList
                                   │     ├─ /homework/:id (detail)
                                   │     ├─ /homework/new
                                   │     └─ /tests/...
                                   ├─ tab 3: MessagesList
                                   │     ├─ /chat/:conversationId
-                                  │     ├─ /messages/compose?recipientId=X  (V1.2)
+                                  │     ├─ /messages/compose?recipientId=X
                                   │     └─ /messages/group/:classId
                                   └─ tab 4: Profile
                                         ├─ /profile/edit
                                         ├─ /profile/password
-                                        ├─ /profile/telegram  (#26 — parents invite, NOT teacher link)
+                                        ├─ /profile/telegram
                                         └─ /profile/notifications
-
-Standalone routes (deeplink-only, V1.1 minimum):
-  ├─ /attendance/take?classId=X       (out-of-lesson context)
-  ├─ /grades/enter?classId=X&topicId  (out-of-lesson context)
-  ├─ /homework/create?classId=X        (out-of-lesson context)
-  └─ /ai                                (any time)
 ```
 
 ### 1.4 Folder structure (Flutter)
@@ -144,7 +138,7 @@ lib/
 ├── shared/
 │   ├── widgets/
 │   │   ├── alochi_button.dart            # Primary, secondary, dashed, danger
-│   │   ├── alochi_pill.dart              # Color variants (teal, amber, green, red)
+│   │   ├── alochi_pill.dart              # Color variants (orange, amber, green, red)
 │   │   ├── alochi_avatar.dart            # Circle with initials
 │   │   ├── alochi_input.dart             # Filled, with label
 │   │   ├── alochi_card.dart
@@ -182,23 +176,12 @@ lib/
 
 ```dart
 class AppColors {
-  // Brand — Teal (o'qituvchi ilovasi primary)
-  static const brand = Color(0xFF1F6F65);        // teal-600 — primary CTA, active states
-  static const brand500 = Color(0xFF2D8A7E);     // teal-500 — hover, lighter accents
-  static const brand700 = Color(0xFF155E59);     // teal-700 — pressed state
-  static const brandLight = Color(0xFFD5E8E1);   // teal-100 — soft accents
-  static const brandSoft = Color(0xFFE8F2EF);    // teal-50 — pill backgrounds
-  static const brandTint = Color(0xFFBCD9D1);    // teal-200 — disabled CTA, borders
-  static const brandInk = Color(0xFF0F4F49);     // teal-800 — text on light brand bg
-  static const brandDarkInk = Color(0xFF0A3A35); // teal-900 — darker text
-  static const brandOnDark = Color(0xFFA8D5CD);  // teal-300 — text on dark brand bg
-  static const brandMuted = Color(0xFF5A8B87);   // tagline color, secondary
-  
-  // Accent — Warm Coral (logodagi orange barglardan extracted)
-  // STRICT USAGE: faqat 4 ta o'rinda — AI features, Pride card, achievements, milestones
-  static const accent = Color(0xFFE8954E);       // AI welcome, Pride card
-  static const accentSoft = Color(0xFFFCEFE3);   // AI bg, Pride bg
-  static const accentInk = Color(0xFF7A4218);    // Text on accent bg
+  // Brand
+  static const brand = Color(0xFFF97316);        // Primary CTA, active
+  static const brand700 = Color(0xFFEA580C);     // Pressed state
+  static const brandLight = Color(0xFFFFEDD5);   // Soft accents
+  static const brandSoft = Color(0xFFFFF3E9);    // Pill backgrounds
+  static const brandTint = Color(0xFFFFD7B5);    // Disabled CTA
   
   // Ink (text)
   static const ink = Color(0xFF111827);          // Primary text, hero CTAs
@@ -212,10 +195,10 @@ class AppColors {
   static const surface = Color(0xFFFAFAFA);
   static const white = Color(0xFFFFFFFF);
   
-  // Hero dark (active lesson card, lesson workflow header)
-  static const heroDark = Color(0xFF0E2E2A);     // dark teal-tinted (brand-harmonized)
+  // Hero dark (Dashboard "Bugungi davomat" karta)
+  static const heroDark = Color(0xFF18181B);
   
-  // Semantic (status colors — strict separation from brand to avoid conflicts)
+  // Semantic
   static const success = Color(0xFF0F9A6E);      // Keldi, Topshirildi, Tushundi
   static const successSoft = Color(0xFFE1F5EE);
   static const successInk = Color(0xFF0F6E56);
@@ -226,13 +209,13 @@ class AppColors {
   static const dangerSoft = Color(0xFFFCEBEB);
   static const dangerInk = Color(0xFF791F1F);
   static const info = Color(0xFF0EA5E9);
-  static const telegram = Color(0xFF26A5E4);     // Telegram brand (external)
+  static const telegram = Color(0xFF26A5E4);     // Telegram brand
   
   // Grade colors (2 → 5)
-  static const grade2 = Color(0xFFDC2626);       // Red — fail
-  static const grade3 = Color(0xFFD97706);       // Amber — pass
-  static const grade4 = Color(0xFF1F6F65);       // Teal — good (brand)
-  static const grade5 = Color(0xFF0F9A6E);       // Green — excellent
+  static const grade2 = Color(0xFFDC2626);       // Red
+  static const grade3 = Color(0xFFD97706);       // Amber
+  static const grade4 = Color(0xFFF97316);       // Orange (brand)
+  static const grade5 = Color(0xFF0F9A6E);       // Green
 }
 ```
 
@@ -315,10 +298,10 @@ class AppRadius {
 | Widget | Path | Used in screens |
 |---|---|---|
 | `AlochiButton` | `shared/widgets/alochi_button.dart` | Hamma joyda |
-| `AlochiPill` | `shared/widgets/alochi_pill.dart` | Guruh badges, status pillalar |
+| `AlochiPill` | `shared/widgets/alochi_pill.dart` | Sinf badges, status pillalar |
 | `AlochiAvatar` | `shared/widgets/alochi_avatar.dart` | Hamma user list |
 | `AlochiInput` | `shared/widgets/alochi_input.dart` | Login, Profil edit, Compose |
-| `AlochiCard` | `shared/widgets/alochi_card.dart` | Guruh list, Vazifa list, etc. |
+| `AlochiCard` | `shared/widgets/alochi_card.dart` | Sinf list, Vazifa list, etc. |
 | `AlochiStatusDot` | `shared/widgets/alochi_status_dot.dart` | Online indicators |
 | `AlochiProgressBar` | `shared/widgets/alochi_progress_bar.dart` | Davomat bars, vazifa bajarish |
 | `AlochiGradeBadge` | `shared/widgets/alochi_grade_badge.dart` | Student list (oxirgi baho) |
@@ -339,11 +322,10 @@ class AlochiTheme {
     colorScheme: ColorScheme.light(
       primary: AppColors.brand,
       onPrimary: AppColors.white,
-      primaryContainer: AppColors.brandSoft,
-      onPrimaryContainer: AppColors.brandInk,
       surface: AppColors.surface,
       onSurface: AppColors.ink,
       error: AppColors.danger,
+      // ... shadingni AppColors'dan olish
     ),
     scaffoldBackgroundColor: AppColors.surface,
     fontFamily: 'Inter',
@@ -354,15 +336,6 @@ class AlochiTheme {
   
   static ThemeData get dark => ...; // V1.2 — hozircha skip
 }
-```
-
-**Ishlatish:**
-```dart
-// Hamma joyda:
-Container(color: AppColors.brand)
-
-// Yoki Theme'dan:
-Container(color: Theme.of(context).colorScheme.primary)
 ```
 
 ---
@@ -488,8 +461,8 @@ Backend'da quyidagi model'lar bor (`rusthype/alochi`):
 | `Teacher` | accounts | Profile, subjects, classes |
 | `Student` | students | Class roster, profiles |
 | `Parent` | parents | Chat recipients, contact |
-| `SchoolClass` | classes | Guruh list, detail |
-| `Subject` | subjects | Guruh header, profile fanlar |
+| `SchoolClass` | classes | Sinf list, detail |
+| `Subject` | subjects | Sinf header, profile fanlar |
 | `Lesson` | lessons | Schedule (Bugun/Erta) |
 | `Attendance` | attendance | Davomat belgilash, history |
 | `Grade` | grades | Baholar entry, history |
@@ -580,14 +553,13 @@ JWT in `Authorization: Bearer <token>` header.
 
 | Screen | Endpoint(s) | Method | Notes |
 |---|---|---|---|
-| **Dashboard** | `/teacher/dashboard/summary/` | GET | Returns today_lessons[], pending_todos[], unread_notifications. Cache 5min. |
-| **Dars boshqaruvi** | `/teacher/lessons/{id}/` | GET | Lesson + class + today_attendance_status + yesterday_homework + activity_grading_state |
-| **Guruhlar list** | `/teacher/classes/` | GET | Cache 1h. |
-| **Guruh detail** | `/teacher/classes/{id}/` | GET | Cache 30min. |
-| **Guruh detail tab: o'quvchilar** | `/teacher/classes/{id}/students/` | GET | |
-| **Guruh detail tab: davomat** | `/teacher/classes/{id}/attendance/?period=month` | GET | |
-| **Guruh detail tab: baholar** | `/teacher/classes/{id}/grades/` | GET | |
-| **Guruh detail tab: tahlil** | `/teacher/classes/{id}/analytics/` | GET | V1.1 da basic |
+| **Dashboard** | `/teacher/dashboard/summary/` | GET | One call, returns summary + pendingTodos. Cache 5min. |
+| **Sinflar list** | `/teacher/classes/` | GET | Cache 1h. |
+| **Sinf detail** | `/teacher/classes/{id}/` | GET | Cache 30min. |
+| **Sinf detail tab: o'quvchilar** | `/teacher/classes/{id}/students/` | GET | |
+| **Sinf detail tab: davomat** | `/teacher/classes/{id}/attendance/?period=month` | GET | |
+| **Sinf detail tab: baholar** | `/teacher/classes/{id}/grades/` | GET | |
+| **Sinf detail tab: tahlil** | `/teacher/classes/{id}/analytics/` | GET | V1.1 da basic |
 | **Bola profili** | `/teacher/students/{id}/` | GET | Includes parent contacts, last 14 days att, recent grades |
 | **Bola profili → Ustoz izohlari** | `/teacher/students/{id}/notes/` | GET, POST | Private to teacher |
 | **Davomat belgilash** | `/teacher/attendance/mark/` | POST | Body: `{class_id, date, statuses: {studentId: 'present'/'late'/'absent'}}` |
@@ -615,9 +587,9 @@ JWT in `Authorization: Bearer <token>` header.
 | **Profil** | `/teacher/profile/` | GET | Used everywhere via cached provider |
 | **Profil edit** | `/teacher/profile/` | PATCH | |
 | **Avatar upload** | `/teacher/profile/avatar/` | POST (multipart) | |
-| **Telegram groups status** | `/teacher/telegram/groups-status/` | GET | Per-group linked/total parents + invite_url + invite_code |
-| **Telegram unlinked parents** | `/teacher/telegram/groups/{groupId}/unlinked-parents/` | GET | List of parents not yet subscribed |
-| **SMS reminder to parent** | `/teacher/notifications/sms/` | POST | `{parent_id, message}` (existing — used for unlinked parent SMS invites) |
+| **Telegram bog'lash kod** | `/teacher/telegram/start-link/` | POST | Returns code, expires 5min |
+| **Telegram bog'lash status** | `/teacher/telegram/link-status/` | GET | Poll every 3s yoki WebSocket |
+| **Telegram unlink** | `/teacher/telegram/unlink/` | DELETE | |
 
 ### 5.4 Pagination
 
@@ -652,55 +624,6 @@ Mobile'da `AppException` ga aylanadi va UI'da snackbar/banner orqali ko'rsatilad
 - Hamma boshqasi: 60 req/min/user
 
 Mobile dio interceptor 429'ni 1s/3s/9s back-off bilan qayta urinadi.
-
-### 5.7 Telegram architecture (no teacher account linking)
-
-**Asosiy printsip:** Ustozning shaxsiy Telegram akkaunti ulanmaydi. Bot maktab tomonida joylashgan, ota-onalar bot'ga obuna bo'lishadi.
-
-```
-Maktab admin (bir marta):
-  └─→ @alochi_uz_bot — backend Django'ga webhook orqali ulangan
-
-Ustoz:
-  └─→ App'ga login qiladi (Telegram talab emas)
-        └─→ App'da xabar yozadi
-              └─→ Backend bot orqali yuboradi
-                    └─→ Ota-ona Telegram'da oladi (obunachi bo'lgan)
-
-Ota-ona:
-  └─→ Ustozdan QR yoki invite link oladi (har guruh uchun alohida)
-        └─→ Telegram'da QR skan / link ochish
-              └─→ Bot'ga `/start group_5A` deep link bilan kirish
-                    └─→ Backend: TelegramLink yaratadi (parent_id, group_id)
-                          └─→ Endi ota-ona shu guruh xabarlarini oladi
-
-Javob:
-  └─→ Ota-ona bot'ga Telegram'da javob yozadi
-        └─→ Bot webhook → backend → tegishli ustozning Conversation'iga
-              └─→ Ustoz app'da chat thread'da ko'radi
-                    └─→ App'da javob yozadi → bot ota-onaga yuboradi
-```
-
-**Backend allaqachon shu pattern uchun tayyorlangan:**
-- `TelegramLink` model: parent_id + chat_id + group_subscriptions
-- Bot webhook: `/api/v1/telegram/webhook/` (existing, no changes)
-- Outbound message dispatcher: existing `send_to_parents(group_id, message)` service
-- Inbound message router: existing parent → conversation routing
-
-**Mobile responsibilities:**
-- Display per-group invite QR + link (read from `groups-status` endpoint)
-- Show subscription stats (28/30 ulangan)
-- List unlinked parents → "SMS yubor" (uses existing SMS service to text invite)
-- **No teacher-side Telegram auth UI**
-
-**Per-message flow (teacher writes in app):**
-1. Teacher composes in app (chat thread, homework create with poll, mass announce)
-2. Frontend sends to existing endpoint (e.g. `/teacher/conversations/{id}/messages/`)
-3. Backend persists + queues bot dispatch via Celery task
-4. Bot sends to subscribed parents in target group
-5. Delivery status (sent/read) reflected via WS to teacher's app
-
-**No new mobile endpoints for Telegram** — leverages existing chat/homework/notification infrastructure. Only NEW UI is the parent-invitation screen (#26).
 
 ---
 
@@ -778,7 +701,7 @@ enum AiTemplate {
   homework(label: 'Uy vazifasi', icon: 'U', color: Color(0xFF7C3AED),
            prompt: 'Quyidagi mavzu uchun uy vazifa misollarini tayyorla: '),
   simplify(label: 'Soddalashtirish', icon: 'S', color: warning,
-           prompt: 'Quyidagi mavzuni 5-guruh bolasi tushunadigan tilda yoz: '),
+           prompt: 'Quyidagi mavzuni 5-sinf bolasi tushunadigan tilda yoz: '),
   rubric(label: 'Baholash mezonlari', icon: 'B', color: Color(0xFFDB2777),
          prompt: 'Quyidagi vazifa uchun adolatli baholash mezonlarini ber: ');
 }
@@ -882,8 +805,8 @@ Scaffold (background: white)
         ├── _SkipBar (top right "O'tkazib yuborish")
         ├── Expanded(child: FloatingBrandComposition())   // 6 ta floating shape + center "A"
         ├── _OnboardingText(
-        │     title: "Xush kelibsiz, Ustoz!",  // "Ustoz" teal em
-        │     subtitle: "Guruhingizni cho'ntakda olib yuring..."
+        │     title: "Xush kelibsiz, Ustoz!",  // "Ustoz" orange em
+        │     subtitle: "Sinfingizni cho'ntakda olib yuring..."
         │   )
         ├── _PageDots(current: 0, total: 3)
         └── Padding · AlochiButton.primary(
@@ -911,10 +834,10 @@ Scaffold (background: white)
 
 **Acceptance criteria:**
 - [ ] Floating shape'lar to'g'ri pozitsiyalarda (6 ta, mockup'ga mos)
-- [ ] "Ustoz" so'zi teal (#1F6F65) bilan ranglanadi
+- [ ] "Ustoz" so'zi orange (#F97316) bilan ranglanadi
 - [ ] "Davom etish" CTA ink (#111827) ga ega, bosish 200ms scale animatsiya
 - [ ] Skip → SharedPreferences yangilanadi, qaytib kelmaydi
-- [ ] Skeleton page indicator (1/3 active teal)
+- [ ] Skeleton page indicator (1/3 active orange)
 
 ---
 
@@ -975,7 +898,7 @@ Scaffold
 ```
 
 **Navigation:**
-- "Telegram'ni ulash" → `/onboarding/complete` → `/profile/telegram` (parent-invite screen #26 — yangi modelda) — V1.2'da bu onboarding ekran yangi modelga moslashtirilgan: ota-onalarga link ulashish ko'rsatkichi
+- "Telegram'ni ulash" → `/onboarding/complete` → POST `/teacher/telegram/start-link/` → `/profile/telegram` (to QR screen)
 - "Hozircha skip" → `/auth/login`
 
 **Acceptance criteria:**
@@ -998,7 +921,7 @@ Scaffold
 Scaffold (white, no AppBar)
 └── SafeArea
     └── Padding · Column
-        ├── _BrandLockup        // Teal "A" 48px + "A'lochi" 24px
+        ├── _BrandLockup        // Orange "A" 48px + "A'lochi" 24px
         ├── SizedBox(height: 60)
         ├── Text("Xush kelibsiz", style: AppText.display)
         ├── Text("O'qituvchi hisobingizga kiring...", AppText.bodyL)
@@ -1051,10 +974,9 @@ Scaffold (white, no AppBar)
 **Route:** `/dashboard` (tab 0 root)
 **Files:**
 - `features/dashboard/presentation/screens/dashboard_screen.dart`
-- `features/dashboard/presentation/widgets/today_lessons_horizontal_list.dart`
-- `features/dashboard/presentation/widgets/lesson_card.dart`
-- `features/dashboard/presentation/widgets/lesson_card_active.dart`
-- `features/dashboard/presentation/widgets/concerns_section.dart`
+- `features/dashboard/presentation/widgets/today_attendance_hero_card.dart`
+- `features/dashboard/presentation/widgets/quick_actions_grid.dart`
+- `features/dashboard/presentation/widgets/pending_todos_section.dart`
 - `features/dashboard/presentation/dashboard_provider.dart`
 
 **Widget tree:**
@@ -1062,131 +984,58 @@ Scaffold (white, no AppBar)
 Scaffold (background: surface)
 ├── body: RefreshIndicator(onRefresh: notifier.refresh, child:
 │     CustomScrollView(slivers: [
-│       SliverToBoxAdapter(
+│       SliverPadding(child: SliverToBoxAdapter(
 │         _GreetingHeader(name: "Ustoz", notifBadge: state.unreadNotifs)
-│       ),
-│       SliverToBoxAdapter(
-│         _SectionHeader("Bugungi darslarim · ${state.todayLessons.length}",
-│           trailing: TextButton("Hammasi", → /classes))
-│       ),
-│       SliverToBoxAdapter(
-│         SizedBox(height: 200,
-│           child: ListView.separated(
-│             scrollDirection: Axis.horizontal,
-│             padding: EdgeInsets.symmetric(horizontal: 16),
-│             separatorBuilder: SizedBox(width: 10),
-│             itemCount: state.todayLessons.length,
-│             itemBuilder: (i) {
-│               final lesson = state.todayLessons[i];
-│               return lesson.isActive
-│                 ? LessonCardActive(            // Black bg, teal "HOZIR" badge
-│                     lesson: lesson,
-│                     onTap: () => context.push('/lesson/${lesson.id}')
-│                   )
-│                 : LessonCard(                  // White bg, status pillalar
-│                     lesson: lesson,
-│                     onTap: () => context.push('/lesson/${lesson.id}')
-│                   );
-│             }
-│           )
+│       )),
+│       SliverPadding(child: SliverToBoxAdapter(
+│         TodayAttendanceHeroCard(   // BLACK CARD #18181B
+│           classLabel: "5-A",
+│           total: 32, present: 28, late: 3, absent: 1,
+│           onTap: () => context.push('/attendance/take?classId=...')
 │         )
-│       ),
-│       SliverToBoxAdapter(
-│         _SectionHeader("Diqqat talab",
-│           trailing: TextButton("Hammasi", → /todos))
-│       ),
-│       SliverPadding(child: SliverList(items: [
-│         ConcernRow(type: overdue,
-│                    title: "Vazifa muddati o'tdi",
-│                    subtitle: "6-A Algebra · 20 ta o'quvchi qoldi"),
-│         ConcernRow(type: messages,
-│                    title: "Yangi xabarlar",
-│                    subtitle: "Daniyor T. otasi va 2 ta boshqa",
-│                    badge: 3),
-│         ConcernRow(type: telegramMissing,
-│                    title: "2 ta ota-ona Telegram'ga ulanmagan",
-│                    subtitle: "5-A · invite link yuborish"),
-│       ]))
+│       )),
+│       SliverPadding(child: SliverToBoxAdapter(
+│         QuickActionsGrid(   // 2x2: Davomat (orange tinted) / Baholar / Vazifalar / AI
+│           actions: [...]
+│         )
+│       )),
+│       SliverPadding(child: SliverToBoxAdapter(
+│         PendingTodosSection(items: state.pendingTodos)
+│       )),
 │     ])
 │   )
 └── bottomNavigationBar: AlochiBottomNav(currentIndex: 0)
 ```
 
-**Lesson card variants:**
-
-**LessonCardActive** (currently in progress OR next within 30 min):
-- 230px wide × 168px height, bg `#18181B`, white text
-- Top row: teal "HOZIR" badge (or "KEYINGI" if not yet started) + time range
-- Class pill (teal tint on black) + subject name
-- Description line ("32 o'quvchi · {topic}")
-- Sticky teal CTA "Darsni ochish ›"
-
-**LessonCard** (other lessons today):
-- 210px wide × 168px height, white bg, line border
-- Time range gray
-- Class pill teal + subject
-- "30 o'quvchi · 2 soat keyin" gray
-- Optional CTA "Tayyorlanish" (bottom, gray) for next-up
-
-**State:** `dashboardSummaryProvider` (FutureProvider, 5min stale), `todayLessonsProvider` (derived from summary), `pendingTodosProvider` (derived).
-
-```dart
-@freezed
-class TodayLesson with _$TodayLesson {
-  const factory TodayLesson({
-    required int id,
-    required int classId,
-    required String classCode,        // "5-A"
-    required String subjectName,      // "Matematika"
-    required DateTime startsAt,
-    required DateTime endsAt,
-    required int studentCount,
-    String? topic,                    // "Kasrlar bilan amallar"
-    @Default(LessonStatus.upcoming) LessonStatus status,
-    // Computed: isActive, hoursUntilStart, isCurrentlyHappening
-  }) = _TodayLesson;
-}
-
-enum LessonStatus { upcoming, active, completed, missed }
-```
+**State:** `dashboardSummaryProvider` (FutureProvider, 5min stale), `pendingTodosProvider` (derived).
 
 **API:**
-- GET `/teacher/dashboard/summary/` → `{ today_lessons: [{id, class, subject, starts_at, ends_at, student_count, topic, status}], pending_todos: [{type, title, subtitle, link, count}], unread_notifications: 3 }`
+- GET `/teacher/dashboard/summary/` → `{ today_attendance: {class_id, total, present, late, absent}, pending_todos: [{type, message, count, link}], unread_notifications: 3 }`
 
 **States:**
-- Loading: skeleton — greeting + 3 lesson card placeholders horizontally + 2-3 concern rows
-- Error: cached data + offline banner
-- Empty (no lessons today): replaced section with `AlochiEmptyState.todayLessons` ("Bugun darsingiz yo'q · Eski guruhlarni ko'rish" CTA → /classes)
+- Loading: skeleton (greeting + black card placeholder + 4 ta tile)
+- Error: top banner "Yangilab bo'lmadi" + cached data
+- Empty (no class today): hero card o'rniga "Bugun dars yo'q" empty state
 
 **Navigation:**
-- Active lesson card → `/lesson/:id` (Dars boshqaruvi screen #27)
-- Other lesson card → `/lesson/:id` (read-only or upcoming view)
-- "Hammasi" today's lessons → `/lessons/today` (V1.2, V1.1: scroll list)
-- Concern row overdue → `/homework/:id`
-- Concern row messages → `/messages` (tab 3)
-- Concern row Telegram missing → `/profile/telegram` (#26)
+- Hero card → `/attendance/take?classId={today.classId}&date=today`
+- Quick action Davomat → same
+- Quick action Baholar → `/grades/select-class`
+- Quick action Vazifalar → `/homework` (tab 2)
+- Quick action AI → `/ai`
+- Pending todo → relevant deep link
 - Notification bell → `/notifications`
 
-**Edge cases:**
-- 0 lessons today → empty state replaces card section
-- 6+ lessons → horizontal scroll comfortable
-- Lesson currently happening → status = active (highlighted black card)
-- All lessons completed → show "Bugungi darslar tugadi · 4 dars yakunlandi" green tile
-
 **Acceptance criteria:**
-- [ ] Today's lessons horizontal scroll smooth (60fps)
-- [ ] Active lesson black card prominent, others white
-- [ ] HOZIR badge faqat lessons.starts_at ≤ now ≤ lessons.ends_at
-- [ ] KEYINGI badge agar 30 min ichida boshlanadi
-- [ ] Lesson card tap → /lesson/:id (Dars boshqaruvi)
-- [ ] Empty state agar bugun dars yo'q
-- [ ] Concern rows max 3 ta default ko'rsatiladi, "Hammasi" tugmasi qolganlarini ochadi
-- [ ] Pull-to-refresh ishlaydi (1.5s minimum)
-- [ ] Notification bell badge: 1+ unread → teal dot
+- [ ] Bugun "5-A" darsi bo'lsa hero card ko'rsatadi, bo'lmasa "Bugun dars yo'q" tile
+- [ ] Davomat tile orange-tinted (boshqalardan farq), AI tile orange icon
+- [ ] Pull-to-refresh ishlaydi (1.5s minimum spinner display)
+- [ ] Notification badge: 1+ unread → orange dot
+- [ ] Pending todos > 5 bo'lsa "Hammasi" link
 
 ---
 
-#### Screen 3 — Guruhlar list
+#### Screen 3 — Sinflar list
 
 **Route:** `/classes` (tab 1 root)
 **Files:**
@@ -1198,7 +1047,7 @@ enum LessonStatus { upcoming, active, completed, missed }
 ```
 Scaffold
 ├── body: Column
-│     ├── _Header (title "Guruhlar" + iconbtn search)
+│     ├── _Header (title "Sinflar" + iconbtn search)
 │     ├── _FilterChips ([Hammasi(N), Bugun, Boshlang'ich, ...])
 │     └── Expanded(
 │           RefreshIndicator(child:
@@ -1232,7 +1081,7 @@ Container (radius xl, white, border line)
               AlochiProgressBar(value: 0.88, color: derived from value)
             )
           ),
-          Column(right-aligned, "O'rtacha", "4.2" teal)
+          Column(right-aligned, "O'rtacha", "4.2" orange)
         )
 ```
 
@@ -1244,16 +1093,16 @@ Container (radius xl, white, border line)
 **States:**
 - Loading: 3-4 skeleton cards
 - Error: cached + offline banner
-- Empty: AlochiEmptyState illustration + "Guruh biriktirilmagan"
+- Empty: AlochiEmptyState illustration + "Sinf biriktirilmagan"
 
 **Acceptance criteria:**
-- [ ] Progress bar rang derived: ≥90% green, 75-89% teal (brand), <75% amber
+- [ ] Progress bar rang derived: ≥90% green, 75-89% orange (brand), <75% amber
 - [ ] Filter chips active = ink, inactive = outline gray
 - [ ] Tap card → `/classes/{id}` slide transition
 
 ---
 
-#### Screen 4 — Guruh Detail
+#### Screen 4 — Sinf Detail
 
 **Route:** `/classes/:id`
 **Files:**
@@ -1271,7 +1120,7 @@ Scaffold
 │     actions: [MoreIcon]
 │   )
 ├── body: Column
-│     ├── ClassStatsRow (28/32, 4.2 teal, 87% green)
+│     ├── ClassStatsRow (28/32, 4.2 orange, 87% green)
 │     ├── ClassTabs (4 ta: O'quvchilar / Davomat / Baholar / Tahlil)
 │     └── Expanded(
 │           switch (state.activeTab) {
@@ -1307,10 +1156,10 @@ onTap: → /classes/{classId}/students/{studentId}
 ```
 
 **Acceptance criteria:**
-- [ ] 4 ta tab teal underline (active 2px, animated 200ms)
+- [ ] 4 ta tab orange underline (active 2px, animated 200ms)
 - [ ] Tab loading skeleton (4 satr)
 - [ ] Student row low attendance amber (<75%), low avg amber (<3.5)
-- [ ] More menu: "Guruhdan chiqarish" (admin-only, hidden if !isOwner), "Eksport CSV"
+- [ ] More menu: "Sinfdan chiqarish" (admin-only, hidden if !isOwner), "Eksport CSV"
 
 ---
 
@@ -1331,7 +1180,7 @@ Scaffold
 ├── body: SingleChildScrollView, Column
 │     ├── StudentHeroSection (avatar 84, name, class pill, XP badge, 2 CTA)
 │     ├── _ThreeStatTiles (Davomat 64% amber, O'rtacha 3.2 amber, 14 vazifa)
-│     ├── ParentContactCard (otasi teal + onasi pink, T + phone buttons)
+│     ├── ParentContactCard (otasi orange + onasi pink, T + phone buttons)
 │     ├── AttendanceCalendar (14 days, color tiles)
 │     ├── _RecentGrades (so'nggi 5 baho)
 │     └── TeacherNotesSection (private, "Faqat siz ko'rasiz")
@@ -1347,7 +1196,7 @@ Scaffold
 - DELETE `/teacher/students/{id}/notes/{noteId}/`
 
 **Hero CTAs:**
-- "Otaga yozish" (teal) → `/messages/compose?recipientId={fatherUserId}&prefill=studentContext`
+- "Otaga yozish" (orange) → `/messages/compose?recipientId={fatherUserId}&prefill=studentContext`
 - "Eslatma yubor" (secondary) → action sheet: SMS / Telegram / Push
 
 **Calendar tile rules:**
@@ -1361,213 +1210,8 @@ Scaffold
 - [ ] Davomat <75% va O'rt. <3.5 → "Diqqat talab" amber tag
 - [ ] Otasi/onasi T tugmasi: bog'langan → telegram blue, bog'lanmagan → gray
 - [ ] Phone tugma → tel:// intent
-- [ ] "Ustoz izohi" "Faqat siz ko'rasiz" — teal "+" CTA bilan yangi qo'shish
+- [ ] "Ustoz izohi" "Faqat siz ko'rasiz" — orange "+" CTA bilan yangi qo'shish
 - [ ] Note delete: long-press → swipe-to-delete pattern
-
----
-
-#### Screen 27 — Dars boshqaruvi (unified workflow)
-
-**Route:** `/lesson/:lessonId`
-**Files:**
-- `features/lesson/presentation/screens/lesson_workflow_screen.dart`
-- `features/lesson/presentation/widgets/lesson_header.dart`
-- `features/lesson/presentation/widgets/workflow_stepper.dart`
-- `features/lesson/presentation/widgets/lesson_step_attendance.dart`
-- `features/lesson/presentation/widgets/lesson_step_homework_review.dart`
-- `features/lesson/presentation/widgets/lesson_step_grading.dart`
-- `features/lesson/presentation/widgets/lesson_step_new_homework.dart`
-- `features/lesson/presentation/lesson_workflow_provider.dart`
-
-**Concept:**
-
-Bu yangi ekran — **Dashboard'dan tap qilinadigan markaziy workflow**. Bitta darsga kirgan ustoz to'rtta qadamni ketma-ket bajaradi: davomat → kechagi vazifa tekshirish → bugungi baho/aktivlik → yangi vazifa berish.
-
-**Widget tree:**
-```
-Scaffold (background: surface)
-├── appBar: LessonHeader (
-│     leading: BackButton,
-│     title: Column (
-│       Row (AlochiPill.brand("5-A") + Text("Matematika")),
-│       Text("Bugun · 09:00 — 09:45", caption)
-│     ),
-│     trailing: _LiveStatusPill (animated green dot + "Davom etmoqda"),
-│   )
-├── body: Column
-│     ├── WorkflowStepper (
-│     │     // 4-segment progress bar with dot indicator at current
-│     │     steps: ["Davomat", "Vazifa", "Baho", "Yangi"],
-│     │     currentIndex: state.currentStep,
-│     │     completedSteps: state.completedSteps,
-│     │   )
-│     └── Expanded(
-│           SingleChildScrollView, Column (
-│             // 4 ta step card — completed (green compact), active (teal expanded), locked (gray collapsed)
-│             LessonStepCard.attendance(
-│               status: state.attendanceStatus,
-│               summary: "28 keldi · 3 kech · 1 yo'q",
-│               onEdit: () => notifier.expand(0)
-│             ),
-│             LessonStepCard.homeworkReview(
-│               status: state.homeworkStatus,
-│               topic: "Kasrlar",
-│               submitted: 18, total: 32,
-│               unsubmittedList: state.unsubmittedStudents,
-│               onRemindAll: notifier.remindAll,
-│               onComplete: notifier.completeStep
-│             ),
-│             LessonStepCard.grading(
-│               status: state.gradingStatus,        // Locked initially
-│               // Expanded: 4-grade buttons + activity rating per student
-│             ),
-│             LessonStepCard.newHomework(
-│               status: state.newHomeworkStatus,    // Locked initially
-│               // Expanded: title + desc + due date chips + Telegram poll toggle
-│             ),
-│           )
-│         )
-│   // No bottom nav — focused workflow
-```
-
-**Step card variants:**
-
-**Completed step** (green compact):
-```
-Container (white bg, radius xl, border green-light)
-└── Row (
-      _CheckTile (30 green ✓),
-      Column (Text("1. Davomat belgilandi" titleS), Text(summary, caption)),
-      TextButton("Tahrirlash", green) — re-expands
-    )
-```
-
-**Active step** (teal tinted, expanded):
-```
-Container (white bg, radius xl, border brand-light)
-├── _StepHeader (gradient teal tint, number tile + title)
-├── _StepBody (variant-specific content — see below)
-└── _StepFooter (
-      gradient teal-soft, dashed top border,
-      Row (
-        AlochiButton.secondary("Hammaga eslatma", teal-tinted) — context-specific,
-        AlochiButton.primary("Tugatish va keyingisi ›", brand)
-      )
-    )
-```
-
-**Locked step** (gray, collapsed, opacity 0.55):
-```
-Container (white bg, radius xl, border line, opacity 0.55)
-└── Row (
-      _NumberTile (30 gray F4F5F7),
-      Column (Text(label, gray), Text(hint, gray2)),
-      _LockIcon (small)
-    )
-```
-
-**Step 1 — Davomat (Attendance):**
-
-Inline reuses `AttendanceMarkingScreen` body components (LiveStatsRow, AllPresentDashedCta, StudentAttendanceRow list). State delegates to `attendanceMarkingProvider.family((classId, today))`.
-
-Key difference from standalone screen #5: integrated into stepper, "Saqlash" CTA renamed "Tugatish va keyingisi ›".
-
-**Step 2 — Vazifa tekshirish (Homework review):**
-
-```
-_StepBody:
-├── Section header "Topshirilmagan · 14" (teal right-aligned "Hammasi")
-├── ListView of unsubmitted students (first 3 visible, rest collapse)
-│     Each row: Avatar 28, Name, "● Hali yo'q [· oxirgi 2 ham]", "Eslatma" teal chip
-├── "+ 12 ta o'quvchi" expand link
-└── (V1.2: list of submitted with view-submission tap)
-```
-
-State: `homeworkReviewProvider.family(classId)` — finds yesterday's homework for this class, returns submission status. If no homework yesterday → step auto-marked done with "Kecha vazifa berilmagan" message.
-
-**Step 3 — Baho/Aktivlik (Grading):**
-
-```
-_StepBody:
-├── _RatingTabs (Topic baholar / Bugungi aktivlik)
-├── Tab Topic baholar:
-│     Reuses GradesEntryScreen body — TopicCard + GradeButtonsRow per student
-├── Tab Bugungi aktivlik (NEW):
-│     Per-student row: 3 rating buttons (Yaxshi-yashil / O'rta-amber / Zaif-qizil)
-│     Optional comment per student
-```
-
-State: `lessonGradingProvider.family(lessonId)` — manages both topic grades and activity ratings. Activity rating saved to backend as new `GradeTopic(type='activity')` (uses existing model).
-
-**Step 4 — Yangi vazifa berish (New homework):**
-
-```
-_StepBody:
-├── AlochiInput (label "Sarlavha")
-├── AlochiInput.multiline (label "Tavsif", 3-4 rows)
-├── QuickDateChips (Erta · 3 kun · 1 hafta · Custom)
-├── HomeworkToggleRow.telegramPoll (T blue, on by default)
-├── HomeworkToggleRow.reminder (! amber, on)
-└── _PublishButton ("Vazifa berish va darsni yakunlash" full width brand)
-```
-
-State: `lessonNewHomeworkProvider.family(lessonId)` — local draft, on publish: POST `/teacher/homework/` with `{class_id, ...}`. Lesson marks complete.
-
-**Master state — `lessonWorkflowProvider.family(lessonId)`:**
-
-```dart
-@freezed
-class LessonWorkflowState with _$LessonWorkflowState {
-  const factory LessonWorkflowState({
-    required Lesson lesson,
-    required int currentStep,                  // 0-3
-    @Default(<int>{}) Set<int> completedSteps, // {0, 1} after first 2 done
-    required AttendanceStatus attendanceStatus,
-    required HomeworkReviewStatus homeworkStatus,
-    required GradingStatus gradingStatus,
-    required NewHomeworkStatus newHomeworkStatus,
-    @Default(false) bool isCompleting,
-    String? error,
-  }) = _LessonWorkflowState;
-  
-  bool get canProceedToNext => completedSteps.contains(currentStep);
-  bool get isFullyComplete => completedSteps.length == 4;
-}
-
-enum StepStatus { locked, active, inProgress, completed }
-```
-
-**API:**
-- GET `/teacher/lessons/{lessonId}/` → `{lesson, class, today_attendance_status, yesterday_homework, ...}`
-- All step-specific writes use existing endpoints (§5.3): attendance/mark, grades/bulk, homework/, homework/{id}/remind/
-
-**No new backend endpoint needed** — Dars boshqaruvi is purely a frontend orchestration over existing primitives.
-
-**Navigation:**
-- ← back → returns to Dashboard, lesson partial state preserved (Hive draft)
-- "Tugatish va keyingisi ›" → advances `currentStep`, expands next, marks current `completed`
-- After Step 4 publish → snackbar "Dars yakunlandi · 4 qadam bajarildi" → auto-pop to Dashboard
-
-**Edge cases:**
-- Lesson is "upcoming" (not yet started) → screen opens read-only with "Boshlanishini kuting" + Davomat preview
-- Lesson is "missed" (past, no actions taken) → screen opens with "Bu darsni o'tkazib yuboribsiz · Eslatma yuborish" CTA
-- User exits mid-flow → next time opens this lesson, `currentStep` restored from server
-- All 4 steps already done → screen shows "Yakunlangan dars" recap view (each step compact green)
-
-**Acceptance criteria:**
-- [ ] Stepper progress bar 4 segment — completed yashil, active teal, locked gray
-- [ ] Active step gradient teal tinted header, expanded body
-- [ ] Locked steps opacity 0.55, lock icon, untappable
-- [ ] Step 1 Davomat: reuses existing 3-toggle UI, Saqlash CTA renamed
-- [ ] Step 2 Vazifa: list of unsubmitted students + "Hammaga eslatma" + "Tugatish ›"
-- [ ] Step 3 Baho: tabbed (topic baho / bugungi aktivlik) — V1.1 minimum: just activity 3-rating
-- [ ] Step 4 Yangi vazifa: minimal form + Telegram poll toggle + publish
-- [ ] Each "Tugatish va keyingisi" → completes current, expands next
-- [ ] Final publish → "Dars yakunlandi" snackbar + back to Dashboard
-- [ ] Mid-flow exit → state preserved (Hive), resumed on reopen
-- [ ] Performance: 32 students Step 1 render ≤500ms
-
----
 
 ### 8.2 Workflows (9 ta ekran)
 
@@ -1589,7 +1233,7 @@ Scaffold
 ├── appBar: AlochiAppBar(back, title "Davomat belgilash")
 ├── body: Column
 │     ├── _ClassDatePills (
-│     │     classPill: "5-A · Matematika ⌄" (teal tinted),
+│     │     classPill: "5-A · Matematika ⌄" (orange tinted),
 │     │     datePill: "Bugun" (gray)
 │     │   )
 │     ├── LiveStatsRow (12/2/1/17, real-time updates from state)
@@ -1669,7 +1313,7 @@ class AttendanceMarkingState with _$AttendanceMarkingState {
 
 ---
 
-#### Screen 22 — Davomat tarixi (Guruh detail Davomat tab)
+#### Screen 22 — Davomat tarixi (Sinf detail Davomat tab)
 
 **Route:** `/classes/:id` tab "Davomat" (not separate route)
 **Files:**
@@ -1703,7 +1347,7 @@ class StackedBarChart extends StatelessWidget {
   final List<DayAggregate> days;
   // Renders: each day = vertical bar with 3 segments
   //   bottom green (present%), middle amber (late%), top red (absent%)
-  // Today bar: teal label below
+  // Today bar: orange label below
   // Holiday: empty bar (height 0)
 }
 ```
@@ -1726,7 +1370,7 @@ class StackedBarChart extends StatelessWidget {
 
 **Acceptance criteria:**
 - [ ] Period chip o'zgartirish → state qaytadan yuklaydi (loading skeleton)
-- [ ] Bugun bar teal label (boshqalari gray)
+- [ ] Bugun bar orange label (boshqalari gray)
 - [ ] Bayram kuni bar bo'sh, label gray
 - [ ] Trend up green ↑, down red ↓, flat gray −
 - [ ] Past davomatli student tap → `/classes/{id}/students/{studentId}`
@@ -1750,7 +1394,7 @@ Scaffold
 ├── body: Column
 │     ├── _ClassDatePills (5-A ⌄, 3-may)
 │     ├── TopicCard (
-│     │     icon: teal "M",
+│     │     icon: orange "M",
 │     │     title: state.topic.title,
 │     │     progress: "${graded} / ${total} baholandi · ${percent}%",
 │     │     bar: AlochiProgressBar(value, color: brand)
@@ -1776,7 +1420,7 @@ Container (white, radius l, padding 10)
       AlochiAvatar(34),
       Expanded(Column(name, "O'rt. 4.5" caption with color)),
       GradeButtonsRow (4 buttons: 2 red, 3 amber, 4 brand, 5 green; active filled, inactive outline),
-      _CommentToggle (✎ teal if has, gray if not)
+      _CommentToggle (✎ orange if has, gray if not)
     )
 ```
 
@@ -1800,8 +1444,8 @@ ModalBottomSheet
 - [ ] Tap baho tugma → instant fill rang (200ms scale animation)
 - [ ] O'rtacha avto-hisoblash (eski baholar + yangisi)
 - [ ] Topic mavjud emas → "Yangi topic yarating" empty state
-- [ ] Save → bulk POST, success → teal snackbar
-- [ ] Comment "✎" — teal = bor, gray2 = yo'q
+- [ ] Save → bulk POST, success → orange snackbar
+- [ ] Comment "✎" — orange = bor, gray2 = yo'q
 - [ ] State persistence: restart screen → state Hive'dan tiklanadi (draft)
 
 ---
@@ -1833,7 +1477,7 @@ Scaffold
 ```
 Container (white, radius xl, border line)
 └── Padding (l)
-    ├── Row (Pill brand "5-A", "Matematika" bold, StatusPill (BUGUN amber / FAOL teal / O'TGAN red / TUGADI green))
+    ├── Row (Pill brand "5-A", "Matematika" bold, StatusPill (BUGUN amber / FAOL orange / O'TGAN red / TUGADI green))
     ├── Text(homework.title, titleS)
     ├── Text(homework.description, caption gray)
     ├── Row (Text("18/32 topshirdi"), Text("56%" colored))
@@ -1876,7 +1520,7 @@ Scaffold
 │     title: "Yangi vazifa",
 │   )
 ├── body: SingleChildScrollView, Column
-│     ├── _ClassPicker (teal-tinted card, dropdown)
+│     ├── _ClassPicker (orange-tinted card, dropdown)
 │     ├── AlochiInput(label "Sarlavha")
 │     ├── AlochiInput.multiline(label "Tavsif", min 3 rows, max 8)
 │     ├── _DueDateSection (
@@ -1888,7 +1532,7 @@ Scaffold
 │     ├── HomeworkToggleRow.reminder (! amber, on)
 │     ├── HomeworkToggleRow.autoTrack (✓ green, on)
 │     ├── (V1.1: cut) FileAttachmentsInput (camera, gallery, document)
-│     └── _PublishButton (teal, sticky bottom, label: "Nashr etish · {classCode} guruhga yuborish")
+│     └── _PublishButton (orange, sticky bottom, label: "Nashr etish · {classCode} sinfga yuborish")
 ```
 
 **State:** `homeworkCreateProvider`.
@@ -1955,7 +1599,7 @@ Scaffold
 │     │     3 ta progress bars (Tushundim 76% green, Qisman 19% amber, Tushunmadim 5% red)
 │     │   )
 │     ├── BulkRemindBar (
-│     │     dashed teal,
+│     │     dashed orange,
 │     │     "{notSubmittedCount} ta o'quvchi",
 │     │     "Hammaga eslatma" brand button
 │     │   )
@@ -1974,7 +1618,7 @@ Row (
           if pattern: " · oxirgi 2 vazifa ham" red)
     )
   ),
-  _RemindButton (teal tinted bg, "T" blue icon + "Eslatma")
+  _RemindButton (orange tinted bg, "T" blue icon + "Eslatma")
 )
 ```
 
@@ -2017,10 +1661,10 @@ Scaffold
 │     trailing: AlochiButton.send ("Yuborish ↑" brand)
 │   )
 ├── body: Column
-│     ├── _ModeBar (3 ta: Bitta active ink / Guruhga / Bir nechta)
+│     ├── _ModeBar (3 ta: Bitta active ink / Sinfga / Bir nechta)
 │     ├── RecipientChipsInput (label "Kimga", chips with × delete)
 │     ├── QuickSelectChips (
-│     │     "5-A Hammasi (32)" pill teal,
+│     │     "5-A Hammasi (32)" pill orange,
 │     │     "Davomat past (3)" + brand,
 │     │     "Vazifa topshirmagan (14)" + brand
 │     │   )
@@ -2030,13 +1674,13 @@ Scaffold
 │     │   )
 │     ├── _CharCounter ("187 / 1000" right-aligned)
 │     ├── AiTemplateChips (
-│     │     ✦ AI bilan yozish (teal tinted),
+│     │     ✦ AI bilan yozish (orange tinted),
 │     │     ! Davomat eslatma (amber),
 │     │     ★ Tabriklash (green)
 │     │   )
 │     └── _ComposerToolbar (
 │           +Attach,
-│           Telegram toggle pill (teal when on),
+│           Telegram toggle pill (orange when on),
 │         )
 ```
 
@@ -2070,7 +1714,7 @@ class ComposerState with _$ComposerState {
 - [ ] Mode tab — "Bitta" recipient cap 1, "Bir nechta" no cap
 - [ ] Quick select chip tap → bulk add (snackbar "3 ta qo'shildi")
 - [ ] AI template tap → composer'ga prefix prompt yuklaydi, kursor matn maydoniga
-- [ ] Telegram toggle on (default) → teal, off → gray
+- [ ] Telegram toggle on (default) → orange, off → gray
 - [ ] Send → POST → success snackbar + auto-pop chat thread'ga (yoki list'ga agar group)
 
 ---
@@ -2103,10 +1747,10 @@ Scaffold
 ```
 Padding (11x24)
 └── Row (
-      AlochiAvatar(48, with optional online dot for parents OR brandSoft+teal for groups),
+      AlochiAvatar(48, with optional online dot for parents OR brandSoft+orange for groups),
       Expanded(
         Column (
-          Row (Text(name) bold + AlochiPill.brand(classCode small) + Spacer + Text(time, color: teal if recent else gray)),
+          Row (Text(name) bold + AlochiPill.brand(classCode small) + Spacer + Text(time, color: orange if recent else gray)),
           Row (Expanded(Text("${prefix}: ${preview}", maxLines 1)) + UnreadBadge OR ✓✓ blue OR green dot),
         )
       )
@@ -2116,7 +1760,7 @@ Padding (11x24)
 **Prefix rules:**
 - Parent message → `"${parentRole}:"` (Otasi:/Onasi:)
 - Own message → `"Siz:"`
-- Group message (group chat) → no prefix on text but avatar is teal-tinted
+- Group message (group chat) → no prefix on text but avatar is orange-tinted
 
 **State:** `conversationsListProvider` (StreamProvider, WebSocket subscription for live updates).
 
@@ -2127,7 +1771,7 @@ Padding (11x24)
 **Acceptance criteria:**
 - [ ] Live updates via WS (no manual refresh)
 - [ ] Unread count badge brand circle
-- [ ] Recent timestamp teal, eski gray
+- [ ] Recent timestamp orange, eski gray
 - [ ] Group chat avatar = brandSoft bg + classCode in brand
 - [ ] ✓✓ blue indicator for read sent messages
 - [ ] Search input → `/messages/search`
@@ -2252,7 +1896,7 @@ Scaffold
 │   )
 ├── body: SingleChildScrollView, Column
 │     ├── AiHeroGreeting (
-│     │     gradient teal tint,
+│     │     gradient orange tint,
 │     │     "A" mark 48,
 │     │     "Assalomu alaykum, Ustoz!",
 │     │     "Bugun nima bilan yordam beraman?..."
@@ -2282,7 +1926,7 @@ onTap: () => context.push('/ai/chat?template=${template.name}')
 
 **Acceptance criteria:**
 - [ ] 6 ta template har biri o'z rangida (mockup'ga mos)
-- [ ] Hero card gradient teal → light
+- [ ] Hero card gradient orange → light
 - [ ] Recent session tap → `/ai/chat?sessionId=X`
 - [ ] Template tap → `/ai/chat?template=X` (yangi session, prefix prompt)
 - [ ] Composer "AI'dan so'rang..." input — Enter yoki send → yangi session yaratadi
@@ -2332,15 +1976,15 @@ Scaffold
 **LessonPlanCard:**
 ```
 Container (white, radius xxl, border brand light)
-├── _Header (gradient teal, icon "D", title, "5-guruh · Matematika · 45 daq", "TAYYOR" green badge)
+├── _Header (gradient orange, icon "D", title, "5-sinf · Matematika · 45 daq", "TAYYOR" green badge)
 ├── Column (padding l)
 │     ├── For each stage:
 │     │   _StageRow (
-│     │     _TimePill ("5 DAQ" teal),
+│     │     _TimePill ("5 DAQ" orange),
 │     │     Column (Text title bold, Text description caption)
 │     │   )
 └── _Footer (
-      AlochiButton.primary "+ Vazifaga qo'sh" (teal, full flex),
+      AlochiButton.primary "+ Vazifaga qo'sh" (orange, full flex),
       AlochiButton.icon "⧉" copy,
       AlochiButton.icon "↻" regenerate
     )
@@ -2395,12 +2039,12 @@ Scaffold
 │     │     "Matematika · Aziziy maktab"
 │     │   )
 │     ├── PrideCard (
-│     │     gradient teal,
+│     │     gradient orange,
 │     │     icon star,
 │     │     title "Bu hafta 96% davomat",
 │     │     subtitle "Top 3 o'qituvchidan birisiz"
 │     │   )
-│     ├── ProfileStatsRow (3 cards: 4 guruh / 124 o'quvchi / 8 yil)
+│     ├── ProfileStatsRow (3 cards: 4 sinf / 124 o'quvchi / 8 yil)
 │     ├── ProfileSettingsList (
 │     │     items: [
 │     │       SettingsItem(P brand, "Profil ma'lumotlari", route: /profile/edit),
@@ -2424,7 +2068,7 @@ Scaffold
 - [ ] Pride card faqat agar weeklyAttendancePct >= 90% (else show another stat)
 - [ ] Telegram qatori "● Ulangan" yashil yoki "Ulanmagan" gray
 - [ ] Logout → confirm dialog → POST → clear secureStorage → /auth/login
-- [ ] Apple-style colored squares left of label (mockup'ga mos: teal/red/blue/amber/purple)
+- [ ] Apple-style colored squares left of label (mockup'ga mos: orange/red/blue/amber/purple)
 
 ---
 
@@ -2447,7 +2091,7 @@ Scaffold
 ├── body: SingleChildScrollView, Column
 │     ├── AvatarUploader (
 │     │     current avatar 96,
-│     │     teal "+" tap → image picker (camera/gallery),
+│     │     orange "+" tap → image picker (camera/gallery),
 │     │     "Rasmni almashtirish" link
 │     │   )
 │     ├── _SectionHeader("Asosiy ma'lumot")
@@ -2471,7 +2115,7 @@ Scaffold
 - POST `/teacher/profile/avatar/` multipart `{avatar: file}`
 
 **Acceptance criteria:**
-- [ ] hasChanges true → save button teal enabled
+- [ ] hasChanges true → save button orange enabled
 - [ ] Email field disabled + L lock icon
 - [ ] Avatar tap → action sheet (Kamera / Galereya / Bekor)
 - [ ] Subjects chip × → confirm popup
@@ -2546,7 +2190,7 @@ class PasswordChangeState with _$PasswordChangeState {
 **Strength:**
 - 0-1 met: weak (red)
 - 2 met: medium (amber)
-- 3-4 met: strong (teal)
+- 3-4 met: strong (orange)
 - 5 met: very strong (green)
 
 **API:**
@@ -2566,140 +2210,90 @@ class PasswordChangeState with _$PasswordChangeState {
 
 ---
 
-#### Screen 26 — Telegram (ota-onalarni taklif qilish)
+#### Screen 26 — Telegram bog'lash
 
-**Route:** `/profile/telegram` (yoki `/teacher/telegram-parents`)
+**Route:** `/profile/telegram`
 **Files:**
-- `features/telegram/presentation/screens/telegram_parents_screen.dart`
-- `features/telegram/presentation/widgets/group_subscription_chips.dart`
-- `features/telegram/presentation/widgets/group_subscription_status_card.dart`
-- `features/telegram/presentation/widgets/group_invite_qr_widget.dart`
-- `features/telegram/presentation/widgets/unlinked_parents_card.dart`
-- `features/telegram/presentation/telegram_parents_provider.dart`
+- `features/profile/presentation/screens/telegram_link_screen.dart`
+- `features/profile/presentation/widgets/step_indicator_3.dart`
+- `features/profile/presentation/widgets/telegram_qr_widget.dart`
+- `features/profile/presentation/widgets/pulsing_status_pill.dart`
+- `features/profile/presentation/telegram_link_provider.dart`
 
 **Widget tree:**
 ```
 Scaffold
-├── appBar: AlochiAppBar(back, title "Ota-onalar Telegram'da")
+├── appBar: AlochiAppBar(back, title "Telegram bog'lash")
 ├── body: SingleChildScrollView, Column
-│     ├── _ExplainerBanner (
-│     │     blue tinted card with T icon,
-│     │     "Sizning Telegram akkauntingiz kerak emas.
-│     │      Ota-onalar QR yoki link orqali bot'ga obuna bo'lishadi —
-│     │      siz app'dan yozganda bot ularga yuboradi"
+│     ├── StepIndicator3 (current: state.currentStep → 1=Skan / 2=Tasdiqlash / 3=Tayyor)
+│     ├── _TelegramTBadgeHero (concentric rings + center T)
+│     ├── _TitleAndSubtitle (
+│     │     "Telegram'ni A'lochi'ga ulang",
+│     │     "QR kodni telefoningizdagi Telegram ilovasi bilan skan qiling"
 │     │   )
-│     ├── GroupSubscriptionChips (
-│     │     horizontal scroll,
-│     │     each chip: "5-A 28/30" with active=ink, inactive=outline,
-│     │     onChange: (groupId) => notifier.selectGroup(groupId)
+│     ├── TelegramQrWidget (200x200, generated from state.linkCode)
+│     ├── _OrDivider
+│     ├── AlochiButton.telegram (
+│     │     "Telegram'da @alochi_uz_bot ga o'tish",
+│     │     onPressed: () => launchUrl('https://t.me/alochi_uz_bot?start=${state.linkCode}')
 │     │   )
-│     ├── GroupSubscriptionStatusCard (
-│     │     title: "5-A · Matematika ota-onalari",
-│     │     percent: "93%" (color: green),
-│     │     progress: AlochiProgressBar(value: 0.93),
-│     │     legend: "● 28 ulangan · ● 2 ulanmagan"
-│     │   )
-│     ├── GroupInviteQrWidget (
-│     │     160x160 qr_flutter,
-│     │     data: "https://t.me/alochi_uz_bot?start=group_${groupId}",
-│     │     center logo: blue T
-│     │   )
-│     ├── _Caption ("Ota-onalar QR ni Telegram bilan skan qiladilar →
-│     │             bot ularga ${child} haqida hammasini yuboradi")
-│     ├── Row(
-│     │     AlochiButton.telegram("↗ Linkni ulashish", flex 1) → Share.share(...),
-│     │     AlochiButton.secondary("QR ni saqlash", flex 1) → save image to gallery
-│     │   )
-│     ├── _InviteLinkBox (
+│     ├── _ManualCodeBox (
 │     │     gray bg,
-│     │     "Invite link" overline,
-│     │     mono "t.me/alochi_uz_bot?start=5A",
-│     │     "⧉ Nusxa" button
+│     │     "Bog'lanish kodi",
+│     │     mono code "${state.linkCode}",
+│     │     "Nusxa olish" button
 │     │   )
-│     └── UnlinkedParentsCard (
-│           red "!" tile + "${count} ta ota-ona ulanmagan",
-│           list of unlinked parents (name + "SMS yubor" teal button each),
-│           SMS via existing /teacher/notifications/sms/ endpoint
-│         )
+│     ├── PulsingStatusPill (
+│     │     amber bg,
+│     │     pulsing dot animation,
+│     │     "Bog'lanish kutilmoqda...",
+│     │     small "Telegram'da ko'rsatma bajaring"
+│     │   )
+│     └── TextButton "Hozircha bekor qilish"
 ```
 
-**State:** `telegramParentsProvider` (StateNotifier with selected group + per-group data).
+**State:** `telegramLinkProvider` (StreamNotifier polling status).
 
 ```dart
 @freezed
-class TelegramParentsState with _$TelegramParentsState {
-  const factory TelegramParentsState({
-    required int selectedGroupId,
-    required List<GroupSubscription> groups,        // all teacher's groups with stats
-    @Default(<UnlinkedParent>[]) List<UnlinkedParent> unlinkedParents,
+class TelegramLinkState with _$TelegramLinkState {
+  const factory TelegramLinkState({
+    String? linkCode,            // "A7K-3X9-FN2"
+    @Default(LinkStep.scan) LinkStep currentStep,
+    DateTime? expiresAt,         // 5 min from start
     @Default(false) bool isLoading,
     String? error,
-  }) = _TelegramParentsState;
+  }) = _TelegramLinkState;
 }
 
-@freezed
-class GroupSubscription with _$GroupSubscription {
-  const factory GroupSubscription({
-    required int groupId,
-    required String groupCode,                       // "5-A"
-    required String subjectName,
-    required int totalParents,
-    required int linkedParents,
-    required String inviteUrl,                       // "https://t.me/alochi_uz_bot?start=5A"
-    required String inviteCode,                      // "5A" or "abc123"
-  }) = _GroupSubscription;
-  
-  const GroupSubscription._();
-  double get linkPct => linkedParents / totalParents;
-  bool get isFullyLinked => linkedParents == totalParents;
-}
+enum LinkStep { scan, confirming, done }
 ```
 
 **API:**
-- GET `/teacher/telegram/groups-status/` → `[{group_id, group_code, total_parents, linked_parents, invite_url, invite_code}]`
-- GET `/teacher/telegram/groups/{groupId}/unlinked-parents/` → `[{parent_id, parent_name, child_name, phone}]`
-- POST `/teacher/notifications/sms/` body `{parent_id, message: "Telegram'ga ulanish: ..."}` (existing endpoint, repurposed)
+- POST `/teacher/telegram/start-link/` → `{code, expires_at}` (rate-limited 1/min)
+- GET `/teacher/telegram/link-status/` polling 3s
+- WS alternative `/ws/telegram-link/` recommended (V1.1 polling acceptable)
 
-**No active polling needed** — status updates on dashboard refresh; this screen pulls fresh on open.
+**Polling lifecycle:**
+1. Screen open → POST start-link → state.linkCode set, polling starts
+2. Backend tomondan WS (if available) yoki poll: status change
+3. status="confirming" → step indicator → 2, message "Tasdiqlanmoqda..."
+4. status="done" → step → 3, success animation, auto-pop after 2s, snackbar "Telegram bog'landi"
+5. expires_at o'tib ketsa → "Kod muddati tugadi" + "Yangi kod" button
 
 **QR code generation:**
-- `qr_flutter` package, ErrorCorrectLevel.M
-- Data: `inviteUrl` (already includes start parameter so bot knows which group to subscribe parent to)
-- White bg, brand-color modules optional, blue T logo overlay (32px)
-
-**Group switch behavior:**
-- Tapping different group chip → state updates, QR regenerates, status card updates (no additional fetch needed — all groups data loaded on open)
-
-**Sharing:**
-- "↗ Linkni ulashish" → `Share.share(state.selectedGroup.inviteUrl, subject: "5-A guruh ota-onalari Telegram'iga ulanish")`
-- Native share sheet (iOS/Android)
-
-**SMS reminder flow:**
-- Tap "SMS yubor" on unlinked parent row → confirm dialog "${name} ga SMS yuborish?"
-- Send → POST endpoint
-- Success → snackbar "SMS yuborildi" + row marked "SMS yuborilgan"
-- Failed → red snackbar + retry
-
-**Backend architecture (REFERENCE — NO CHANGES):**
-
-Backend bot (`@alochi_uz_bot`) maintains:
-- Per-parent subscription to specific groups (via `start={group_code}` deep link)
-- When teacher sends message via app — backend dispatches via bot to all linked parents in that group
-- When parent replies in Telegram — backend's bot webhook routes to teacher's app inbox (creates Conversation)
-- Teacher replies in app → backend sends via bot back to parent's Telegram
-
-Teacher's Telegram account is **never linked**. Bot is school-side only.
+- `qr_flutter` package
+- Data: `https://t.me/alochi_uz_bot?start=${linkCode}`
+- Style: brand color modules, white bg, 13×13 grid (auto), center logo overlay
 
 **Acceptance criteria:**
-- [ ] No teacher Telegram link UI anywhere
-- [ ] Per-group QR generates from `invite_url`, scannable from Telegram
-- [ ] Group chip switch instant (no flash, smooth swap)
-- [ ] Status card percent + progress bar animate on switch
-- [ ] Share button → native share sheet
-- [ ] QR save → device gallery (storage permission handled)
-- [ ] Unlinked parents list — SMS button → POST → snackbar
-- [ ] Empty state if all groups 100% linked: "Hammasi ulangan!" green tile
-- [ ] Loading: 3-4 group chips skeleton + status card placeholder
+- [ ] QR kod to'g'ri generation (skan qilinishi mumkin)
+- [ ] 3 ta yo'l: QR / bot button / manual code (accessibility)
+- [ ] Pulsing dot animation 1.5s opacity 1 ↔ 0.4
+- [ ] Status step 1 → 2 → 3 indicator yangilanishi
+- [ ] Bot link → `launchUrl` Telegram app yoki web
+- [ ] Manual code "Nusxa olish" → clipboard + snackbar
+- [ ] Bekor → POST `/teacher/telegram/cancel-link/` (cleanup) → pop
 
 ---
 
@@ -2726,21 +2320,21 @@ class AlochiEmptyState extends StatelessWidget {
 
 | Variant | Title | Description | Primary CTA |
 |---|---|---|---|
-| `classes` | "Hali guruh biriktirilmagan" | "Maktab admini sizga guruh biriktirsa, bu yerda darhol paydo bo'ladi" | "Maktab admini bilan bog'lanish" |
-| `homework` | "Vazifa yo'q" | "Birinchi vazifani yarating va Telegram orqali guruhga yuboring" | "+ Yangi vazifa" |
+| `classes` | "Hali sinf biriktirilmagan" | "Maktab admini sizga sinf biriktirsa, bu yerda darhol paydo bo'ladi" | "Maktab admini bilan bog'lanish" |
+| `homework` | "Vazifa yo'q" | "Birinchi vazifani yarating va Telegram orqali sinfga yuboring" | "+ Yangi vazifa" |
 | `messages` | "Xabarlar yo'q" | "Telegram bog'lansa ota-onalar bilan tezkor aloqa boshlanadi" | "Telegram'ni ulash" |
 | `attendance` | "Bugun davomat belgilanmagan" | "Bir tap bilan boshlang" | "Davomatni boshlash" |
 | `ai` | "AI yordamchi tayyor" | "Birinchi savolingizni yozing yoki shablon tanlang" | (skip — composer focus) |
 
 **Illustration:**
-- Teal-tinted box (F4FAF8) + dashed border (BCD9D1)
+- Orange-tinted box (FFF8F2) + dashed border (FFD7B5)
 - Variant-specific minimal icons (desk shapes, message tile, etc.)
 - 160×160 size, centered
 
 **Acceptance criteria:**
 - [ ] Reusable widget — har feature'da ishlaydi
 - [ ] Illustration variant'ga mos
-- [ ] Primary CTA teal, secondary text-only gray
+- [ ] Primary CTA orange, secondary text-only gray
 - [ ] Padding 32px har taraf
 - [ ] Center vertically (Scaffold body Expanded)
 
@@ -2764,8 +2358,8 @@ class AlochiSkeleton extends StatefulWidget {
 | Screen | Skeleton structure |
 |---|---|
 | Dashboard | Greeting placeholder + black hero card placeholder + 4 quick action tiles + 2 todo rows |
-| Guruhlar list | 4 ta class card placeholder (avatar+text+bar) |
-| Guruh students | 6 ta row (avatar 38 + name 90 + caption 60 + grade tile) |
+| Sinflar list | 4 ta class card placeholder (avatar+text+bar) |
+| Sinf students | 6 ta row (avatar 38 + name 90 + caption 60 + grade tile) |
 | Vazifalar list | 3 ta homework card (pill+title+description+bar) |
 | Xabarlar list | 5 ta conversation row (avatar 48 + name + preview) |
 | Chat thread | 3-4 ta bubble alternating sides |
@@ -2898,46 +2492,42 @@ Then create lib/theme/ with colors.dart, typography.dart, spacing.dart, radii.da
 - [ ] **Dashboard screen (#2):**
   - [ ] `features/dashboard/presentation/screens/dashboard_screen.dart`
   - [ ] `TodayAttendanceHeroCard` (black #18181B)
-  - [ ] `TodayLessonsHorizontalList` (PageScrollPhysics, snap)
-  - [ ] `LessonCardActive` (black bg #18181B + HOZIR badge + teal CTA)
-  - [ ] `LessonCard` (white bg, time + class + subject)
-  - [ ] `ConcernsSection` (3 ta default + "Hammasi" expand)
+  - [ ] `QuickActionsGrid` (2x2)
+  - [ ] `PendingTodosSection`
   - [ ] `dashboardSummaryProvider` (FutureProvider, 5min stale)
 - [ ] Real qurilma test: iPhone 12 Mini (kichkina ekran) + Samsung Galaxy A51 (Android)
 - [ ] Git commits per task (no Co-Authored-By)
 
 **Acceptance criteria:**
 - [ ] Login: noto'g'ri parol → red snackbar, to'g'ri → /dashboard
-- [ ] Dashboard "Bugungi darslarim" gorizontal scroll (4 ta dars), aktiv dars qora HOZIR badge bilan
-- [ ] Empty state: bugun dars yo'q → "Bugun darsingiz yo'q · Eski guruhlarni ko'rish"
-- [ ] Concern row tap → tegishli sahifaga (overdue → vazifa, messages → chat, telegram → /profile/telegram)
+- [ ] Dashboard hero black card 28/3/1 stats render
+- [ ] Quick action Davomat orange-tinted (boshqalardan farq)
 - [ ] Pull-to-refresh 1.5s spinner
 - [ ] iPhone 12 Mini'da overflow yo'q
-- [ ] Test: Max's account bilan real login → real dashboard
-- [ ] Aktiv dars tap → /lesson/:id (placeholder Day 2 ga qoldiriladi)
+- [ ] Test: Maxammadjon's account bilan real login → real dashboard
 
 **Agent prompt:**
 ```
-Day 1 of v1.1-mobile-redesign sprint. Implement 8 reusable widgets in lib/shared/widgets/ exactly as specified in teacher-tz.md §2.4. Then implement Login screen (§8.1 Screen 1) and Dashboard screen (§8.1 Screen 2). Dashboard layout: greeting + horizontal scroll today's lessons (active lesson black card with HOZIR badge + teal "Darsni ochish" CTA, others white) + concerns section. Use Riverpod for state. Wire auth interceptor in lib/core/api/dio_client.dart with token refresh on 401. Test on iPhone 12 Mini simulator. Do NOT modify backend. Lesson card tap creates a placeholder route /lesson/:id (full Dars boshqaruvi screen comes Day 2). Commit after each screen.
+Day 1 of v1.1-mobile-redesign sprint. Implement 8 reusable widgets in lib/shared/widgets/ exactly as specified in teacher-tz.md §2.4. Then implement Login screen (§8.1 Screen 1) and Dashboard screen (§8.1 Screen 2). Use Riverpod for state. Wire auth interceptor in lib/core/api/dio_client.dart with token refresh on 401. Test on iPhone 12 Mini simulator. Do NOT modify backend. Commit after each screen with message "feat(<feature>): <what>".
 ```
 
 ---
 
-### Day 2 — Seshanba (Guruhlar + Guruh detail + Davomat belgilash)
+### Day 2 — Seshanba (Sinflar + Sinf detail + Davomat belgilash)
 
-**Maqsad:** Tab 1 (Guruhlar) + eng kritik workflow (Davomat).
+**Maqsad:** Tab 1 (Sinflar) + eng kritik workflow (Davomat).
 
 **Checklist:**
 - [ ] **Reusable widgets (qoldiq):**
   - [ ] `AlochiStatusDot`
   - [ ] `AlochiGradeBadge`
   - [ ] `AlochiAttendanceToggle` (3-state)
-- [ ] **Guruhlar list (#3):**
+- [ ] **Sinflar list (#3):**
   - [ ] `features/classes/presentation/screens/classes_list_screen.dart`
   - [ ] `ClassCard` widget
   - [ ] `classesListProvider`
   - [ ] Filter chips
-- [ ] **Guruh Detail (#4):**
+- [ ] **Sinf Detail (#4):**
   - [ ] `class_detail_screen.dart` + 4 ta tab body widgets
   - [ ] `ClassStatsRow`
   - [ ] `ClassTabs` controller
@@ -2950,38 +2540,24 @@ Day 1 of v1.1-mobile-redesign sprint. Implement 8 reusable widgets in lib/shared
   - [ ] `StudentAttendanceRow`
   - [ ] `attendanceMarkingProvider`
   - [ ] `_StickySaveButton` with badge
-- [ ] **Dars boshqaruvi shell (#27):**
-  - [ ] `features/lesson/presentation/screens/lesson_workflow_screen.dart`
-  - [ ] `LessonHeader` (back, group + subject + time, live status pill)
-  - [ ] `WorkflowStepper` (4-segment progress + step labels)
-  - [ ] `LessonStepCard` 3 variants (completed green / active teal / locked gray)
-  - [ ] Step 1 (Davomat) — embed `attendance_marking_screen` body components
-  - [ ] Steps 2-4 — locked placeholders ("Day 3-4'da to'ldiriladi")
-  - [ ] `lessonWorkflowProvider.family(lessonId)` — orchestration state
-  - [ ] GET `/teacher/lessons/{id}/`
-  - [ ] "Tugatish va keyingisi ›" CTA — advances step
 - [ ] **Offline sync skeleton:**
   - [ ] `lib/core/sync/sync_queue.dart` — Hive box for PendingOps
   - [ ] `connectivity_service.dart` — connectivity_plus integration
   - [ ] `isOnlineProvider`
   - [ ] Davomat save → optimistic + queue if offline
 - [ ] Real qurilma: airplane mode test (Davomat belgilash → offline saqlash → tiklanish)
-- [ ] End-to-end test: Dashboard → tap aktiv dars card → Dars boshqaruvi (#27) Step 1 → Davomat belgilash → save
 
 **Acceptance criteria:**
-- [ ] Guruhlar list 4 ta guruh real backend'dan
-- [ ] Tap guruh → detail → Tab 1 students render
+- [ ] Sinflar list 4 ta sinf real backend'dan
+- [ ] Tap sinf → detail → Tab 1 students render
 - [ ] Davomat: 32 ta o'quvchi, 3-toggle har biri, save → backend
 - [ ] Offline: airplane mode → Davomat save → "Saqlanadi (internet kelganda)"
 - [ ] Internet on → queue avto-flush, snackbar "Saqlandi"
 - [ ] Hammasi keldi CTA → 32 ta o'quvchi present
-- [ ] Dars boshqaruvi (#27) shell: stepper progress 1/4, Step 1 expanded with Davomat
-- [ ] Davomat saqlash → step 1 marked completed (green compact), Step 2 locked placeholder
-- [ ] Dashboard → tap dars → Dars boshqaruvi end-to-end ishlaydi
 
 **Agent prompt:**
 ```
-Day 2. Implement Guruhlar list (#3), Guruh Detail (#4 — only Students tab), Davomat belgilash (#5), and Dars boshqaruvi shell (#27 — only Step 1 functional, Steps 2-4 locked placeholders) per teacher-tz.md §8.1, §8.2. Critical: implement offline-first sync queue (§7.2) — attendance saves must work offline and auto-flush on reconnect. Verify end-to-end flow: Dashboard → tap active lesson card → Dars boshqaruvi opens → mark attendance in Step 1 → save → step turns green compact. Test airplane mode flow on real device. Use existing endpoints in §5.3, do NOT create new backend routes. Commit per screen.
+Day 2. Implement Sinflar list (#3), Sinf Detail (#4 — only Students tab), Davomat belgilash (#5) per teacher-tz.md §8.1, §8.2. Critical: implement offline-first sync queue (§7.2) — attendance saves must work offline and auto-flush on reconnect. Test airplane mode flow on real device. Use existing endpoints in §5.3, do NOT create new backend routes. Commit per screen.
 ```
 
 ---
@@ -2995,7 +2571,7 @@ Day 2. Implement Guruhlar list (#3), Guruh Detail (#4 — only Students tab), Da
   - [ ] `AlochiGradeButton` (4-button row, 2/3/4/5 colored)
 - [ ] **Baholar entry (#7):**
   - [ ] `grades_entry_screen.dart`
-  - [ ] `TopicCard` (teal "M" icon)
+  - [ ] `TopicCard` (orange "M" icon)
   - [ ] `GradeButtonsRow`
   - [ ] Comment modal (bottom sheet)
   - [ ] `gradesEntryProvider`
@@ -3012,15 +2588,15 @@ Day 2. Implement Guruhlar list (#3), Guruh Detail (#4 — only Students tab), Da
   - [ ] `HomeworkToggleRow` (3 ta toggle)
   - [ ] `homeworkCreateProvider` (HomeworkDraft)
   - [ ] POST + Telegram poll integration
-- [ ] Test: 5-A guruhga real vazifa yaratib, 1 ota-onaga Telegram orqali keladimi
+- [ ] Test: 5-A sinfga real vazifa yaratib, 1 ota-onaga Telegram orqali keladimi
 
 **Acceptance criteria:**
 - [ ] Baholar entry: 4 ta tugma rang (2 red / 3 amber / 4 brand / 5 green), tap fill rang
 - [ ] O'rtacha avto-hisoblash
-- [ ] Comment modal: kirit + saqla → ✎ teal aksent
+- [ ] Comment modal: kirit + saqla → ✎ orange aksent
 - [ ] Vazifalar list: 4 ta status pill rang to'g'ri
 - [ ] Vazifa create: Quick date chip "Erta" → tomorrow 22:00 set
-- [ ] Yaratilgan vazifa Telegram'da bot orqali guruhga keladi
+- [ ] Yaratilgan vazifa Telegram'da bot orqali sinfga keladi
 - [ ] Status pillalar: BUGUN amber, FAOL brand, O'TGAN red, TUGADI green
 
 **Agent prompt:**
@@ -3058,7 +2634,7 @@ Day 3. Implement Baholar entry (#7), Vazifalar list (#8), Vazifa yaratish (#9) p
   - [ ] `chatThreadProvider.family(id)` (StreamNotifier)
   - [ ] WS `/ws/chat/{id}/` events
   - [ ] Send offline → bubble status "Yuborilmoqda..."
-- [ ] **Bola profili (#20)** — quick implementation (Guruh detail'dan tap qila olish):
+- [ ] **Bola profili (#20)** — quick implementation (Sinf detail'dan tap qila olish):
   - [ ] `student_profile_screen.dart`
   - [ ] All sections (hero, stats, parents, calendar, recent grades, notes)
 
@@ -3079,14 +2655,14 @@ Day 4. Implement Xabarlar list (#10), Chat thread (#11), Bola profili (#20). Cri
 
 ---
 
-### Day 5 — Juma (AI flow + Telegram parent-invite)
+### Day 5 — Juma (AI flow + Telegram bog'lash)
 
-**Maqsad:** AI yordamchi (eng diqqatga sazovor feature) + Telegram ota-onalarni taklif qilish (yangi model).
+**Maqsad:** AI yordamchi (eng diqqatga sazovor feature) + Telegram setup.
 
 **Checklist:**
 - [ ] **AI welcome (#12):**
   - [ ] `ai_welcome_screen.dart`
-  - [ ] `AiHeroGreeting` (gradient teal)
+  - [ ] `AiHeroGreeting` (gradient orange)
   - [ ] `AiTemplateCard` x6 (har biri o'z rangida)
   - [ ] `RecentSessionsList`
   - [ ] `aiSessionsListProvider`
@@ -3099,39 +2675,30 @@ Day 4. Implement Xabarlar list (#10), Chat thread (#11), Bola profili (#20). Cri
   - [ ] `aiChatProvider` (StreamNotifier)
   - [ ] SSE client wrapper for `dio`
   - [ ] "+ Vazifaga qo'sh" → bottom sheet → POST to-homework
-- [ ] **Telegram — ota-onalar (#26 — yangi model):**
-  - [ ] `telegram_parents_screen.dart`
-  - [ ] `_ExplainerBanner` ("Sizning Telegram akkauntingiz kerak emas...")
-  - [ ] `GroupSubscriptionChips` (horizontal, with linked/total badge per group)
-  - [ ] `GroupSubscriptionStatusCard` (% + progress bar + legend)
-  - [ ] `GroupInviteQrWidget` (qr_flutter, 160×160, blue T overlay)
-  - [ ] `_InviteLinkBox` (mono link + copy button)
-  - [ ] `UnlinkedParentsCard` (list of parents not yet subscribed + SMS button)
-  - [ ] `telegramParentsProvider` (StateNotifier)
-  - [ ] GET `/teacher/telegram/groups-status/`
-  - [ ] GET `/teacher/telegram/groups/{id}/unlinked-parents/`
-  - [ ] Share link via `share_plus` package (native share sheet)
-  - [ ] SMS reminder via existing `/teacher/notifications/sms/`
-  - [ ] **NO teacher account linking** — teacher's Telegram never touched
+- [ ] **Telegram bog'lash (#26):**
+  - [ ] `telegram_link_screen.dart`
+  - [ ] `StepIndicator3` widget
+  - [ ] `TelegramQrWidget` (qr_flutter)
+  - [ ] `PulsingStatusPill` (animation)
+  - [ ] `telegramLinkProvider` (StreamNotifier polling)
+  - [ ] POST start-link, GET link-status (3s polling)
+  - [ ] Manual code copy-to-clipboard
+  - [ ] Bot deep link button
 - [ ] Test: AI lesson plan → "+ Vazifaga qo'sh" → real homework created in 5-A
-- [ ] Test: Real ota-ona QR skan → bot'da `/start group_5A` → backend `TelegramLink` created → ulangan parents +1 (real-time refresh)
-- [ ] Test: Unlinked parent SMS yuborish → real SMS arrived
+- [ ] Test: Telegram link real bog'lanish (Maxammadjon Telegram'i)
 
 **Acceptance criteria:**
 - [ ] AI welcome 6 template card mockup'ga mos
 - [ ] AI chat: token streaming smooth (no jank)
-- [ ] Lesson plan card render structurali (5 stage rows + teal time pillalar)
+- [ ] Lesson plan card render structurali (5 stage rows + orange time pillalar)
 - [ ] "+ Vazifaga qo'sh" → bottom sheet (class picker + date) → POST → vazifa detail screen
-- [ ] Telegram screen: 4 ta guruh chips, har birida correct linked/total
-- [ ] Group chip switch → QR + status card instant update
-- [ ] QR generates correctly, scannable from real Telegram app → opens bot deep link
-- [ ] "Linkni ulashish" → native share sheet (Telegram, WhatsApp, SMS, ...)
-- [ ] Unlinked parent "SMS yubor" → POST → snackbar success → row marked
-- [ ] **No "Telegram'ni ulang" UI for teacher anywhere in app**
+- [ ] Telegram QR generates correctly, scannable from real Telegram app
+- [ ] Status changes step 1 → 2 → 3 within 30s if user completes flow
+- [ ] Manual code "Nusxa olish" works
 
 **Agent prompt:**
 ```
-Day 5. Implement AI welcome (#12), AI chat with lesson plan (#13), and Telegram parent-invitation screen (#26 — NEW MODEL, see §5.7 architecture). Critical: SSE streaming for AI tokens, structured output detection for lesson plan card render, "+ Vazifaga qo'sh" bottom sheet flow. For Telegram screen, USE THE NEW PARENT-INVITATION MODEL — teacher's personal Telegram is NEVER linked. Display per-group QR codes and invite links. Parents subscribe to bot via deep link, backend dispatches messages on teacher's behalf. Use existing endpoints listed in §5.3. Use qr_flutter for QR generation, share_plus for native share sheet. Test full flow with real parent device scanning real QR. Commit per screen.
+Day 5. Implement AI welcome (#12), AI chat with lesson plan (#13), Telegram link (#26). Critical: SSE streaming for AI tokens, structured output detection for lesson plan card render, "+ Vazifaga qo'sh" bottom sheet flow. For Telegram link, use existing /teacher/telegram/start-link/ and /link-status/. Use qr_flutter package for QR. Test full Telegram link flow on real Telegram account. Commit per screen.
 ```
 
 ---
@@ -3144,7 +2711,7 @@ Day 5. Implement AI welcome (#12), AI chat with lesson plan (#13), and Telegram 
 - [ ] **Profile (#6):**
   - [ ] `profile_screen.dart`
   - [ ] `ProfileHero` (avatar 84 with brand ring)
-  - [ ] `PrideCard` (teal gradient)
+  - [ ] `PrideCard` (orange gradient)
   - [ ] `ProfileStatsRow`
   - [ ] `ProfileSettingsList` (Apple-style colored squares)
   - [ ] Logout flow
@@ -3199,7 +2766,7 @@ Day 6. Implement Profile (#6), Profile edit (#24), Password change (#25), single
   - [ ] Top'da global offline banner (connectivity)
   - [ ] Save-failed da error toast
 - [ ] **Real qurilma QA (3 ta o'qituvchi):**
-  - [ ] Max (iPhone)
+  - [ ] Maxammadjon (iPhone)
   - [ ] Test teacher 1 (Android, slow network)
   - [ ] Test teacher 2 (older Android, low memory)
   - [ ] Davomat belgilash full flow
@@ -3241,15 +2808,15 @@ Day 7 — final day. Implement pattern widgets (Empty/Loading/Error) per §8.3. 
 | Day | Date | Screens shipped | Key deliverables |
 |---|---|---|---|
 | 0 | 03-May | — | Theme tokens, branch, audit |
-| 1 | 04-May | #1, #2 | 8 widgets, Login, Dashboard (today's lessons horizontal scroll) |
-| 2 | 05-May | #3, #4 (1 tab), #5, #27 shell | Guruhlar, Guruh detail (students), Davomat, **Dars boshqaruvi shell + Step 1**, offline sync |
-| 3 | 06-May | #7, #8, #9, #27 step 2-3 | Baholar, Vazifalar list + create, **Dars boshqaruvi Steps 2 & 3 functional** |
-| 4 | 07-May | #10, #11, #20, #27 step 4 | Xabarlar list, Chat thread, WS, Bola profili, **Dars boshqaruvi Step 4 (yangi vazifa)** |
-| 5 | 08-May | #12, #13, #26 | AI welcome, AI chat + lesson plan export, **Telegram parent-invitation (new model — no teacher account linking)** |
+| 1 | 04-May | #1, #2 | 8 widgets, Login, Dashboard |
+| 2 | 05-May | #3, #4 (1 tab), #5 | Sinflar, Sinf detail (students), Davomat, offline sync |
+| 3 | 06-May | #7, #8, #9 | Baholar, Vazifalar list + create |
+| 4 | 07-May | #10, #11, #20 | Xabarlar list, Chat thread, WS, Bola profili |
+| 5 | 08-May | #12, #13, #26 | AI welcome, AI chat + lesson plan export, Telegram link |
 | 6 | 09-May | #6, #24, #25, #14 | Profile, Edit, Password, single-screen Welcome |
 | 7 | 10-May | #17, #18, #19 + QA | Patterns, QA, v1.1.0 RELEASE |
 
-**Total shipped:** 22 ekran (cuts: Compose, Vazifa detail with poll, Tahlil tab, Onboarding 2/3 + 3/3 V1.2 ga ko'chirildi). **Yangi:** Dars boshqaruvi (#27) — markaziy unified workflow.
+**Total shipped:** 21 ekran (cuts: 4-tab Davomat tarixi, Tahlil tab, Compose, Vazifa detail + Onboarding 2/3 V1.2 ga ko'chirildi).
 
 ---
 
@@ -3308,7 +2875,7 @@ Day 7 — final day. Implement pattern widgets (Empty/Loading/Error) per §8.3. 
 V1.1 minimum:
 - [ ] Semantic labels for icon-only buttons
 - [ ] Min tap target 44x44 (iOS) / 48x48 (Android)
-- [ ] Color contrast WCAG AA (teal brand on white = 3.4:1 — OK for non-text, NOT for body text — never use brand for body)
+- [ ] Color contrast WCAG AA (orange brand on white = 3.4:1 — OK for non-text, NOT for body text — never use brand for body)
 - [ ] Screen reader: "Davomat: 28 / 32 keldi"
 - [ ] Dynamic font scale support (system text size up to 130%)
 
@@ -3339,14 +2906,13 @@ V1.2: full WCAG AA, dark mode
 
 ## 11. Cuts & deferrals (scope guardrails)
 
-### 11.1 In scope for V1.1 (22 ekran)
+### 11.1 In scope for V1.1 (21 ekran)
 
-**Tab 0 — Bosh:** Dashboard (today's lessons horizontal scroll)
-**Tab 1 — Guruhlar:** Guruhlar list, Guruh detail (faqat O'quvchilar tab), Bola profili, Davomat belgilash, Davomat tarixi (basic in detail tab)
+**Tab 0 — Bosh:** Dashboard
+**Tab 1 — Sinflar:** Sinflar list, Sinf detail (faqat O'quvchilar tab), Bola profili, Davomat belgilash, Davomat tarixi (basic in detail tab)
 **Tab 2 — Vazifalar:** Vazifalar list, Vazifa create, Vazifa detail (basic — submission list + bulk remind, NO poll results card)
 **Tab 3 — Xabarlar:** Xabarlar list, Chat thread (NO Compose new — V1.2)
-**Tab 4 — Profil:** Profil, Profil edit, Parol, **Telegram (ota-onalarni taklif qilish — yangi model)**
-**Central workflow:** **Dars boshqaruvi (#27 — yangi)** — unified 4-step lesson workflow
+**Tab 4 — Profil:** Profil, Profil edit, Parol, Telegram bog'lash
 **AI:** AI welcome, AI chat with lesson plan export
 **Auth:** Login, single-screen Welcome onboarding
 **Patterns:** Empty / Loading / Error (universal)
@@ -3355,11 +2921,11 @@ V1.2: full WCAG AA, dark mode
 
 | Screen | Reason | V1.2 priority |
 |---|---|---|
-| **Onboarding 2/3 (Capabilities)** | 1-screen welcome enough for v1; animation work deferred | Medium |
-| **Onboarding 3/3 (Telegram setup)** | Telegram parent-invite via Profile menyu | Low |
+| **Onboarding 2/3 (Capabilities)** | 1-screen welcome enough for v1 | Medium |
+| **Onboarding 3/3 (Telegram setup)** | Telegram link via Profile menyu | Medium |
 | **Compose new message** | Chat thread covers most cases; advanced compose later | High |
 | **Vazifa detail with Poll results** | Poll display only, send/track in V1.1 | Medium |
-| **Guruh detail Tahlil tab** | V1.1: web link → /teacher/groups/:id (deeplink) | Low |
+| **Sinf detail Tahlil tab** | V1.1: web link → /teacher/classes/:id (deeplink) | Low |
 
 ### 11.3 Cut from per-screen (V1.1 simplifications)
 
@@ -3412,7 +2978,7 @@ If a screen NEEDS data not available in current API:
 - AI regenerate + copy
 
 **Sprint +2 (1 week, 2026-05-18 → 2026-05-24):**
-- Guruh detail Analytics tab
+- Sinf detail Analytics tab
 - Dark mode
 - Russian localization
 - Notification preferences
@@ -3472,7 +3038,7 @@ Report back when done with:
 
 **Forbidden in code:**
 ```dart
-// ❌ Color(0xFF1F6F65)
+// ❌ Color(0xFFF97316)
 // ✓ AppColors.brand
 
 // ❌ TextStyle(fontSize: 14, ...)
@@ -3521,4 +3087,4 @@ linter:
 
 **END OF TZ**
 
-> _Bu hujjat 26 ta ekrandan iborat o'qituvchi mobil ilovasining to'liq texnik spetsifikatsiyasi. Kunlik checklist'lar bilan 7 kunda v1.1.0 release. Brand teal (#1F6F65) — A'lochi'ning ovozi. Ustoz cho'ntakda._
+> _Bu hujjat 26 ta ekrandan iborat o'qituvchi mobil ilovasining to'liq texnik spetsifikatsiyasi. Kunlik checklist'lar bilan 7 kunda v1.1.0 release. Brand orange (#F97316) — A'lochi'ning ovozi. Ustoz cho'ntakda._
