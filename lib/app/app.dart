@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
-import 'theme.dart';
+import '../theme/theme.dart';
 
 class AlochiApp extends ConsumerWidget {
   const AlochiApp({super.key});
@@ -12,7 +12,7 @@ class AlochiApp extends ConsumerWidget {
     return MaterialApp.router(
       title: "A'lochi",
       debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
+      theme: AlochiTheme.light,
       routerConfig: router,
     );
   }
