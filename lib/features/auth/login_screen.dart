@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../shared/constants/colors.dart';
+import '../../theme/colors.dart';
+import '../../theme/typography.dart';
+import '../../shared/widgets/alochi_button.dart';
+import '../../shared/widgets/alochi_input.dart';
+import '../../shared/widgets/alochi_card.dart';
 import 'auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -12,22 +16,24 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final _usernameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  bool _obscure = true;
+  final _formKey = GlobalKey<FormState>();
+  bool _rememberMe = true;
 
   @override
   void dispose() {
-    _usernameCtrl.dispose();
+    _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
 
   void _login() {
-    final username = _usernameCtrl.text.trim();
-    final password = _passwordCtrl.text;
-    if (username.isEmpty || password.isEmpty) return;
-    ref.read(authProvider.notifier).login(username, password);
+    if (_formKey.currentState?.validate() ?? false) {
+      final email = _emailCtrl.text.trim();
+      final password = _passwordCtrl.text;
+      ref.read(authProvider.notifier).login(email, password);
+    }
   }
 
   @override
@@ -36,133 +42,144 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     ref.listen(authProvider, (prev, next) {
       if (next.user != null) {
-        final role = next.user!.role;
-        context.go(role == 'parent' ? '/parent/dashboard' : '/student/dashboard');
+        // In the sprint plan, it goes to /dashboard
+        context.go('/dashboard');
+      }
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: AppColors.danger,
+          ),
+        );
       }
     });
 
     return Scaffold(
-      backgroundColor: kBgMain,
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: kOrange.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
+      backgroundColor: AppColors.surface,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Teal "A" mark + logo
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: const BoxDecoration(
+                      color: AppColors.brand,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'A',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: const Icon(Icons.school_rounded, color: kOrange, size: 40),
-                ),
-                const SizedBox(height: 24),
-                const Text("A'lochi",
-                    style: TextStyle(
-                        color: kTextPrimary,
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900)),
-                const SizedBox(height: 8),
-                const Text('Hisobingizga kiring',
-                    style: TextStyle(color: kTextSecondary)),
-                const SizedBox(height: 40),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: kBgCard,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: kBgBorder),
+                  const SizedBox(height: 16),
+                  Text(
+                    "A'lochi",
+                    style: AppTextStyles.displayM.copyWith(color: AppColors.brand),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (auth.error != null)
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 16),
-                          decoration: BoxDecoration(
-                            color: kRed.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: kRed.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.error_outline_rounded,
-                                  color: kRed, size: 16),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(auth.error!,
-                                    style: const TextStyle(
-                                        color: kRed, fontSize: 13)),
+                  const SizedBox(height: 48),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Xush kelibsiz!',
+                          style: AppTextStyles.displayL.copyWith(color: AppColors.ink),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tizimga kirish uchun ma\'lumotlaringizni kiriting',
+                          style: AppTextStyles.body.copyWith(color: const Color(0xFF6B7280)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  AlochiCard(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AlochiInput(
+                          label: 'Email',
+                          hintText: 'example@gmail.com',
+                          controller: _emailCtrl,
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Email kiriting';
+                            if (!v.contains('@')) return 'Email noto\'g\'ri';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        AlochiInput(
+                          label: 'Parol',
+                          hintText: '********',
+                          controller: _passwordCtrl,
+                          isPassword: true,
+                          prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return 'Parol kiriting';
+                            if (v.length < 6) return 'Parol kamida 6 ta belgi';
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Checkbox(
+                                value: _rememberMe,
+                                onChanged: (v) => setState(() => _rememberMe = v ?? false),
+                                activeColor: AppColors.brand,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                      TextField(
-                        controller: _usernameCtrl,
-                        decoration: const InputDecoration(
-                          labelText: 'Foydalanuvchi nomi',
-                          prefixIcon: Icon(Icons.person_outline_rounded),
-                        ),
-                        onSubmitted: (_) => _login(),
-                      ),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: _passwordCtrl,
-                        obscureText: _obscure,
-                        decoration: InputDecoration(
-                          labelText: 'Parol',
-                          prefixIcon:
-                              const Icon(Icons.lock_outline_rounded),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscure
-                                ? Icons.visibility_off_rounded
-                                : Icons.visibility_rounded),
-                            onPressed: () =>
-                                setState(() => _obscure = !_obscure),
-                          ),
-                        ),
-                        onSubmitted: (_) => _login(),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: auth.isLoading ? null : _login,
-                        child: auth.isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2))
-                            : const Text('Kirish'),
-                      ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () => context.go('/forgot-password'),
-                        child: const Text('Parolni unutdingizmi?',
-                            style: TextStyle(color: kTextSecondary)),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: ['UZ', 'RU', 'EN']
-                      .map((lang) => Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8),
-                            child: TextButton(
-                              onPressed: () {},
-                              child: Text(lang,
-                                  style: const TextStyle(
-                                      color: kTextSecondary, fontSize: 12)),
                             ),
-                          ))
-                      .toList(),
-                ),
-              ],
+                            const SizedBox(width: 8),
+                            Text(
+                              'Eslab qolish',
+                              style: AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+                            ),
+                            const Spacer(),
+                            TextButton(
+                              onPressed: () => context.push('/forgot-password'),
+                              child: Text(
+                                'Parolni unutdingizmi?',
+                                style: AppTextStyles.label.copyWith(color: AppColors.brand),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        AlochiButton.primary(
+                          label: 'Kirish',
+                          onPressed: _login,
+                          isLoading: auth.isLoading,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
