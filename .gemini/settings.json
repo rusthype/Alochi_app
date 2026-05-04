@@ -1,0 +1,20 @@
+{
+  "contextFileName": "GEMINI.md",
+  "fileFiltering": {
+    "respectGitIgnore": true,
+    "respectGeminiIgnore": true
+  },
+  "checkpointing": {
+    "enabled": true
+  },
+  "telemetry": {
+    "enabled": false
+  },
+  "ui": {
+    "showLineNumbers": true,
+    "theme": "default"
+  },
+  "shell": {
+    "showColor": true
+  }
+}
