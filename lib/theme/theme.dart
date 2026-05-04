@@ -89,7 +89,7 @@ abstract final class AlochiTheme {
           backgroundColor: AppColors.brand,
           foregroundColor: Colors.white,
           elevation: 0,
-          minimumSize: const Size.fromHeight(48),
+          minimumSize: const Size(0, 48),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(AppRadii.m)),
           ),
