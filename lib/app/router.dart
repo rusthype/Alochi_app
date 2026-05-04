@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/auth_provider.dart';
@@ -25,6 +26,8 @@ import '../features/parent/shell/parent_shell.dart';
 import '../features/parent/dashboard/parent_dashboard_screen.dart';
 import '../features/parent/children/child_detail_screen.dart';
 import '../features/parent/notifications/parent_notifications_screen.dart';
+import '../features/teacher/shell/teacher_shell.dart';
+import '../features/teacher/dashboard/dashboard_screen.dart';
 import '../core/models/test_model.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -47,15 +50,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         // Redirect away from public routes if already logged in
         if (isPublic) {
           if (role == 'parent') return '/parent/dashboard';
+          if (role == 'teacher') return '/dashboard';
           return '/student/dashboard';
         }
-        // Prevent students from accessing parent routes
-        if (role == 'student' && loc.startsWith('/parent')) {
+        // Role-based restrictions
+        if (role == 'student' && (loc.startsWith('/parent') || loc.startsWith('/teacher') || loc == '/dashboard')) {
           return '/student/dashboard';
         }
-        // Prevent parents from accessing student routes
-        if (role == 'parent' && loc.startsWith('/student')) {
+        if (role == 'parent' && (loc.startsWith('/student') || loc.startsWith('/teacher') || loc == '/dashboard')) {
           return '/parent/dashboard';
+        }
+        if (role == 'teacher' && (loc.startsWith('/student') || loc.startsWith('/parent'))) {
+          return '/dashboard';
         }
       }
 
@@ -75,6 +81,33 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/forgot-password',
         builder: (context, state) =>
             const ForgotPasswordScreen(),
+      ),
+
+      // Teacher shell
+      ShellRoute(
+        builder: (context, state, child) => TeacherShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/dashboard',
+            builder: (context, state) => const TeacherDashboardScreen(),
+          ),
+          GoRoute(
+            path: '/groups',
+            builder: (context, state) => const Scaffold(body: Center(child: Text('Guruhlar'))),
+          ),
+          GoRoute(
+            path: '/homework',
+            builder: (context, state) => const Scaffold(body: Center(child: Text('Vazifalar'))),
+          ),
+          GoRoute(
+            path: '/messages',
+            builder: (context, state) => const Scaffold(body: Center(child: Text('Xabarlar'))),
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => const Scaffold(body: Center(child: Text('Profil'))),
+          ),
+        ],
       ),
 
       // Student shell with nested routes
