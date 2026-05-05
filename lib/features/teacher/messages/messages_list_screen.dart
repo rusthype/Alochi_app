@@ -55,12 +55,10 @@ class _ConversationsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (conversations.isEmpty) {
-      return AlochiEmptyState(
+      return const AlochiEmptyState(
         icon: Icons.chat_bubble_outline_rounded,
         title: "Hozircha xabarlar yo'q",
         subtitle: "Ota-onalar bilan suhbatlar bu yerda ko'rinadi",
-        actionLabel: "Yangilash",
-        onAction: () => ref.invalidate(conversationsProvider),
       );
     }
 
