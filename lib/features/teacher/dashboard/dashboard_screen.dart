@@ -193,7 +193,7 @@ class _GreetingHeader extends ConsumerWidget {
 }
 
 class _TodayLessonsHorizontalList extends StatelessWidget {
-  final List<LessonModel> lessons;
+  final List<DashboardLessonModel> lessons;
 
   const _TodayLessonsHorizontalList({required this.lessons});
 
@@ -241,13 +241,23 @@ class _TodayLessonsHorizontalList extends StatelessWidget {
               },
             ),
           ),
+        const SizedBox(height: AppSpacing.s),
+        Center(
+          child: TextButton(
+            onPressed: () => context.push('/teacher/timetable'),
+            child: Text(
+              'Haftalik jadval →',
+              style: AppTextStyles.body.copyWith(color: AppColors.brand),
+            ),
+          ),
+        ),
       ],
     );
   }
 }
 
 class _LessonCardActive extends StatelessWidget {
-  final LessonModel lesson;
+  final DashboardLessonModel lesson;
 
   const _LessonCardActive({required this.lesson});
 
@@ -324,7 +334,7 @@ class _LessonCardActive extends StatelessWidget {
 }
 
 class _LessonCard extends StatelessWidget {
-  final LessonModel lesson;
+  final DashboardLessonModel lesson;
 
   const _LessonCard({required this.lesson});
 
