@@ -11,7 +11,6 @@ import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_search_bar.dart';
-import '../../../shared/widgets/alochi_card.dart';
 import '../../../core/models/group_model.dart';
 import '../../../core/models/student_model.dart';
 import '../../../core/api/teacher_api.dart';
@@ -524,77 +523,76 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     final todayGrade = widget.student.gradesByDate[todayKey];
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.s),
-      child: AlochiCard(
-        padding: const EdgeInsets.all(AppSpacing.m),
-        child: Row(
-          children: [
-            // Avatar
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.brandSoft,
-              child: Text(
-                widget.student.name.isNotEmpty
-                    ? widget.student.name[0].toUpperCase()
-                    : '?',
-                style: AppTextStyles.label.copyWith(color: AppColors.brand),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.m),
-            // Name + average
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(widget.student.name, style: AppTextStyles.label),
-                  Text(
-                    'O\'rtacha: ${widget.student.average.toStringAsFixed(1)}',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.brandMuted),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
+      child: Row(
+        children: [
+          AlochiAvatar(name: widget.student.name, size: 36),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.student.name,
+                  style: AppTextStyles.titleM.copyWith(
+                    color: AppColors.ink,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
-              ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  'O\'rtacha: ${widget.student.average.toStringAsFixed(1)}',
+                  style: AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
+                ),
+              ],
             ),
-            // Grade buttons: 2, 3, 4, 5
-            Row(
-              children: [2, 3, 4, 5].map((grade) {
-                final isSelected = _selectedGrade == grade ||
-                    (todayGrade == grade && _selectedGrade == null);
-                return GestureDetector(
-                  onTap: _saving ? null : () => _setGrade(grade, todayKey),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    margin: const EdgeInsets.only(left: 4),
-                    decoration: BoxDecoration(
-                      color:
-                          isSelected ? _gradeColor(grade) : AppColors.brandSoft,
-                      borderRadius: BorderRadius.circular(AppRadii.s),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$grade',
-                        style: AppTextStyles.label.copyWith(
-                          color: isSelected ? Colors.white : AppColors.brandMuted,
-                        ),
+          ),
+          Row(
+            children: [2, 3, 4, 5].map((grade) {
+              final isSelected = _selectedGrade == grade ||
+                  (todayGrade == grade && _selectedGrade == null);
+              return GestureDetector(
+                onTap: _saving ? null : () => _setGrade(grade, todayKey),
+                child: Container(
+                  width: 34,
+                  height: 34,
+                  margin: const EdgeInsets.only(left: 6),
+                  decoration: BoxDecoration(
+                    color: isSelected ? _gradeColor(grade) : const Color(0xFFF4F5F7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$grade',
+                      style: AppTextStyles.label.copyWith(
+                        color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
 
   Color _gradeColor(int grade) {
-    if (grade == 5) return AppColors.success;
-    if (grade == 4) return AppColors.brand;
-    if (grade == 3) return AppColors.warning;
-    return AppColors.danger;
+    if (grade == 5) return const Color(0xFF0F9A6E);
+    if (grade == 4) return const Color(0xFF1F6F65);
+    if (grade == 3) return const Color(0xFFD97706);
+    return const Color(0xFFDC2626);
   }
 
   Future<void> _setGrade(int grade, String date) async {
