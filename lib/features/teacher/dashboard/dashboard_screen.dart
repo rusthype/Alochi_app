@@ -188,7 +188,7 @@ class _LessonCardActive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/lesson/${lesson.id}'),
+      onTap: () => context.push('/teacher/lesson/${lesson.id}'),
       child: Container(
         width: 230,
         padding: const EdgeInsets.all(AppSpacing.l),
@@ -265,7 +265,7 @@ class _LessonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/lesson/${lesson.id}'),
+      onTap: () => context.push('/teacher/lesson/${lesson.id}'),
       child: AlochiCard(
         padding: const EdgeInsets.all(AppSpacing.l),
         borderRadius: AppRadii.l,
