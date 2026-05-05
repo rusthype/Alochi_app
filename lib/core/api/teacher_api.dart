@@ -475,4 +475,39 @@ class TeacherApi {
       rethrow;
     }
   }
+
+  /// PATCH /teacher/profile/ → {id, name, username, phone}
+  /// Verified 200 with real backend.
+  Future<TeacherProfileModel> patchTeacherProfile({
+    required String name,
+    String? phone,
+  }) async {
+    try {
+      final payload = <String, dynamic>{'name': name};
+      if (phone != null && phone.isNotEmpty) payload['phone'] = phone;
+      final data = await _client.patch('/teacher/profile/', data: payload)
+          as Map<String, dynamic>;
+      return TeacherProfileModel.fromJson(data);
+    } catch (e, st) {
+      debugPrint('patchTeacherProfile error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/auth/change-password/
+  /// Returns 404 currently — caller handles graceful fallback.
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await _client.post('/teacher/auth/change-password/', data: {
+        'old_password': oldPassword,
+        'new_password': newPassword,
+      });
+    } catch (e, st) {
+      debugPrint('changePassword error: $e\n$st');
+      rethrow;
+    }
+  }
 }
