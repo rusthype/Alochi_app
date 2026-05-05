@@ -10,17 +10,17 @@ class TeacherShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    
+
     int currentIndex = 0;
-    if (location.startsWith('/dashboard')) {
+    if (location.startsWith('/teacher/dashboard')) {
       currentIndex = 0;
-    } else if (location.startsWith('/groups')) {
+    } else if (location.startsWith('/teacher/groups')) {
       currentIndex = 1;
-    } else if (location.startsWith('/homework')) {
+    } else if (location.startsWith('/teacher/homework')) {
       currentIndex = 2;
-    } else if (location.startsWith('/messages')) {
+    } else if (location.startsWith('/teacher/messages')) {
       currentIndex = 3;
-    } else if (location.startsWith('/profile')) {
+    } else if (location.startsWith('/teacher/profile')) {
       currentIndex = 4;
     }
 
@@ -31,19 +31,19 @@ class TeacherShell extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              context.go('/dashboard');
+              context.go('/teacher/dashboard');
               break;
             case 1:
-              context.go('/groups');
+              context.go('/teacher/groups');
               break;
             case 2:
-              context.go('/homework');
+              context.go('/teacher/homework');
               break;
             case 3:
-              context.go('/messages');
+              context.go('/teacher/messages');
               break;
             case 4:
-              context.go('/profile');
+              context.go('/teacher/profile');
               break;
           }
         },

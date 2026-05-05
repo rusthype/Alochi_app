@@ -38,12 +38,14 @@ class TeacherDashboardScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            loading: () => const Center(child: CircularProgressIndicator(color: AppColors.brand)),
+            loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.brand)),
             error: (err, stack) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline, size: 48, color: AppColors.danger),
+                  const Icon(Icons.error_outline,
+                      size: 48, color: AppColors.danger),
                   const SizedBox(height: 16),
                   const Text('Xatolik yuz berdi', style: AppTextStyles.titleM),
                   const SizedBox(height: 8),
@@ -85,7 +87,8 @@ class _GreetingHeader extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Bugun sizni 4 ta dars kutmoqda', // Hardcoded for now or from summary
-                style: AppTextStyles.body.copyWith(color: const Color(0xFF6B7280)),
+                style:
+                    AppTextStyles.body.copyWith(color: const Color(0xFF6B7280)),
               ),
             ],
           ),
@@ -98,7 +101,8 @@ class _GreetingHeader extends StatelessWidget {
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
-                child: const Icon(Icons.notifications_none_rounded, color: AppColors.ink),
+                child: const Icon(Icons.notifications_none_rounded,
+                    color: AppColors.ink),
               ),
               Positioned(
                 right: 2,
@@ -109,7 +113,8 @@ class _GreetingHeader extends StatelessWidget {
                   decoration: const BoxDecoration(
                     color: AppColors.danger,
                     shape: BoxShape.circle,
-                    border: Border.fromBorderSide(BorderSide(color: Colors.white, width: 2)),
+                    border: Border.fromBorderSide(
+                        BorderSide(color: Colors.white, width: 2)),
                   ),
                 ),
               ),
@@ -136,10 +141,12 @@ class _TodayLessonsHorizontalList extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Bugungi darslarim', style: AppTextStyles.titleL),
+              const Text('Bugungi darslarim', style: AppTextStyles.titleL),
               TextButton(
-                onPressed: () => context.go('/groups'),
-                child: Text('Hammasi', style: AppTextStyles.label.copyWith(color: AppColors.brand)),
+                onPressed: () => context.go('/teacher/groups'),
+                child: Text('Hammasi',
+                    style:
+                        AppTextStyles.label.copyWith(color: AppColors.brand)),
               ),
             ],
           ),
@@ -195,14 +202,17 @@ class _LessonCardActive extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(lesson.time, style: AppTextStyles.label.copyWith(color: Colors.white)),
-                const AlochiPill(label: 'HOZIR', variant: AlochiPillVariant.brand),
+                Text(lesson.time,
+                    style: AppTextStyles.label.copyWith(color: Colors.white)),
+                const AlochiPill(
+                    label: 'HOZIR', variant: AlochiPillVariant.brand),
               ],
             ),
             const Spacer(),
             Text(
               lesson.className,
-              style: AppTextStyles.bodyS.copyWith(color: const Color(0xFFA1A1AA)),
+              style:
+                  AppTextStyles.bodyS.copyWith(color: const Color(0xFFA1A1AA)),
             ),
             const SizedBox(height: 4),
             Text(
@@ -214,11 +224,13 @@ class _LessonCardActive extends StatelessWidget {
             const SizedBox(height: AppSpacing.m),
             Row(
               children: [
-                const Icon(Icons.people_outline, size: 16, color: Color(0xFFA1A1AA)),
+                const Icon(Icons.people_outline,
+                    size: 16, color: Color(0xFFA1A1AA)),
                 const SizedBox(width: 4),
                 Text(
                   '${lesson.studentCount} o\'quvchi',
-                  style: AppTextStyles.label.copyWith(color: const Color(0xFFA1A1AA)),
+                  style: AppTextStyles.label
+                      .copyWith(color: const Color(0xFFA1A1AA)),
                 ),
               ],
             ),
@@ -233,7 +245,8 @@ class _LessonCardActive extends StatelessWidget {
               child: Center(
                 child: Text(
                   'Darsni ochish',
-                  style: AppTextStyles.label.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.label.copyWith(
+                      color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -261,11 +274,14 @@ class _LessonCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(lesson.time, style: AppTextStyles.label.copyWith(color: const Color(0xFF6B7280))),
+              Text(lesson.time,
+                  style: AppTextStyles.label
+                      .copyWith(color: const Color(0xFF6B7280))),
               const Spacer(),
               Text(
                 lesson.className,
-                style: AppTextStyles.bodyS.copyWith(color: const Color(0xFF6B7280)),
+                style: AppTextStyles.bodyS
+                    .copyWith(color: const Color(0xFF6B7280)),
               ),
               const SizedBox(height: 4),
               Text(
@@ -277,11 +293,13 @@ class _LessonCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.m),
               Row(
                 children: [
-                  const Icon(Icons.people_outline, size: 16, color: Color(0xFF9CA3AF)),
+                  const Icon(Icons.people_outline,
+                      size: 16, color: Color(0xFF9CA3AF)),
                   const SizedBox(width: 4),
                   Text(
                     '${lesson.studentCount} o\'quvchi',
-                    style: AppTextStyles.label.copyWith(color: const Color(0xFF9CA3AF)),
+                    style: AppTextStyles.label
+                        .copyWith(color: const Color(0xFF9CA3AF)),
                   ),
                 ],
               ),
@@ -305,7 +323,7 @@ class _ConcernsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('E\'tibor talab', style: AppTextStyles.titleL),
+          const Text('E\'tibor talab', style: AppTextStyles.titleL),
           const SizedBox(height: AppSpacing.m),
           ...concerns.map((concern) => _ConcernRow(concern: concern)),
         ],
@@ -373,11 +391,13 @@ class _ConcernRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(concern.title, style: AppTextStyles.titleM.copyWith(fontSize: 15)),
+                    Text(concern.title,
+                        style: AppTextStyles.titleM.copyWith(fontSize: 15)),
                     const SizedBox(height: 2),
                     Text(
                       '${concern.count} ta yangi',
-                      style: AppTextStyles.bodyS.copyWith(color: const Color(0xFF6B7280)),
+                      style: AppTextStyles.bodyS
+                          .copyWith(color: const Color(0xFF6B7280)),
                     ),
                   ],
                 ),
