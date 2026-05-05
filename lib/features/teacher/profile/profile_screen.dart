@@ -188,42 +188,14 @@ class _ProfileContent extends ConsumerWidget {
                   icon: Icons.edit_outlined,
                   iconBg: AppColors.brand,
                   label: 'Profilni tahrirlash',
-                  trailing: _ComingSoonBadge(),
-                  onTap: () {
-                    // Day 6 placeholder
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Tez orada',
-                          style:
-                              AppTextStyles.bodyS.copyWith(color: Colors.white),
-                        ),
-                        duration: const Duration(seconds: 1),
-                        backgroundColor: AppColors.brandMuted,
-                      ),
-                    );
-                  },
+                  onTap: () => context.push('/teacher/profile/edit'),
                 ),
                 const Divider(height: 1, indent: 56, color: Color(0xFFE5E7EB)),
                 _SettingsRow(
                   icon: Icons.lock_outline_rounded,
                   iconBg: AppColors.warning,
                   label: "Parolni o'zgartirish",
-                  trailing: _ComingSoonBadge(),
-                  onTap: () {
-                    // Day 6 placeholder
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Tez orada',
-                          style:
-                              AppTextStyles.bodyS.copyWith(color: Colors.white),
-                        ),
-                        duration: const Duration(seconds: 1),
-                        backgroundColor: AppColors.brandMuted,
-                      ),
-                    );
-                  },
+                  onTap: () => context.push('/teacher/profile/password'),
                 ),
               ],
             ),
@@ -296,7 +268,6 @@ class _SettingsRow extends StatelessWidget {
   final Color iconBg;
   final String label;
   final Color? labelColor;
-  final Widget? trailing;
   final bool showChevron;
   final VoidCallback onTap;
 
@@ -305,7 +276,6 @@ class _SettingsRow extends StatelessWidget {
     required this.iconBg,
     required this.label,
     this.labelColor,
-    this.trailing,
     this.showChevron = true,
     required this.onTap,
   });
@@ -337,33 +307,11 @@ class _SettingsRow extends StatelessWidget {
                     .copyWith(color: labelColor ?? AppColors.ink),
               ),
             ),
-            if (trailing != null) trailing!,
             if (showChevron)
               const Icon(Icons.chevron_right_rounded,
                   color: AppColors.brandMuted, size: 20),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─── Coming soon badge ────────────────────────────────────────────────────────
-
-class _ComingSoonBadge extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(right: AppSpacing.s),
-      padding:
-          const EdgeInsets.symmetric(horizontal: AppSpacing.s, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppColors.brandSoft,
-        borderRadius: BorderRadius.circular(AppRadii.round),
-      ),
-      child: Text(
-        'Tez orada',
-        style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
       ),
     );
   }
