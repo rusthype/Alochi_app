@@ -10,6 +10,7 @@ import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/models/teacher_dashboard.dart';
 import '../notifications/notifications_provider.dart';
+import '../profile/profile_provider.dart';
 import 'dashboard_provider.dart';
 
 class TeacherDashboardScreen extends ConsumerWidget {
@@ -33,7 +34,6 @@ class TeacherDashboardScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _GreetingHeader(
-                    greeting: summary.greeting,
                     todayLessonsCount: summary.todayLessons.length,
                   ),
                   if (summary.todayLessons.isNotEmpty) ...[
@@ -60,21 +60,34 @@ class TeacherDashboardScreen extends ConsumerWidget {
             ),
             loading: () => const _DashboardLoadingSkeleton(),
             error: (err, stack) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline,
-                      size: 48, color: AppColors.danger),
-                  const SizedBox(height: 16),
-                  const Text('Xatolik yuz berdi', style: AppTextStyles.titleM),
-                  const SizedBox(height: 8),
-                  Text(err.toString(), style: AppTextStyles.bodyS),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => ref.refresh(dashboardSummaryProvider),
-                    child: const Text('Qayta urinish'),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 48, color: AppColors.danger),
+                    const SizedBox(height: 16),
+                    const Text('Yuklab bo\'lmadi', style: AppTextStyles.titleM),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Internet aloqasini tekshiring va qayta urinib ko\'ring',
+                      style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () => ref.invalidate(dashboardSummaryProvider),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.brand,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.m)),
+                      ),
+                      child: const Text('Qayta urinish'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -107,17 +120,18 @@ class _DashboardLoadingSkeleton extends StatelessWidget {
 }
 
 class _GreetingHeader extends ConsumerWidget {
-  final String greeting;
   final int todayLessonsCount;
 
   const _GreetingHeader({
-    required this.greeting,
     required this.todayLessonsCount,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unreadCount = ref.watch(unreadNotificationsCountProvider);
+    final profileAsync = ref.watch(teacherProfileProvider);
+    final name = profileAsync.valueOrNull?.name ?? '';
+    final greeting = name.isNotEmpty ? 'Salom, $name Ustoz' : 'Salom, Ustoz';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
