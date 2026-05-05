@@ -189,6 +189,80 @@ class TeacherApi {
     }
   }
 
+  // ───── Grades ────────────────────────────────────────────────────────────
+
+  /// GET /teacher/grades/?group_id=X
+  /// Returns {students: [], dates: [], journal: {studentId: {date: grade}}}
+  Future<GradesJournalData> getGrades({required String groupId}) async {
+    try {
+      final data = await _client.get(
+        '/teacher/grades/',
+        params: {'group_id': groupId},
+      ) as Map<String, dynamic>;
+      return GradesJournalData.fromJson(data, groupId);
+    } catch (e, st) {
+      debugPrint('getGrades error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/grades/set/
+  /// Payload: {student_id, subject, grade (2-5), date}
+  Future<void> setGrade({
+    required String studentId,
+    required String subject,
+    required int grade,
+    required String date,
+  }) async {
+    try {
+      await _client.post('/teacher/grades/set/', data: {
+        'student_id': studentId,
+        'subject': subject,
+        'grade': grade,
+        'date': date,
+      });
+    } catch (e, st) {
+      debugPrint('setGrade error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  // ───── Homework ──────────────────────────────────────────────────────────
+
+  /// GET /teacher/homework/
+  /// Returns {stats: {}, assignments: []}
+  Future<HomeworkListData> getHomework() async {
+    try {
+      final data = await _client.get('/teacher/homework/') as Map<String, dynamic>;
+      return HomeworkListData.fromJson(data);
+    } catch (e, st) {
+      debugPrint('getHomework error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// GET /teacher/homework/:id/ — returns detail of one homework
+  Future<HomeworkModel> getHomeworkDetail(String hwId) async {
+    try {
+      final data =
+          await _client.get('/teacher/homework/$hwId/') as Map<String, dynamic>;
+      return HomeworkModel.fromJson(data);
+    } catch (e, st) {
+      debugPrint('getHomeworkDetail error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/homework/:id/remind/
+  Future<void> sendHomeworkReminder(String hwId) async {
+    try {
+      await _client.post('/teacher/homework/$hwId/remind/', data: {});
+    } catch (e, st) {
+      debugPrint('sendHomeworkReminder error: $e\n$st');
+      rethrow;
+    }
+  }
+
   // ───── Lessons ───────────────────────────────────────────────────────────
 
   Future<LessonDetailModel> getLessonDetail(String lessonId) async {
@@ -199,5 +273,167 @@ class TeacherApi {
       debugPrint('getLessonDetail error: $e\n$st');
       rethrow;
     }
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Grades models
+// ────────────────────────────────────────────────────────────────────────────
+
+class GradesJournalData {
+  final List<GradeStudentRow> students;
+  final List<String> dates;
+  final Map<String, Map<String, int>> journal; // studentId → {date → grade}
+  final String groupId;
+
+  const GradesJournalData({
+    required this.students,
+    required this.dates,
+    required this.journal,
+    required this.groupId,
+  });
+
+  factory GradesJournalData.fromJson(
+      Map<String, dynamic> json, String groupId) {
+    final rawStudents = json['students'] as List? ?? [];
+    final rawDates = json['dates'] as List? ?? [];
+    final rawJournal = json['journal'] as Map<String, dynamic>? ?? {};
+
+    final students = rawStudents.isEmpty
+        ? <GradeStudentRow>[]
+        : rawStudents
+            .map((e) => GradeStudentRow.fromJson(e as Map<String, dynamic>))
+            .toList();
+    final dates = rawDates.map((d) => d.toString()).toList();
+
+    final journal = <String, Map<String, int>>{};
+    rawJournal.forEach((studentId, dateMap) {
+      if (dateMap is Map) {
+        final inner = <String, int>{};
+        dateMap.forEach((date, grade) {
+          inner[date.toString()] = (grade as num?)?.toInt() ?? 0;
+        });
+        journal[studentId] = inner;
+      }
+    });
+
+    return GradesJournalData(
+      students: students,
+      dates: dates,
+      journal: journal,
+      groupId: groupId,
+    );
+  }
+
+  GradesJournalData empty() => GradesJournalData(
+        students: [],
+        dates: [],
+        journal: {},
+        groupId: groupId,
+      );
+}
+
+class GradeStudentRow {
+  final String id;
+  final String name;
+
+  const GradeStudentRow({required this.id, required this.name});
+
+  factory GradeStudentRow.fromJson(Map<String, dynamic> json) {
+    return GradeStudentRow(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Homework models
+// ────────────────────────────────────────────────────────────────────────────
+
+class HomeworkListData {
+  final HomeworkStats stats;
+  final List<HomeworkModel> assignments;
+
+  const HomeworkListData({required this.stats, required this.assignments});
+
+  factory HomeworkListData.fromJson(Map<String, dynamic> json) {
+    final rawStats = json['stats'] as Map<String, dynamic>? ?? {};
+    final rawList = json['assignments'] as List? ?? [];
+    return HomeworkListData(
+      stats: HomeworkStats.fromJson(rawStats),
+      assignments: rawList.isEmpty
+          ? []
+          : rawList
+              .map((e) => HomeworkModel.fromJson(e as Map<String, dynamic>))
+              .toList(),
+    );
+  }
+}
+
+class HomeworkStats {
+  final int submitted;
+  final int onTime;
+  final int pending;
+
+  const HomeworkStats(
+      {required this.submitted,
+      required this.onTime,
+      required this.pending});
+
+  factory HomeworkStats.fromJson(Map<String, dynamic> json) {
+    return HomeworkStats(
+      submitted: (json['submitted'] as num?)?.toInt() ?? 0,
+      onTime: (json['on_time'] as num?)?.toInt() ?? 0,
+      pending: (json['pending'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
+class HomeworkModel {
+  final String id;
+  final String title;
+  final String description;
+  final String subject;
+  final String groupName;
+  final String deadline;
+  final int responseCount;
+  final bool isActive;
+
+  const HomeworkModel({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.subject,
+    required this.groupName,
+    required this.deadline,
+    required this.responseCount,
+    required this.isActive,
+  });
+
+  factory HomeworkModel.fromJson(Map<String, dynamic> json) {
+    // Determine active from deadline
+    bool active = true;
+    final dl = json['deadline']?.toString() ?? '';
+    if (dl.isNotEmpty) {
+      try {
+        final deadlineDate = DateTime.parse(dl);
+        active = deadlineDate.isAfter(DateTime.now());
+      } catch (_) {}
+    }
+    final isActiveParsed = json['is_active'];
+    if (isActiveParsed != null) active = isActiveParsed == true;
+
+    return HomeworkModel(
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+      subject: json['subject']?.toString() ?? '',
+      groupName: json['group_name']?.toString() ??
+          json['class_name']?.toString() ?? '',
+      deadline: dl,
+      responseCount: (json['response_count'] as num?)?.toInt() ?? 0,
+      isActive: active,
+    );
   }
 }
