@@ -9,27 +9,29 @@ import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_search_bar.dart';
 import '../../../core/models/group_model.dart';
 import 'groups_provider.dart';
 
-class GroupsListScreen extends ConsumerWidget {
+class GroupsListScreen extends ConsumerStatefulWidget {
   const GroupsListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GroupsListScreen> createState() => _GroupsListScreenState();
+}
+
+class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
     final groupsAsync = ref.watch(groupsListProvider);
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AlochiAppBar(
+      appBar: const AlochiAppBar(
         title: 'Guruhlarim',
         showBackButton: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search_rounded, color: AppColors.ink),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: groupsAsync.when(
         data: (groups) {
@@ -40,20 +42,52 @@ class GroupsListScreen extends ConsumerWidget {
               subtitle: "Direktor sizga guruh tayinlaydi",
             );
           }
-          return RefreshIndicator(
-            onRefresh: () => ref.refresh(groupsListProvider.future),
-            color: AppColors.brand,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.l,
-                vertical: AppSpacing.m,
+
+          final filteredGroups = groups.where((g) {
+            if (_searchQuery.isEmpty) return true;
+            final query = _searchQuery.toLowerCase();
+            return g.subjectName.toLowerCase().contains(query) ||
+                g.code.toLowerCase().contains(query);
+          }).toList();
+
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.l,
+                  AppSpacing.m,
+                  AppSpacing.l,
+                  AppSpacing.s,
+                ),
+                child: AlochiSearchBar(
+                  hintText: 'Guruh nomi yoki fan...',
+                  onChanged: (value) => setState(() => _searchQuery = value),
+                ),
               ),
-              itemCount: groups.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(height: AppSpacing.m),
-              itemBuilder: (context, index) =>
-                  _GroupCard(group: groups[index]),
-            ),
+              Expanded(
+                child: filteredGroups.isEmpty
+                    ? const AlochiEmptyState(
+                        icon: Icons.search_off_rounded,
+                        title: "Hech narsa topilmadi",
+                        subtitle: "Boshqa so'z bilan qidirib ko'ring",
+                      )
+                    : RefreshIndicator(
+                        onRefresh: () => ref.refresh(groupsListProvider.future),
+                        color: AppColors.brand,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.l,
+                            vertical: AppSpacing.m,
+                          ),
+                          itemCount: filteredGroups.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: AppSpacing.m),
+                          itemBuilder: (context, index) =>
+                              _GroupCard(group: filteredGroups[index]),
+                        ),
+                      ),
+              ),
+            ],
           );
         },
         loading: () => const _GroupsLoadingSkeleton(),

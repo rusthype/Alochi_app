@@ -10,6 +10,7 @@ import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_button.dart';
+import '../../../shared/widgets/alochi_search_bar.dart';
 import '../../../core/models/group_model.dart';
 import '../../../core/models/student_model.dart';
 import 'groups_provider.dart';
@@ -255,34 +256,71 @@ class _StatDivider extends StatelessWidget {
   }
 }
 
-class _StudentsTab extends StatelessWidget {
+class _StudentsTab extends StatefulWidget {
   final List<StudentModel> students;
   final String groupId;
 
   const _StudentsTab({required this.students, required this.groupId});
 
   @override
+  State<_StudentsTab> createState() => _StudentsTabState();
+}
+
+class _StudentsTabState extends State<_StudentsTab> {
+  String _searchQuery = '';
+
+  @override
   Widget build(BuildContext context) {
-    if (students.isEmpty) {
+    if (widget.students.isEmpty) {
       return const AlochiEmptyState(
         title: "O'quvchilar yo'q",
         subtitle: "Bu guruhda hali o'quvchi biriktirilmagan",
       );
     }
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.l,
-        vertical: AppSpacing.m,
-      ),
-      itemCount: students.length,
-      separatorBuilder: (_, __) => const Divider(
-        height: 1,
-        color: Color(0xFFF3F4F6),
-      ),
-      itemBuilder: (context, index) => _StudentRow(
-        student: students[index],
-        groupId: groupId,
-      ),
+
+    final filteredStudents = widget.students.where((s) {
+      if (_searchQuery.isEmpty) return true;
+      return s.fullName.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.l,
+            AppSpacing.m,
+            AppSpacing.l,
+            AppSpacing.s,
+          ),
+          child: AlochiSearchBar(
+            hintText: 'Talaba ismi...',
+            onChanged: (value) => setState(() => _searchQuery = value),
+          ),
+        ),
+        Expanded(
+          child: filteredStudents.isEmpty
+              ? const AlochiEmptyState(
+                  icon: Icons.search_off_rounded,
+                  title: "Hech narsa topilmadi",
+                  subtitle: "Boshqa ism bilan qidirib ko'ring",
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.l,
+                    vertical: AppSpacing.m,
+                  ),
+                  itemCount: filteredStudents.length,
+                  separatorBuilder: (_, __) => const Divider(
+                    height: 1,
+                    color: Color(0xFFF3F4F6),
+                  ),
+                  itemBuilder: (context, index) => _StudentRow(
+                    student: filteredStudents[index],
+                    groupId: widget.groupId,
+                  ),
+                ),
+        ),
+      ],
     );
   }
 }
