@@ -30,9 +30,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _login() {
     if (_formKey.currentState?.validate() ?? false) {
-      final email = _emailCtrl.text.trim();
+      final username = _emailCtrl.text.trim();
       final password = _passwordCtrl.text;
-      ref.read(authProvider.notifier).login(email, password);
+      ref.read(authProvider.notifier).login(username, password);
     }
   }
 
@@ -41,9 +41,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final auth = ref.watch(authProvider);
 
     ref.listen(authProvider, (prev, next) {
-      if (next.user != null) {
-        // In the sprint plan, it goes to /dashboard
-        context.go('/dashboard');
+      if (next.user != null && prev?.user == null) {
+        final role = next.user!.role;
+        if (role == 'teacher') {
+          context.go('/teacher/dashboard');
+        } else {
+          // Non-teacher: show message and logout
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Bu ilova faqat ustozlar uchun. Iltimos, alohida ilovadan foydalaning',
+              ),
+              backgroundColor: AppColors.danger,
+              duration: Duration(seconds: 4),
+            ),
+          );
+          ref.read(authProvider.notifier).logout();
+        }
       }
       if (next.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +74,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
             child: Form(
               key: _formKey,
               child: Column(
@@ -87,10 +102,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "A'lochi",
-                    style: AppTextStyles.displayM.copyWith(color: AppColors.brand),
+                    "A'lochi Ustoz",
+                    style:
+                        AppTextStyles.displayM.copyWith(color: AppColors.brand),
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.brand,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Ustoz platformasi',
+                      style: AppTextStyles.bodyS.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Column(
@@ -98,12 +130,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         Text(
                           'Xush kelibsiz!',
-                          style: AppTextStyles.displayL.copyWith(color: AppColors.ink),
+                          style: AppTextStyles.displayL
+                              .copyWith(color: AppColors.ink),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tizimga kirish uchun ma\'lumotlaringizni kiriting',
-                          style: AppTextStyles.body.copyWith(color: const Color(0xFF6B7280)),
+                          'Ustoz hisobiga kirish',
+                          style: AppTextStyles.body
+                              .copyWith(color: const Color(0xFF6B7280)),
                         ),
                       ],
                     ),
@@ -115,14 +149,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         AlochiInput(
-                          label: 'Email',
-                          hintText: 'example@gmail.com',
+                          label: 'Foydalanuvchi nomi',
+                          hintText: 'shoiraxon_0579',
                           controller: _emailCtrl,
-                          keyboardType: TextInputType.emailAddress,
-                          prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                          keyboardType: TextInputType.text,
+                          prefixIcon: const Icon(Icons.person_outline_rounded,
+                              size: 20),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'Email kiriting';
-                            if (!v.contains('@')) return 'Email noto\'g\'ri';
+                            if (v == null || v.isEmpty) {
+                              return 'Foydalanuvchi nomini kiriting';
+                            }
                             return null;
                           },
                         ),
@@ -132,7 +168,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           hintText: '********',
                           controller: _passwordCtrl,
                           isPassword: true,
-                          prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+                          prefixIcon:
+                              const Icon(Icons.lock_outline_rounded, size: 20),
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'Parol kiriting';
                             if (v.length < 6) return 'Parol kamida 6 ta belgi';
@@ -147,7 +184,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               height: 24,
                               child: Checkbox(
                                 value: _rememberMe,
-                                onChanged: (v) => setState(() => _rememberMe = v ?? false),
+                                onChanged: (v) =>
+                                    setState(() => _rememberMe = v ?? false),
                                 activeColor: AppColors.brand,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4),
@@ -157,14 +195,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             const SizedBox(width: 8),
                             Text(
                               'Eslab qolish',
-                              style: AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+                              style: AppTextStyles.bodyS
+                                  .copyWith(color: AppColors.ink),
                             ),
                             const Spacer(),
                             TextButton(
                               onPressed: () => context.push('/forgot-password'),
                               child: Text(
                                 'Parolni unutdingizmi?',
-                                style: AppTextStyles.label.copyWith(color: AppColors.brand),
+                                style: AppTextStyles.label
+                                    .copyWith(color: AppColors.brand),
                               ),
                             ),
                           ],
