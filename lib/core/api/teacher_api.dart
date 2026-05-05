@@ -404,8 +404,8 @@ class TeacherApi {
       }
       if (list.isEmpty) return [];
       return list
-          .map(
-              (e) => TelegramGroupStatusData.fromJson(e as Map<String, dynamic>))
+          .map((e) =>
+              TelegramGroupStatusData.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e, st) {
       debugPrint('getTelegramGroupsStatus error: $e\n$st');
@@ -476,4 +476,3 @@ class TeacherApi {
     }
   }
 }
-

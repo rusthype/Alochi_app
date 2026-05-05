@@ -44,11 +44,7 @@ import '../features/teacher/telegram/telegram_parents_screen.dart';
 import '../features/teacher/telegram/unlinked_parents_screen.dart';
 import '../features/teacher/profile/profile_screen.dart' as teacher_profile;
 import '../core/models/test_model.dart';
-
-String _todayString() {
-  final now = DateTime.now();
-  return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-}
+import '../core/utils/date_utils.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -167,7 +163,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               final lessonId = state.pathParameters['id'] ?? '';
               final extra = state.extra as Map<String, dynamic>? ?? {};
               final classId = extra['classId']?.toString() ?? lessonId;
-              final date = extra['date']?.toString() ?? _todayString();
+              final date = extra['date']?.toString() ?? todayIsoString();
               return AttendanceMarkScreen(classId: classId, date: date);
             },
           ),
@@ -213,8 +209,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/teacher/profile',
-            builder: (context, state) =>
-                const teacher_profile.ProfileScreen(),
+            builder: (context, state) => const teacher_profile.ProfileScreen(),
           ),
           GoRoute(
             path: '/teacher/profile/telegram',

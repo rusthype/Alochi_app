@@ -179,8 +179,8 @@ class _GroupsList extends ConsumerWidget {
         const SizedBox(height: AppSpacing.l),
         ...groups.map((group) => _GroupCard(
               group: group,
-              onTap: () =>
-                  context.push('/teacher/telegram/groups/${group.groupId}/unlinked'),
+              onTap: () => context
+                  .push('/teacher/telegram/groups/${group.groupId}/unlinked'),
             )),
       ],
     );
@@ -213,8 +213,8 @@ class _GroupCard extends StatelessWidget {
                       children: [
                         Text(
                           group.groupName,
-                          style:
-                              AppTextStyles.titleM.copyWith(color: AppColors.ink),
+                          style: AppTextStyles.titleM
+                              .copyWith(color: AppColors.ink),
                         ),
                         if (group.subject.isNotEmpty)
                           Text(
@@ -234,8 +234,8 @@ class _GroupCard extends StatelessWidget {
                 children: [
                   Text(
                     '${group.linkedCount}/${group.totalParents} ota-ona ulangan',
-                    style:
-                        AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.brandMuted),
                   ),
                   const Spacer(),
                   Text(

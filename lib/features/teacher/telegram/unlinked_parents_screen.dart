@@ -21,8 +21,7 @@ class UnlinkedParentsScreen extends ConsumerStatefulWidget {
       _UnlinkedParentsScreenState();
 }
 
-class _UnlinkedParentsScreenState
-    extends ConsumerState<UnlinkedParentsScreen> {
+class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
   final Set<String> _sending = {};
   bool _sendingAll = false;
 
@@ -191,8 +190,7 @@ class _ParentsList extends StatelessWidget {
           child: ListView.separated(
             padding: const EdgeInsets.all(AppSpacing.l),
             itemCount: parents.length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: AppSpacing.s),
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s),
             itemBuilder: (context, index) {
               final parent = parents[index];
               return _ParentRow(
@@ -257,8 +255,8 @@ class _ParentRow extends StatelessWidget {
               children: [
                 Text(
                   parent.parentName.isEmpty ? 'Ota-ona' : parent.parentName,
-                  style: AppTextStyles.titleM.copyWith(
-                      color: AppColors.ink, fontSize: 14),
+                  style: AppTextStyles.titleM
+                      .copyWith(color: AppColors.ink, fontSize: 14),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -301,8 +299,8 @@ class _ParentRow extends StatelessWidget {
                         const Icon(Icons.send_rounded, size: 14),
                         const SizedBox(width: 4),
                         Text('Eslatma',
-                            style:
-                                AppTextStyles.label.copyWith(color: Colors.white)),
+                            style: AppTextStyles.label
+                                .copyWith(color: Colors.white)),
                       ],
                     ),
             ),

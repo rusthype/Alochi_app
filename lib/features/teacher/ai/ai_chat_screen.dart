@@ -151,8 +151,8 @@ class _AiChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               Text(
                 'Pedagogik yordamchi',
-                style: AppTextStyles.caption
-                    .copyWith(color: AppColors.brandMuted),
+                style:
+                    AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
               ),
             ],
           ),
@@ -355,9 +355,8 @@ class _AiMessageBubble extends StatelessWidget {
                       ],
               ),
               child: Column(
-                crossAxisAlignment: isUser
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
@@ -437,8 +436,7 @@ class _AiTypingIndicatorState extends State<_AiTypingIndicator>
           ),
           Container(
             margin: const EdgeInsets.only(top: 2, bottom: 2),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: const BorderRadius.only(
@@ -453,8 +451,8 @@ class _AiTypingIndicatorState extends State<_AiTypingIndicator>
               opacity: _opacity,
               child: Text(
                 "AI o'ylayapti...",
-                style: AppTextStyles.bodyS
-                    .copyWith(color: AppColors.brandMuted),
+                style:
+                    AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
               ),
             ),
           ),
@@ -580,8 +578,8 @@ class _AiComposerState extends State<_AiComposer> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppRadii.round),
-                    borderSide: const BorderSide(
-                        color: AppColors.accent, width: 1.5),
+                    borderSide:
+                        const BorderSide(color: AppColors.accent, width: 1.5),
                   ),
                 ),
               ),
@@ -606,8 +604,7 @@ class _AiComposerState extends State<_AiComposer> {
                     )
                   : Icon(
                       Icons.send_rounded,
-                      color:
-                          _hasText ? Colors.white : AppColors.brandMuted,
+                      color: _hasText ? Colors.white : AppColors.brandMuted,
                       size: 20,
                     ),
             ),

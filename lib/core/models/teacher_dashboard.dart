@@ -1,3 +1,5 @@
+import '../utils/date_utils.dart';
+
 class TeacherDashboardSummary {
   final String greeting;
   final List<LessonModel> todayLessons;
@@ -28,7 +30,7 @@ class TeacherDashboardSummary {
     Map<String, dynamic> dashData,
     Map<String, dynamic> ttData,
   ) {
-    final today = _todayUzbekDayName();
+    final today = todayUzbekDayName();
     final week = (ttData['week'] as List?) ?? [];
     final todayEntry = week.firstWhere(
       (d) => d['day'] == today,
@@ -45,7 +47,7 @@ class TeacherDashboardSummary {
             '',
         subject: m['subject']?.toString() ?? '',
         studentCount: (m['student_count'] as num?)?.toInt() ?? 0,
-        isActive: _isLessonNow(m['time']?.toString() ?? ''),
+        isActive: isLessonNow(m['time']?.toString() ?? ''),
       );
     }).toList();
 
@@ -77,33 +79,6 @@ class TeacherDashboardSummary {
       concerns: concerns,
     );
   }
-}
-
-String _todayUzbekDayName() {
-  const days = [
-    'Dushanba',
-    'Seshanba',
-    'Chorshanba',
-    'Payshanba',
-    'Juma',
-    'Shanba',
-    'Yakshanba',
-  ];
-  return days[DateTime.now().weekday - 1];
-}
-
-bool _isLessonNow(String time) {
-  if (time.isEmpty) return false;
-  final parts = time.split(':');
-  if (parts.length < 2) return false;
-  final now = DateTime.now();
-  final start = DateTime(
-    now.year, now.month, now.day,
-    int.tryParse(parts[0]) ?? 0,
-    int.tryParse(parts[1]) ?? 0,
-  );
-  final end = start.add(const Duration(minutes: 45));
-  return now.isAfter(start) && now.isBefore(end);
 }
 
 class LessonModel {

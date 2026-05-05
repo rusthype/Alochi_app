@@ -23,8 +23,8 @@ final telegramGroupsProvider =
 
 // ─── Unlinked parents provider ────────────────────────────────────────────────
 
-final unlinkedParentsProvider =
-    FutureProvider.autoDispose.family<List<UnlinkedParentData>, String>((ref, groupId) async {
+final unlinkedParentsProvider = FutureProvider.autoDispose
+    .family<List<UnlinkedParentData>, String>((ref, groupId) async {
   final api = ref.read(teacherApiProvider);
   try {
     final data = await api.getUnlinkedParents(groupId);

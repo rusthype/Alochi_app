@@ -74,8 +74,8 @@ class ProfileScreen extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.s),
                   Text(
                     err.toString(),
-                    style:
-                        AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.brandMuted),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.l),
@@ -83,8 +83,8 @@ class ProfileScreen extends ConsumerWidget {
                     onPressed: () => ref.invalidate(teacherProfileProvider),
                     child: Text(
                       'Qayta urinish',
-                      style: AppTextStyles.body
-                          .copyWith(color: AppColors.brand),
+                      style:
+                          AppTextStyles.body.copyWith(color: AppColors.brand),
                     ),
                   ),
                 ],
@@ -195,8 +195,8 @@ class _ProfileContent extends ConsumerWidget {
                       SnackBar(
                         content: Text(
                           'Tez orada',
-                          style: AppTextStyles.bodyS
-                              .copyWith(color: Colors.white),
+                          style:
+                              AppTextStyles.bodyS.copyWith(color: Colors.white),
                         ),
                         duration: const Duration(seconds: 1),
                         backgroundColor: AppColors.brandMuted,
@@ -216,8 +216,8 @@ class _ProfileContent extends ConsumerWidget {
                       SnackBar(
                         content: Text(
                           'Tez orada',
-                          style: AppTextStyles.bodyS
-                              .copyWith(color: Colors.white),
+                          style:
+                              AppTextStyles.bodyS.copyWith(color: Colors.white),
                         ),
                         duration: const Duration(seconds: 1),
                         backgroundColor: AppColors.brandMuted,
@@ -280,8 +280,7 @@ class _ProfileContent extends ConsumerWidget {
             },
             child: Text(
               'Chiqish',
-              style:
-                  AppTextStyles.body.copyWith(color: AppColors.danger),
+              style: AppTextStyles.body.copyWith(color: AppColors.danger),
             ),
           ),
         ],
@@ -356,8 +355,8 @@ class _ComingSoonBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(right: AppSpacing.s),
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.s, vertical: 2),
+      padding:
+          const EdgeInsets.symmetric(horizontal: AppSpacing.s, vertical: 2),
       decoration: BoxDecoration(
         color: AppColors.brandSoft,
         borderRadius: BorderRadius.circular(AppRadii.round),
