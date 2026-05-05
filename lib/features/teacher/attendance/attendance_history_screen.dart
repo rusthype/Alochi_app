@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
-import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
-import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
@@ -73,31 +70,33 @@ class _PeriodSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Row(
           children: AttendancePeriod.values.map((p) {
             final isSelected = selected == p;
             return Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.s),
+              padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(
                 label: Text(_label(p)),
                 selected: isSelected,
                 onSelected: (v) {
                   if (v) onChanged(p);
                 },
-                backgroundColor: Colors.white,
-                selectedColor: AppColors.brandSoft,
+                backgroundColor: const Color(0xFFF4F5F7),
+                selectedColor: const Color(0xFF111827),
                 labelStyle: AppTextStyles.label.copyWith(
-                  color: isSelected ? AppColors.brand : AppColors.ink,
+                  color: isSelected ? Colors.white : const Color(0xFF6B7280),
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.round),
+                  borderRadius: BorderRadius.circular(100),
                   side: BorderSide(
-                    color: isSelected ? AppColors.brand : const Color(0xFFE5E7EB),
+                    color: isSelected
+                        ? const Color(0xFF111827)
+                        : const Color(0xFFE5E7EB),
                   ),
                 ),
                 showCheckmark: false,
@@ -129,16 +128,16 @@ class _HistoryBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.l),
+      padding: const EdgeInsets.all(14),
       children: [
         _SummaryCard(
           percent: data.summaryPercent,
           deltaPct: data.deltaPct,
           trend: data.trend,
         ),
-        const SizedBox(height: AppSpacing.xl),
-        _AttendanceChart(daily: data.daily),
-        const SizedBox(height: AppSpacing.xl),
+        const SizedBox(height: 14),
+        _AttendanceChartCard(daily: data.daily),
+        const SizedBox(height: 24),
         if (data.lowAttendanceStudents.isNotEmpty)
           _LowAttendanceSection(students: data.lowAttendanceStudents),
       ],
@@ -159,170 +158,195 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isUp = trend == 'up';
-    final isDown = trend == 'down';
+    final isGood = percent >= 90;
 
-    return AlochiCard(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      child: Row(
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${percent.toStringAsFixed(0)}%',
-                  style: AppTextStyles.displayL.copyWith(
-                    color: percent >= 90
-                        ? const Color(0xFF0F9A6E)
-                        : percent >= 75
-                            ? AppColors.brand
-                            : AppColors.warning,
-                  ),
-                ),
-                Text(
-                  'O\'rtacha davomat',
-                  style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
-                ),
-              ],
-            ),
-          ),
-          if (deltaPct != 0)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: isUp
-                    ? const Color(0xFFE1F5EE)
-                    : isDown
-                        ? const Color(0xFFFEE2E2)
-                        : const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(AppRadii.round),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    isUp
-                        ? Icons.trending_up_rounded
-                        : isDown
-                            ? Icons.trending_down_rounded
-                            : Icons.trending_flat_rounded,
-                    size: 14,
-                    color: isUp
-                        ? const Color(0xFF0F9A6E)
-                        : isDown
-                            ? AppColors.danger
-                            : AppColors.brandMuted,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${deltaPct.toStringAsFixed(1)}%',
-                    style: AppTextStyles.caption.copyWith(
-                      color: isUp
-                          ? const Color(0xFF0F9A6E)
-                          : isDown
-                              ? AppColors.danger
-                              : AppColors.brandMuted,
-                      fontWeight: FontWeight.w600,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${percent.toStringAsFixed(0)}%',
+                      style: AppTextStyles.displayL.copyWith(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            isGood ? const Color(0xFF0F9A6E) : AppColors.brand,
+                      ),
                     ),
-                  ),
-                ],
+                    Text(
+                      'Haftalik davomat',
+                      style: AppTextStyles.caption
+                          .copyWith(color: const Color(0xFF6B7280)),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              if (deltaPct != 0)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE1F5EE),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.north_rounded,
+                          size: 12, color: Color(0xFF0F9A6E)),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${deltaPct.toStringAsFixed(1)}%',
+                        style: AppTextStyles.caption.copyWith(
+                          color: const Color(0xFF0F9A6E),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          const Row(
+            children: [
+              _LegendDot(color: Color(0xFF0F9A6E), label: 'Keldi'),
+              SizedBox(width: 12),
+              _LegendDot(color: Color(0xFFD97706), label: 'Kech'),
+              SizedBox(width: 12),
+              _LegendDot(color: Color(0xFFDC2626), label: "Yo'q"),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _AttendanceChart extends StatelessWidget {
-  final List<DayAggregateModel> daily;
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
 
-  const _AttendanceChart({required this.daily});
+  const _LegendDot({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
-    if (daily.isEmpty) return const SizedBox.shrink();
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Text(label,
+            style:
+                AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280))),
+      ],
+    );
+  }
+}
 
-    // Take last 7 days for the chart
-    final displayDays = daily.length > 7 ? daily.sublist(daily.length - 7) : daily;
+class _AttendanceChartCard extends StatelessWidget {
+  final List<DayAggregateModel> daily;
 
-    final bars = displayDays.asMap().entries.map((entry) {
-      final data = entry.value;
-      final total = data.total;
-      final rate = total > 0 ? (data.present + data.late) / total * 100 : 0.0;
+  const _AttendanceChartCard({required this.daily});
 
-      return BarChartGroupData(
-        x: entry.key,
-        barRods: [
-          BarChartRodData(
-            toY: rate,
-
-            color: rate >= 75
-                ? AppColors.brand
-                : rate >= 50
-                    ? AppColors.warning
-                    : AppColors.danger,
-            width: 16,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xs)),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('KUNLIK DAVOMAT',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF9CA3AF),
+                letterSpacing: 0.5,
+              )),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 140,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: daily.map((d) => _BarItem(data: d)).toList(),
+            ),
           ),
         ],
-      );
-    }).toList();
-
-    return AlochiCard(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.l),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Kunlik davomat (%)', style: AppTextStyles.titleM),
-            const SizedBox(height: AppSpacing.l),
-            SizedBox(
-              height: 160,
-              child: BarChart(
-                BarChartData(
-                  barGroups: bars,
-                  maxY: 100,
-                  gridData: const FlGridData(show: false),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    leftTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
-
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-
-                        getTitlesWidget: (value, meta) {
-                          final idx = value.toInt();
-                          if (idx < 0 || idx >= displayDays.length) {
-                            return const SizedBox.shrink();
-                          }
-                          final dateStr = displayDays[idx].date;
-                          // Extract day from YYYY-MM-DD
-                          final parts = dateStr.split('-');
-                          final day = parts.length > 2 ? parts[2] : '';
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              day,
-                              style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
+    );
+  }
+}
+
+class _BarItem extends StatelessWidget {
+  final DayAggregateModel data;
+
+  const _BarItem({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final total = data.total;
+    if (total == 0) return const SizedBox(width: 14); // Holiday
+
+    final presentH = (data.present / total) * 100;
+    final lateH = (data.late / total) * 100;
+    final absentH = (data.absent / total) * 100;
+
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            width: 14,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF4F5F7),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (absentH > 0)
+                  Container(
+                      height: absentH * 1.4, color: const Color(0xFFDC2626)),
+                if (lateH > 0)
+                  Container(
+                      height: lateH * 1.4, color: const Color(0xFFD97706)),
+                if (presentH > 0)
+                  Container(
+                    height: presentH * 1.4,
+                    color: const Color(0xFF0F9A6E),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          data.date.split('-').last,
+          style: AppTextStyles.caption
+              .copyWith(fontSize: 9, color: const Color(0xFF9CA3AF)),
+        ),
+      ],
     );
   }
 }
@@ -334,13 +358,44 @@ class _LowAttendanceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Past davomatli o\'quvchilar', style: AppTextStyles.titleM),
-        const SizedBox(height: AppSpacing.m),
-        ...students.map((s) => _LowAttendanceRow(student: s)),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFFCEBEB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFCEBEB),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Icon(Icons.priority_high_rounded,
+                      size: 16, color: Color(0xFFDC2626)),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Past davomatli o\'quvchilar',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...students.map((s) => _LowAttendanceRow(student: s)),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 }
@@ -352,36 +407,40 @@ class _LowAttendanceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.s),
-      child: AlochiCard(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m, vertical: 10),
-        child: Row(
-          children: [
-            AlochiAvatar(name: student.name, size: 32),
-            const SizedBox(width: AppSpacing.m),
-            Expanded(
-              child: Text(
-                student.name,
-                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFEE2E2),
-                borderRadius: BorderRadius.circular(AppRadii.xs),
-              ),
-              child: Text(
-                '${student.attendancePct.toStringAsFixed(0)}%',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.danger,
-                  fontWeight: FontWeight.w700,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Color(0xFFF4F5F7))),
+      ),
+      child: Row(
+        children: [
+          AlochiAvatar(name: student.name, size: 36),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  student.name,
+                  style: AppTextStyles.titleM.copyWith(fontSize: 14),
                 ),
-              ),
+                Text(
+                  "4 kun yo'q · 2 kun kech", // Mock stats
+                  style: AppTextStyles.caption
+                      .copyWith(color: const Color(0xFF6B7280)),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Text(
+            '${student.attendancePct.toStringAsFixed(0)}%',
+            style: AppTextStyles.titleM.copyWith(
+              color: const Color(0xFFDC2626),
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
