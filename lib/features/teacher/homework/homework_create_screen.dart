@@ -230,6 +230,10 @@ class _DeadlinePicker extends StatelessWidget {
               initialDate: value ?? DateTime.now().add(const Duration(days: 7)),
               firstDate: DateTime.now(),
               lastDate: DateTime.now().add(const Duration(days: 365)),
+              locale: const Locale('uz', 'UZ'),
+              helpText: 'Muddat tanlang',
+              cancelText: 'Bekor qilish',
+              confirmText: 'Tasdiqlash',
               builder: (ctx, child) {
                 return Theme(
                   data: Theme.of(ctx).copyWith(

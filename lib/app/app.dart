@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import '../theme/theme.dart';
@@ -14,6 +15,17 @@ class AlochiApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AlochiTheme.light,
       routerConfig: router,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('uz', 'UZ'),
+        Locale('uz', 'Cyrl'),
+        Locale('en', 'US'),
+      ],
+      locale: const Locale('uz', 'UZ'),
     );
   }
 }
