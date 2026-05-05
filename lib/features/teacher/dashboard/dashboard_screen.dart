@@ -30,7 +30,10 @@ class TeacherDashboardScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _GreetingHeader(greeting: summary.greeting),
+                  _GreetingHeader(
+                    greeting: summary.greeting,
+                    todayLessonsCount: summary.todayLessons.length,
+                  ),
                   const SizedBox(height: AppSpacing.xxl),
                   _TodayLessonsHorizontalList(lessons: summary.todayLessons),
                   const SizedBox(height: AppSpacing.xxl),
@@ -67,8 +70,12 @@ class TeacherDashboardScreen extends ConsumerWidget {
 
 class _GreetingHeader extends StatelessWidget {
   final String greeting;
+  final int todayLessonsCount;
 
-  const _GreetingHeader({required this.greeting});
+  const _GreetingHeader({
+    required this.greeting,
+    required this.todayLessonsCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +93,11 @@ class _GreetingHeader extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Bugun sizni 4 ta dars kutmoqda', // Hardcoded for now or from summary
-                style:
-                    AppTextStyles.body.copyWith(color: const Color(0xFF6B7280)),
+                todayLessonsCount == 0
+                    ? "Bugun darsingiz yo'q"
+                    : 'Bugun sizni $todayLessonsCount ta dars kutmoqda',
+                style: AppTextStyles.body
+                    .copyWith(color: AppColors.brandMuted),
               ),
             ],
           ),
