@@ -27,7 +27,18 @@ import '../features/parent/children/child_detail_screen.dart';
 import '../features/parent/notifications/parent_notifications_screen.dart';
 import '../features/teacher/shell/teacher_shell.dart';
 import '../features/teacher/dashboard/dashboard_screen.dart';
+import '../features/teacher/groups/groups_list_screen.dart';
+import '../features/teacher/groups/group_detail_screen.dart';
+import '../features/teacher/students/student_profile_screen.dart';
+import '../features/teacher/lesson/lesson_workflow_screen.dart';
+import '../features/teacher/attendance/attendance_mark_screen.dart';
+import '../features/teacher/attendance/attendance_history_screen.dart';
 import '../core/models/test_model.dart';
+
+String _todayString() {
+  final now = DateTime.now();
+  return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -110,23 +121,60 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/teacher/groups',
-            builder: (context, state) =>
-                const Scaffold(body: Center(child: Text('Guruhlar'))),
+            builder: (context, state) => const GroupsListScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/groups/:id',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return GroupDetailScreen(groupId: id);
+            },
+          ),
+          GoRoute(
+            path: '/teacher/groups/:id/attendance-history',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return AttendanceHistoryScreen(groupId: id);
+            },
+          ),
+          GoRoute(
+            path: '/teacher/students/:id',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return StudentProfileScreen(studentId: id);
+            },
+          ),
+          GoRoute(
+            path: '/teacher/lesson/:id',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return LessonWorkflowScreen(lessonId: id);
+            },
+          ),
+          GoRoute(
+            path: '/teacher/lesson/:id/attendance',
+            builder: (context, state) {
+              final lessonId = state.pathParameters['id'] ?? '';
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              final classId = extra['classId']?.toString() ?? lessonId;
+              final date = extra['date']?.toString() ?? _todayString();
+              return AttendanceMarkScreen(classId: classId, date: date);
+            },
           ),
           GoRoute(
             path: '/teacher/homework',
             builder: (context, state) =>
-                const Scaffold(body: Center(child: Text('Vazifalar'))),
+                const Scaffold(body: Center(child: Text('Vazifalar — Day 3'))),
           ),
           GoRoute(
             path: '/teacher/messages',
             builder: (context, state) =>
-                const Scaffold(body: Center(child: Text('Xabarlar'))),
+                const Scaffold(body: Center(child: Text('Xabarlar — Day 4'))),
           ),
           GoRoute(
             path: '/teacher/profile',
             builder: (context, state) =>
-                const Scaffold(body: Center(child: Text('Profil'))),
+                const Scaffold(body: Center(child: Text('Profil — Day 6'))),
           ),
         ],
       ),
