@@ -93,6 +93,7 @@ class AboutScreen extends StatelessWidget {
                 child: Text(
                   "© 2026 A'lochi. Barcha huquqlar himoyalangan.",
                   style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ],
