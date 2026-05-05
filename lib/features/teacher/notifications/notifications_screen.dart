@@ -36,8 +36,9 @@ class NotificationsScreen extends ConsumerWidget {
         data: (notifications) {
           if (notifications.isEmpty) {
             return const AlochiEmptyState(
-              title: 'Hali bildirishnomalar yo\'q',
-              subtitle: 'Yangi bildirishnomalar bo\'lganda bu yerda ko\'rasiz',
+              icon: Icons.notifications_none_rounded,
+              title: "Hali bildirishnomalar yo'q",
+              subtitle: "Yangi xabarlar va eslatmalar bu yerda ko'rinadi",
             );
           }
           return RefreshIndicator(
@@ -56,9 +57,12 @@ class NotificationsScreen extends ConsumerWidget {
         },
         loading: () => const _NotificationsSkeleton(),
         error: (err, _) => AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          iconColor: AppColors.danger,
           title: 'Yuklab bo\'lmadi',
           subtitle: err.toString(),
-          onCtaPressed: () => ref.refresh(notificationsProvider),
+          actionLabel: "Qayta urinish",
+          onAction: () => ref.refresh(notificationsProvider),
         ),
       ),
     );

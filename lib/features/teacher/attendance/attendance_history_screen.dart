@@ -30,7 +30,7 @@ class _AttendanceHistoryScreenState
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AlochiAppBar(title: 'Davomat tarixi'),
+      appBar: const AlochiAppBar(title: 'Davomat tarixi'),
       body: Column(
         children: [
           _PeriodChips(
@@ -48,8 +48,12 @@ class _AttendanceHistoryScreenState
                 child: CircularProgressIndicator(color: AppColors.brand),
               ),
               error: (err, _) => AlochiEmptyState(
-                title: "Ma'lumot topilmadi",
-                subtitle: err.toString(),
+                icon: Icons.calendar_today_outlined,
+                title: "Davomat tarixi yo'q",
+                subtitle: "Bu hafta davomat belgilanmagan",
+                actionLabel: "Qayta urinish",
+                onAction: () => ref.refresh(
+                    attendanceHistoryProvider((classId: widget.groupId, period: _selectedPeriod))),
               ),
             ),
           ),
@@ -190,7 +194,7 @@ class _SummaryCard extends StatelessWidget {
                   Text(
                     '${history.summaryPercent.toStringAsFixed(1)}%',
                     style: AppTextStyles.displayM.copyWith(
-                        color: color, fontWeight: FontWeight.w700),
+                        color: color),
                   ),
                   Text(
                     'Umumiy davomat',
@@ -216,12 +220,12 @@ class _SummaryCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.l),
             _MiniBarChart(days: history.daily),
             const SizedBox(height: AppSpacing.m),
-            Row(
+            const Row(
               children: [
-                _Legend(color: const Color(0xFF0F9A6E), label: 'Keldi'),
-                const SizedBox(width: AppSpacing.l),
-                _Legend(color: const Color(0xFFD97706), label: 'Kech'),
-                const SizedBox(width: AppSpacing.l),
+                _Legend(color: Color(0xFF0F9A6E), label: 'Keldi'),
+                SizedBox(width: AppSpacing.l),
+                _Legend(color: Color(0xFFD97706), label: 'Kech'),
+                SizedBox(width: AppSpacing.l),
                 _Legend(color: AppColors.danger, label: "Yo'q"),
               ],
             ),

@@ -57,7 +57,7 @@ class AttendanceMarkScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AlochiAppBar(title: 'Davomat belgilash'),
+      appBar: const AlochiAppBar(title: 'Davomat belgilash'),
       body: stateAsync.when(
         data: (state) => Column(
           children: [

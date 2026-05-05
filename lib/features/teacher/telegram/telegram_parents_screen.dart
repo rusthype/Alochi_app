@@ -45,7 +45,11 @@ class TelegramParentsScreen extends ConsumerWidget {
       body: groupsAsync.when(
         data: (groups) {
           if (groups.isEmpty) {
-            return const _ComingSoonState();
+            return const AlochiEmptyState(
+              icon: Icons.send_rounded,
+              title: "Ota-onalar bog'lanmagan",
+              subtitle: "Telegram orqali bog'lanish uchun guruhda kod ulashing",
+            );
           }
           return _GroupsList(groups: groups);
         },
@@ -53,79 +57,15 @@ class TelegramParentsScreen extends ConsumerWidget {
           child: CircularProgressIndicator(color: AppColors.brand),
         ),
         error: (err, _) {
-          // 404 or any error → gracefully show coming-soon
-          final isNotFound = err.toString().contains('topilmadi') ||
-              err.toString().contains('404') ||
-              err.toString().contains('Not found');
-          if (isNotFound) {
-            return const _ComingSoonState();
-          }
-          return _ErrorState(
-            message: err.toString(),
-            onRetry: () => ref.invalidate(telegramGroupsProvider),
+          return AlochiEmptyState(
+            icon: Icons.error_outline_rounded,
+            iconColor: AppColors.danger,
+            title: "Ma'lumotlarni yuklashda xato",
+            subtitle: err.toString(),
+            actionLabel: "Qayta urinish",
+            onAction: () => ref.invalidate(telegramGroupsProvider),
           );
         },
-      ),
-    );
-  }
-}
-
-// ─── Coming-soon state ────────────────────────────────────────────────────────
-
-class _ComingSoonState extends StatelessWidget {
-  const _ComingSoonState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      child: Column(
-        children: [
-          const _ExplainerBanner(),
-          const SizedBox(height: AppSpacing.l),
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F0FE),
-                      borderRadius: BorderRadius.circular(AppRadii.xxl),
-                    ),
-                    child: const Icon(
-                      Icons.send_rounded,
-                      color: Color(0xFF0088CC),
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.l),
-                  Text(
-                    'Telegram statuslari',
-                    style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppSpacing.s),
-                  Text(
-                    "Telegram statuslari tez orada qo'shiladi",
-                    style: AppTextStyles.body
-                        .copyWith(color: AppColors.brandMuted),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: AppSpacing.s),
-                  Text(
-                    'Backend ishlab chiqilmoqda',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.warning),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -275,21 +215,4 @@ class _GroupCard extends StatelessWidget {
   }
 }
 
-// ─── Error state ─────────────────────────────────────────────────────────────
 
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorState({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlochiEmptyState(
-      title: "Ma'lumotlarni yuklashda xato",
-      subtitle: message,
-      ctaLabel: "Qayta urinish",
-      onCtaPressed: onRetry,
-    );
-  }
-}

@@ -55,8 +55,12 @@ class GradesScreen extends ConsumerWidget {
         ),
         loading: () => const _GradesLoadingSkeleton(),
         error: (err, _) => AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          iconColor: AppColors.danger,
           title: 'Yuklab bo\'lmadi',
           subtitle: err.toString(),
+          actionLabel: "Qayta urinish",
+          onAction: () => ref.invalidate(gradesJournalProvider(groupId)),
         ),
       ),
     );
@@ -130,8 +134,9 @@ class _GradesBody extends ConsumerWidget {
 
     if (data.students.isEmpty) {
       return const AlochiEmptyState(
-        title: 'Baholar yo\'q',
-        subtitle: 'Bu guruh uchun hali baho kiritilmagan',
+        icon: Icons.groups_outlined,
+        title: "O'quvchilar yo'q",
+        subtitle: "Bu guruhda hali o'quvchilar yo'q",
       );
     }
 

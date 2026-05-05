@@ -35,8 +35,9 @@ class GroupsListScreen extends ConsumerWidget {
         data: (groups) {
           if (groups.isEmpty) {
             return const AlochiEmptyState(
-              title: "Hali guruhingiz yo'q",
-              subtitle: 'Admin sinfni biriktirgach, bu yerda ko\'rinadi',
+              icon: Icons.groups_outlined,
+              title: "Guruhlar yo'q",
+              subtitle: "Direktor sizga guruh tayinlaydi",
             );
           }
           return RefreshIndicator(
@@ -56,32 +57,13 @@ class GroupsListScreen extends ConsumerWidget {
           );
         },
         loading: () => const _GroupsLoadingSkeleton(),
-        error: (err, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xxl),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.wifi_off_rounded,
-                    size: 48, color: AppColors.warning),
-                const SizedBox(height: AppSpacing.l),
-                Text('Guruhlarni yuklab bo\'lmadi',
-                    style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
-                const SizedBox(height: AppSpacing.s),
-                Text(err.toString(),
-                    style:
-                        AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
-                    textAlign: TextAlign.center),
-                const SizedBox(height: AppSpacing.l),
-                TextButton(
-                  onPressed: () => ref.refresh(groupsListProvider),
-                  child: Text('Qayta urinish',
-                      style: AppTextStyles.body
-                          .copyWith(color: AppColors.brand)),
-                ),
-              ],
-            ),
-          ),
+        error: (err, _) => AlochiEmptyState(
+          icon: Icons.wifi_off_rounded,
+          iconColor: AppColors.warning,
+          title: 'Guruhlarni yuklab bo\'lmadi',
+          subtitle: err.toString(),
+          actionLabel: "Qayta urinish",
+          onAction: () => ref.refresh(groupsListProvider),
         ),
       ),
     );
@@ -250,17 +232,17 @@ class _SkeletonCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               _Shimmer(width: 56, height: 22),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               _Shimmer(width: 120, height: 14),
             ],
           ),
-          const Spacer(),
+          Spacer(),
           _Shimmer(width: double.infinity, height: 6),
         ],
       ),

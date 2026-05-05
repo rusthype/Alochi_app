@@ -24,7 +24,7 @@ class HomeworkDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AlochiAppBar(title: 'Vazifa'),
+      appBar: const AlochiAppBar(title: 'Vazifa'),
       body: hwAsync.when(
         data: (hw) => _HomeworkDetailBody(hw: hw, hwId: hwId),
         loading: () => const Center(

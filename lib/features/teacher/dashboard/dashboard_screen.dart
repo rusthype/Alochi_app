@@ -45,12 +45,13 @@ class TeacherDashboardScreen extends ConsumerWidget {
                     _ConcernsSection(concerns: summary.concerns),
                   ],
                   if (summary.todayLessons.isEmpty && summary.concerns.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(AppSpacing.xl),
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xl),
                       child: Center(
                         child: Text(
                           'Hozircha hech qanday ma\'lumot yo\'q',
-                          style: TextStyle(color: Color(0xFF6B7280)),
+                          style: AppTextStyles.bodyS
+                              .copyWith(color: const Color(0xFF6B7280)),
                         ),
                       ),
                     ),
@@ -297,7 +298,7 @@ class _LessonCardActive extends StatelessWidget {
                 child: Text(
                   'Darsni ochish',
                   style: AppTextStyles.label.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Colors.white, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -443,7 +444,8 @@ class _ConcernRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(concern.title,
-                        style: AppTextStyles.titleM.copyWith(fontSize: 15)),
+                        style: AppTextStyles.body
+                            .copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 2),
                     Text(
                       '${concern.count} ta yangi',

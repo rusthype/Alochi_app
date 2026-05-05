@@ -35,10 +35,12 @@ class MessagesListScreen extends ConsumerWidget {
             _ConversationsList(conversations: conversations),
         loading: () => const _ConversationsSkeleton(),
         error: (err, _) => AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          iconColor: AppColors.danger,
           title: "Xabarlarni yuklashda xato",
           subtitle: err.toString(),
-          ctaLabel: "Qayta urinish",
-          onCtaPressed: () => ref.invalidate(conversationsProvider),
+          actionLabel: "Qayta urinish",
+          onAction: () => ref.invalidate(conversationsProvider),
         ),
       ),
     );
@@ -54,10 +56,11 @@ class _ConversationsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (conversations.isEmpty) {
       return AlochiEmptyState(
-        title: "Hali xabarlar yo'q",
-        subtitle: "Ota-onalar bilan yozishmalar bu yerda ko'rinadi",
-        ctaLabel: "Yangilash",
-        onCtaPressed: () => ref.invalidate(conversationsProvider),
+        icon: Icons.chat_bubble_outline_rounded,
+        title: "Hozircha xabarlar yo'q",
+        subtitle: "Ota-onalar bilan suhbatlar bu yerda ko'rinadi",
+        actionLabel: "Yangilash",
+        onAction: () => ref.invalidate(conversationsProvider),
       );
     }
 

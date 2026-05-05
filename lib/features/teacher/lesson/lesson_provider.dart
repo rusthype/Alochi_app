@@ -22,7 +22,7 @@ class LessonWorkflowState {
   bool isCompleted(WorkflowStep step) => completedSteps.contains(step);
 
   bool isLocked(WorkflowStep step) {
-    final order = WorkflowStep.values;
+    const order = WorkflowStep.values;
     final stepIdx = order.indexOf(step);
     if (stepIdx == 0) return false;
     final prev = order[stepIdx - 1];
@@ -31,7 +31,7 @@ class LessonWorkflowState {
 
   LessonWorkflowState completeStep(WorkflowStep step) {
     final newCompleted = Set<WorkflowStep>.from(completedSteps)..add(step);
-    final order = WorkflowStep.values;
+    const order = WorkflowStep.values;
     final nextIdx = order.indexOf(step) + 1;
     final nextStep = nextIdx < order.length ? order[nextIdx] : step;
     return LessonWorkflowState(
@@ -50,7 +50,7 @@ class LessonWorkflowNotifier extends StateNotifier<LessonWorkflowState> {
 
   /// Move back to the previous step (uncompletes current if already completed).
   void backStep(WorkflowStep step) {
-    final order = WorkflowStep.values;
+    const order = WorkflowStep.values;
     final idx = order.indexOf(step);
     if (idx <= 0) return;
     final prev = order[idx - 1];

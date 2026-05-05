@@ -20,7 +20,7 @@ class HomeworkListScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AlochiAppBar(title: 'Vazifalar'),
+      appBar: const AlochiAppBar(title: 'Vazifalar'),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/teacher/homework/create'),
         backgroundColor: AppColors.brand,
@@ -38,8 +38,12 @@ class HomeworkListScreen extends ConsumerWidget {
           child: CircularProgressIndicator(color: AppColors.brand),
         ),
         error: (err, _) => AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          iconColor: AppColors.danger,
           title: 'Yuklab bo\'lmadi',
           subtitle: err.toString(),
+          actionLabel: "Qayta urinish",
+          onAction: () => ref.invalidate(homeworkListProvider),
         ),
       ),
     );
@@ -54,9 +58,12 @@ class _HomeworkListBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (data.assignments.isEmpty) {
-      return const AlochiEmptyState(
-        title: 'Vazifa yaratmagansiz',
-        subtitle: 'Yangi vazifa yaratish uchun + tugmasini bosing',
+      return AlochiEmptyState(
+        icon: Icons.assignment_outlined,
+        title: "Vazifalar yaratilmagan",
+        subtitle: "Birinchi vazifani yaratish uchun + tugmasini bosing",
+        actionLabel: "Vazifa yaratish",
+        onAction: () => context.push('/teacher/homework/create'),
       );
     }
 
@@ -138,8 +145,7 @@ class _StatTile extends StatelessWidget {
       children: [
         Text(
           value,
-          style: AppTextStyles.displayM
-              .copyWith(color: color, fontWeight: FontWeight.w700),
+          style: AppTextStyles.displayM.copyWith(color: color),
         ),
         Text(
           label,

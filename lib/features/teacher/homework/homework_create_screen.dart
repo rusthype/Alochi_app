@@ -173,7 +173,7 @@ class _GroupDropdown extends StatelessWidget {
             border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
           child: DropdownButtonFormField<String>(
-            value: selectedId,
+            initialValue: selectedId,
             isExpanded: true,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.symmetric(

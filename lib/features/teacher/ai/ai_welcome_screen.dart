@@ -138,7 +138,6 @@ class _AiHeroSection extends StatelessWidget {
           'AI Yordamchi',
           style: AppTextStyles.displayM.copyWith(
             color: AppColors.accent,
-            fontWeight: FontWeight.w700,
           ),
           textAlign: TextAlign.center,
         ),

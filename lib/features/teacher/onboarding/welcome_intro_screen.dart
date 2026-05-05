@@ -108,7 +108,6 @@ class WelcomeIntroScreen extends ConsumerWidget {
                     'Xush kelibsiz, Ustoz!',
                     style: AppTextStyles.displayM.copyWith(
                       color: AppColors.ink,
-                      fontWeight: FontWeight.w700,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -185,8 +184,8 @@ class _FeatureBullets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         _BulletRow(
           icon: Icons.checklist_rounded,
           text: 'Davomat va baholarni bir joyda',

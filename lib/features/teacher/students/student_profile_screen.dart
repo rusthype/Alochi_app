@@ -395,13 +395,13 @@ class _AttendanceCalendar extends StatelessWidget {
             }).toList(),
           ),
           const SizedBox(height: AppSpacing.m),
-          Row(
+          const Row(
             children: [
-              _Legend(color: const Color(0xFFE1F5EE), label: 'Keldi'),
-              const SizedBox(width: AppSpacing.l),
-              _Legend(color: const Color(0xFFFAEEDA), label: 'Kech'),
-              const SizedBox(width: AppSpacing.l),
-              _Legend(color: const Color(0xFFFCEBEB), label: "Yo'q"),
+              _Legend(color: Color(0xFFE1F5EE), label: 'Keldi'),
+              SizedBox(width: AppSpacing.l),
+              _Legend(color: Color(0xFFFAEEDA), label: 'Kech'),
+              SizedBox(width: AppSpacing.l),
+              _Legend(color: Color(0xFFFCEBEB), label: "Yo'q"),
             ],
           ),
         ],

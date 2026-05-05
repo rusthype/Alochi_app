@@ -69,11 +69,11 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
             ),
           ],
         ),
-        loading: () => AlochiAppBar(
+        loading: () => const AlochiAppBar(
           title: 'Guruh',
-          actions: const [],
+          actions: [],
         ),
-        error: (_, __) => AlochiAppBar(title: 'Guruh'),
+        error: (_, __) => const AlochiAppBar(title: 'Guruh'),
       ),
       body: Column(
         children: [
@@ -233,8 +233,7 @@ class _StatTile extends StatelessWidget {
       children: [
         Text(
           value,
-          style: AppTextStyles.displayM.copyWith(
-              color: valueColor, fontWeight: FontWeight.w700),
+          style: AppTextStyles.displayM.copyWith(color: valueColor),
         ),
         Text(
           label,

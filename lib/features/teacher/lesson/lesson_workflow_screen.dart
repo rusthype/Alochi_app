@@ -65,8 +65,8 @@ class LessonWorkflowScreen extends ConsumerWidget {
               ),
           ],
         ),
-        loading: () => AlochiAppBar(title: 'Dars'),
-        error: (_, __) => AlochiAppBar(title: 'Dars'),
+        loading: () => const AlochiAppBar(title: 'Dars'),
+        error: (_, __) => const AlochiAppBar(title: 'Dars'),
       ),
       body: lessonAsync.when(
         data: (lesson) => _LessonWorkflowBody(

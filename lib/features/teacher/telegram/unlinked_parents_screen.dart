@@ -318,7 +318,7 @@ class _AllLinkedState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlochiEmptyState(
+    return const AlochiEmptyState(
       title: "Barchasi ulangan",
       subtitle: "Barcha ota-onalar Telegram botga ulangan",
       ctaLabel: '',
