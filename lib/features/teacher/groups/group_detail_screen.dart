@@ -4,10 +4,12 @@ import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
+import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_button.dart';
 import '../../../core/models/group_model.dart';
 import '../../../core/models/student_model.dart';
 import 'groups_provider.dart';
@@ -132,28 +134,33 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                     ),
                   ),
                 ),
-                // Attendance tab — placeholder (Day 3)
-                Center(
-                  child: Text(
-                    'Davomat tarixi (Day 3)',
-                    style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.brandMuted),
+                // Attendance tab
+                _AttendanceTab(groupId: widget.groupId),
+                // Grades tab
+                groupAsync.when(
+                  data: (group) => _GradesTab(
+                    groupId: widget.groupId,
+                    subject: group.subjectName,
+                    groupName: group.code,
                   ),
-                ),
-                // Grades tab — placeholder (Day 3)
-                Center(
-                  child: Text(
-                    "Baholar (Day 3)",
-                    style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.brandMuted),
+                  loading: () => const Center(
+                    child: CircularProgressIndicator(color: AppColors.brand),
+                  ),
+                  error: (_, __) => _GradesTab(
+                    groupId: widget.groupId,
+                    subject: '',
+                    groupName: '',
                   ),
                 ),
                 // Analytics tab — placeholder (V1.2)
                 Center(
-                  child: Text(
-                    'Tahlil (V1.2)',
-                    style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.brandMuted),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xxl),
+                    child: Text(
+                      'Tahlil V1.2 da qo\'shiladi',
+                      style: AppTextStyles.bodyS
+                          .copyWith(color: AppColors.brandMuted),
+                    ),
                   ),
                 ),
               ],
@@ -339,6 +346,130 @@ class _StudentRow extends StatelessWidget {
     if (att != null) parts.add('Davomat ${att.toStringAsFixed(0)}%');
     if (avg != null) parts.add("O'rt. ${avg.toStringAsFixed(1)}");
     return parts.join(' · ');
+  }
+}
+
+// ─── Attendance Tab ──────────────────────────────────────────────────────────
+
+class _AttendanceTab extends StatelessWidget {
+  final String groupId;
+
+  const _AttendanceTab({required this.groupId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.m),
+            decoration: BoxDecoration(
+              color: AppColors.brandSoft,
+              borderRadius: BorderRadius.circular(AppRadii.l),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.how_to_reg_outlined,
+                    color: AppColors.brand, size: 20),
+                const SizedBox(width: AppSpacing.m),
+                Expanded(
+                  child: Text(
+                    'Guruh davomati va tarixi',
+                    style: AppTextStyles.body
+                        .copyWith(color: AppColors.brandInk),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.l),
+          AlochiButton.secondary(
+            label: 'Davomat tarixi',
+            icon: Icons.history_rounded,
+            onPressed: () =>
+                context.push('/teacher/groups/$groupId/attendance-history'),
+          ),
+          const SizedBox(height: AppSpacing.m),
+          AlochiButton.primary(
+            label: 'Bugungi davomatni belgilash',
+            icon: Icons.how_to_reg_rounded,
+            onPressed: () {
+              final today = _todayString();
+              context.push(
+                '/teacher/lesson/$groupId/attendance',
+                extra: {'classId': groupId, 'date': today},
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _todayString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+}
+
+// ─── Grades Tab ───────────────────────────────────────────────────────────────
+
+class _GradesTab extends StatelessWidget {
+  final String groupId;
+  final String subject;
+  final String groupName;
+
+  const _GradesTab({
+    required this.groupId,
+    required this.subject,
+    required this.groupName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.m),
+            decoration: BoxDecoration(
+              color: AppColors.brandSoft,
+              borderRadius: BorderRadius.circular(AppRadii.l),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.grade_outlined,
+                    color: AppColors.brand, size: 20),
+                const SizedBox(width: AppSpacing.m),
+                Expanded(
+                  child: Text(
+                    'Guruh baholari jurnali',
+                    style: AppTextStyles.body
+                        .copyWith(color: AppColors.brandInk),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.l),
+          AlochiButton.primary(
+            label: 'Baho qo\'yish',
+            icon: Icons.edit_rounded,
+            onPressed: () => context.push(
+              '/teacher/groups/$groupId/grades',
+              extra: {
+                'subject': subject,
+                'groupName': groupName,
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
