@@ -11,10 +11,18 @@ class TeacherApi {
 
   // ───── Dashboard ─────────────────────────────────────────────────────────
 
+  /// Composes dashboard summary from real endpoints:
+  ///   GET /teacher/panel/dashboard/  → attendance_today, top_students, etc.
+  ///   GET /teacher/timetable/        → week.lessons filtered by today's weekday
   Future<TeacherDashboardSummary> getDashboardSummary() async {
     try {
-      final data = await _client.get('/teacher/dashboard/summary/') as Map<String, dynamic>;
-      return TeacherDashboardSummary.fromJson(data);
+      final results = await Future.wait([
+        _client.get('/teacher/panel/dashboard/'),
+        _client.get('/teacher/timetable/'),
+      ]);
+      final dashData = results[0] as Map<String, dynamic>;
+      final ttData = results[1] as Map<String, dynamic>;
+      return TeacherDashboardSummary.fromComposed(dashData, ttData);
     } catch (e, st) {
       debugPrint('getDashboardSummary error: $e\n$st');
       rethrow;
@@ -25,7 +33,7 @@ class TeacherApi {
 
   Future<List<GroupModel>> getGroups() async {
     try {
-      final data = await _client.get('/teacher/classes/');
+      final data = await _client.get('/teacher/panel/groups/');
       List<dynamic> list;
       if (data is Map<String, dynamic>) {
         list = data['results'] as List? ?? [];
@@ -44,19 +52,8 @@ class TeacherApi {
 
   Future<GroupModel> getGroupDetail(String groupId) async {
     try {
-      final data = await _client.get('/teacher/classes/$groupId/') as Map<String, dynamic>;
-      return GroupModel.fromJson(data);
-    } catch (e, st) {
-      debugPrint('getGroupDetail error: $e\n$st');
-      rethrow;
-    }
-  }
-
-  // ───── Students ──────────────────────────────────────────────────────────
-
-  Future<List<StudentModel>> getGroupStudents(String groupId) async {
-    try {
-      final data = await _client.get('/teacher/classes/$groupId/students/');
+      // /teacher/panel/groups/:id/ returns 404 — fall back to listing and filtering
+      final data = await _client.get('/teacher/panel/groups/');
       List<dynamic> list;
       if (data is Map<String, dynamic>) {
         list = data['results'] as List? ?? [];
@@ -65,8 +62,41 @@ class TeacherApi {
       } else {
         list = [];
       }
-      if (list.isEmpty) return [];
-      return list.map((e) => StudentModel.fromJson(e as Map<String, dynamic>)).toList();
+      final match = list.firstWhere(
+        (e) => (e as Map<String, dynamic>)['id']?.toString() == groupId,
+        orElse: () => <String, dynamic>{'id': groupId},
+      );
+      return GroupModel.fromJson(match as Map<String, dynamic>);
+    } catch (e, st) {
+      debugPrint('getGroupDetail error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  // ───── Students ──────────────────────────────────────────────────────────
+
+  /// Returns students for a group using the panel attendance endpoint
+  /// which reliably returns the student list.
+  Future<List<StudentModel>> getGroupStudents(String groupId) async {
+    try {
+      final data = await _client
+          .get('/teacher/panel/groups/$groupId/attendance/');
+      if (data is Map<String, dynamic>) {
+        final rawStudents = data['students'] as List? ?? [];
+        if (rawStudents.isEmpty) return [];
+        return rawStudents.map((e) {
+          final m = e as Map<String, dynamic>;
+          // attendance endpoint returns {id, name, status}
+          final nameParts = (m['name']?.toString() ?? '').split(' ');
+          return StudentModel(
+            id: m['id']?.toString() ?? '',
+            firstName: nameParts.isNotEmpty ? nameParts[0] : '',
+            lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
+            classId: groupId,
+          );
+        }).toList();
+      }
+      return [];
     } catch (e, st) {
       debugPrint('getGroupStudents error: $e\n$st');
       rethrow;

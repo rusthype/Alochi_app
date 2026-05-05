@@ -20,9 +20,16 @@ class GroupModel {
   factory GroupModel.fromJson(Map<String, dynamic> json) {
     return GroupModel(
       id: json['id']?.toString() ?? '',
-      code: json['code']?.toString() ?? '',
-      subjectName: json['subject_name']?.toString() ?? '',
-      studentsCount: (json['students_count'] as num?)?.toInt() ?? 0,
+      // API returns 'name'; fall back to 'code' for older shapes
+      code: json['name']?.toString() ?? json['code']?.toString() ?? '',
+      // API returns 'subject'; fall back to 'subject_name' for older shapes
+      subjectName: json['subject']?.toString() ??
+          json['subject_name']?.toString() ??
+          '',
+      // API returns 'student_count'; fall back to 'students_count'
+      studentsCount: (json['student_count'] as num?)?.toInt() ??
+          (json['students_count'] as num?)?.toInt() ??
+          0,
       nextLessonAt: json['next_lesson_at']?.toString(),
       attendancePct: (json['attendance_pct'] as num?)?.toDouble() ?? 0,
       avgGrade: (json['avg_grade'] as num?)?.toDouble() ?? 0,

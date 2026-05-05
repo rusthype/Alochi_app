@@ -20,6 +20,90 @@ class TeacherDashboardSummary {
           .toList(),
     );
   }
+
+  /// Compose from:
+  ///   GET /teacher/panel/dashboard/ → dashData
+  ///   GET /teacher/timetable/       → ttData
+  factory TeacherDashboardSummary.fromComposed(
+    Map<String, dynamic> dashData,
+    Map<String, dynamic> ttData,
+  ) {
+    final today = _todayUzbekDayName();
+    final week = (ttData['week'] as List?) ?? [];
+    final todayEntry = week.firstWhere(
+      (d) => d['day'] == today,
+      orElse: () => <String, dynamic>{'lessons': []},
+    );
+    final rawLessons = (todayEntry['lessons'] as List?) ?? [];
+    final todayLessons = rawLessons.map((l) {
+      final m = l as Map<String, dynamic>;
+      return LessonModel(
+        id: m['id']?.toString() ?? '',
+        time: m['time']?.toString() ?? '',
+        className: m['group_name']?.toString() ??
+            m['class_name']?.toString() ??
+            '',
+        subject: m['subject']?.toString() ?? '',
+        studentCount: (m['student_count'] as num?)?.toInt() ?? 0,
+        isActive: _isLessonNow(m['time']?.toString() ?? ''),
+      );
+    }).toList();
+
+    final concerns = <ConcernModel>[];
+    final homeworkPending =
+        (dashData['homework_pending_count'] as num?)?.toInt() ?? 0;
+    if (homeworkPending > 0) {
+      concerns.add(ConcernModel(
+        type: 'homework',
+        title: 'Tekshirilmagan vazifalar',
+        count: '$homeworkPending',
+        route: '/teacher/homework',
+      ));
+    }
+    final unreadMessages =
+        (dashData['unread_messages_count'] as num?)?.toInt() ?? 0;
+    if (unreadMessages > 0) {
+      concerns.add(ConcernModel(
+        type: 'messages',
+        title: "O'qilmagan xabarlar",
+        count: '$unreadMessages',
+        route: '/teacher/messages',
+      ));
+    }
+
+    return TeacherDashboardSummary(
+      greeting: 'Salom, Ustoz',
+      todayLessons: todayLessons,
+      concerns: concerns,
+    );
+  }
+}
+
+String _todayUzbekDayName() {
+  const days = [
+    'Dushanba',
+    'Seshanba',
+    'Chorshanba',
+    'Payshanba',
+    'Juma',
+    'Shanba',
+    'Yakshanba',
+  ];
+  return days[DateTime.now().weekday - 1];
+}
+
+bool _isLessonNow(String time) {
+  if (time.isEmpty) return false;
+  final parts = time.split(':');
+  if (parts.length < 2) return false;
+  final now = DateTime.now();
+  final start = DateTime(
+    now.year, now.month, now.day,
+    int.tryParse(parts[0]) ?? 0,
+    int.tryParse(parts[1]) ?? 0,
+  );
+  final end = start.add(const Duration(minutes: 45));
+  return now.isAfter(start) && now.isBefore(end);
 }
 
 class LessonModel {
