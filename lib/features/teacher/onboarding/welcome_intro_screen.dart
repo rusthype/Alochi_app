@@ -7,6 +7,7 @@ import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../core/storage/storage.dart';
+import 'onboarding_widgets.dart';
 
 /// Key written to secure storage after the user completes or skips onboarding.
 const _kFirstLoginKey = 'first_login_complete';
@@ -26,7 +27,7 @@ Future<void> markOnboardingComplete() async {
 class WelcomeIntroScreen extends ConsumerWidget {
   const WelcomeIntroScreen({super.key});
 
-  Future<void> _proceed(BuildContext context) async {
+  Future<void> _skip(BuildContext context) async {
     await markOnboardingComplete();
     if (context.mounted) {
       context.go('/teacher/dashboard');
@@ -45,7 +46,7 @@ class WelcomeIntroScreen extends ConsumerWidget {
               top: AppSpacing.s,
               right: AppSpacing.l,
               child: TextButton(
-                onPressed: () => _proceed(context),
+                onPressed: () => _skip(context),
                 child: Text(
                   "O'tkazib yuborish",
                   style: AppTextStyles.bodyS.copyWith(
@@ -61,7 +62,9 @@ class WelcomeIntroScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: AppSpacing.xxl),
+                  const SizedBox(height: AppSpacing.l),
+                  const OnboardingPageIndicator(activeIndex: 0, totalPages: 3),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Brand mark
                   Row(
@@ -92,7 +95,7 @@ class WelcomeIntroScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.xxl),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Tree illustration placeholder
                   Expanded(
@@ -121,17 +124,17 @@ class WelcomeIntroScreen extends ConsumerWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppSpacing.xxl),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // Feature bullets
                   const _FeatureBullets(),
-                  const SizedBox(height: AppSpacing.xxl),
+                  const SizedBox(height: AppSpacing.xl),
 
                   // CTA
                   AlochiButton.primary(
-                    label: 'Boshlash',
+                    label: 'Davom etish',
                     icon: Icons.arrow_forward_rounded,
-                    onPressed: () => _proceed(context),
+                    onPressed: () => context.go('/teacher/onboarding/features'),
                   ),
                   const SizedBox(height: AppSpacing.l),
                 ],

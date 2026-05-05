@@ -46,6 +46,8 @@ import '../features/teacher/profile/profile_screen.dart' as teacher_profile;
 import '../features/teacher/profile/profile_edit_screen.dart';
 import '../features/teacher/profile/password_change_screen.dart';
 import '../features/teacher/onboarding/welcome_intro_screen.dart';
+import '../features/teacher/onboarding/welcome_features_screen.dart';
+import '../features/teacher/onboarding/welcome_ready_screen.dart';
 import '../features/teacher/notifications/notifications_screen.dart';
 import '../core/models/test_model.dart';
 import '../core/utils/date_utils.dart';
@@ -240,6 +242,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/onboarding/intro',
             builder: (context, state) => const WelcomeIntroScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/onboarding/features',
+            builder: (context, state) => const WelcomeFeaturesScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/onboarding/ready',
+            builder: (context, state) => const WelcomeReadyScreen(),
           ),
           GoRoute(
             path: '/teacher/ai',
