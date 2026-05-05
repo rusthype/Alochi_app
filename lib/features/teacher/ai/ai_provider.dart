@@ -127,7 +127,7 @@ class AiChatNotifier extends StateNotifier<AiChatState> {
 }
 
 final aiChatProvider =
-    StateNotifierProvider<AiChatNotifier, AiChatState>((ref) {
+    StateNotifierProvider.autoDispose<AiChatNotifier, AiChatState>((ref) {
   final api = ref.read(teacherApiProvider);
   return AiChatNotifier(api);
 });

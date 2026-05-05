@@ -3,7 +3,7 @@ import '../../../core/models/student_model.dart';
 import '../dashboard/dashboard_provider.dart';
 
 final studentProfileProvider =
-    FutureProvider.family<StudentModel, String>((ref, studentId) async {
+    FutureProvider.autoDispose.family<StudentModel, String>((ref, studentId) async {
   final api = ref.read(teacherApiProvider);
   return api.getStudentProfile(studentId);
 });

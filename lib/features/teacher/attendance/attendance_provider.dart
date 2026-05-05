@@ -145,7 +145,7 @@ class AttendanceMarkingNotifier
   }
 }
 
-final attendanceMarkingProvider = StateNotifierProvider.family<
+final attendanceMarkingProvider = StateNotifierProvider.autoDispose.family<
     AttendanceMarkingNotifier,
     AsyncValue<AttendanceMarkingState>,
     AttendanceKey>((ref, key) {
@@ -158,7 +158,7 @@ final attendanceMarkingProvider = StateNotifierProvider.family<
 });
 
 final attendanceHistoryProvider =
-    FutureProvider.family<AttendanceHistoryModel, ({String classId, String period})>(
+    FutureProvider.autoDispose.family<AttendanceHistoryModel, ({String classId, String period})>(
         (ref, args) async {
   final api = ref.read(teacherApiProvider);
   return api.getAttendanceHistory(classId: args.classId, period: args.period);

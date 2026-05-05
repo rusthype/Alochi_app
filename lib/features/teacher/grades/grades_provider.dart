@@ -4,7 +4,7 @@ import '../../../core/api/teacher_api.dart';
 import '../dashboard/dashboard_provider.dart';
 
 final gradesJournalProvider =
-    FutureProvider.family<GradesJournalData, String>((ref, groupId) async {
+    FutureProvider.autoDispose.family<GradesJournalData, String>((ref, groupId) async {
   final api = ref.read(teacherApiProvider);
   return api.getGrades(groupId: groupId);
 });
@@ -94,7 +94,7 @@ class GradeEditNotifier extends StateNotifier<GradeEditState> {
   }
 }
 
-final gradeEditProvider = StateNotifierProvider.family<GradeEditNotifier,
+final gradeEditProvider = StateNotifierProvider.autoDispose.family<GradeEditNotifier,
     GradeEditState, GradeEditKey>((ref, key) {
   final api = ref.read(teacherApiProvider);
   return GradeEditNotifier(

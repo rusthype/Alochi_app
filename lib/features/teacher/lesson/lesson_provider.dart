@@ -3,7 +3,7 @@ import '../../../core/models/lesson_detail_model.dart';
 import '../dashboard/dashboard_provider.dart';
 
 final lessonDetailProvider =
-    FutureProvider.family<LessonDetailModel, String>((ref, lessonId) async {
+    FutureProvider.autoDispose.family<LessonDetailModel, String>((ref, lessonId) async {
   final api = ref.read(teacherApiProvider);
   return api.getLessonDetail(lessonId);
 });
@@ -64,7 +64,7 @@ class LessonWorkflowNotifier extends StateNotifier<LessonWorkflowState> {
   }
 }
 
-final lessonWorkflowProvider = StateNotifierProvider.family<
+final lessonWorkflowProvider = StateNotifierProvider.autoDispose.family<
     LessonWorkflowNotifier,
     LessonWorkflowState,
     String>((ref, lessonId) => LessonWorkflowNotifier());

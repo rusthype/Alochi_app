@@ -10,7 +10,7 @@ export '../../../core/api/teacher_api.dart'
 // ─── Telegram groups provider ─────────────────────────────────────────────────
 
 final telegramGroupsProvider =
-    FutureProvider<List<TelegramGroupStatusData>>((ref) async {
+    FutureProvider.autoDispose<List<TelegramGroupStatusData>>((ref) async {
   final api = ref.read(teacherApiProvider);
   try {
     final data = await api.getTelegramGroupsStatus();
@@ -24,7 +24,7 @@ final telegramGroupsProvider =
 // ─── Unlinked parents provider ────────────────────────────────────────────────
 
 final unlinkedParentsProvider =
-    FutureProvider.family<List<UnlinkedParentData>, String>((ref, groupId) async {
+    FutureProvider.autoDispose.family<List<UnlinkedParentData>, String>((ref, groupId) async {
   final api = ref.read(teacherApiProvider);
   try {
     final data = await api.getUnlinkedParents(groupId);

@@ -6,7 +6,7 @@ import '../dashboard/dashboard_provider.dart';
 // ─── Conversations list ───────────────────────────────────────────────────────
 
 final conversationsProvider =
-    FutureProvider<List<ConversationModel>>((ref) async {
+    FutureProvider.autoDispose<List<ConversationModel>>((ref) async {
   final api = ref.read(teacherApiProvider);
   return api.getConversations();
 });
@@ -116,7 +116,7 @@ class ChatThreadNotifier extends StateNotifier<AsyncValue<ChatThreadState>> {
   Future<void> refresh() => _load();
 }
 
-final chatThreadProvider = StateNotifierProvider.family<ChatThreadNotifier,
+final chatThreadProvider = StateNotifierProvider.autoDispose.family<ChatThreadNotifier,
     AsyncValue<ChatThreadState>, String>(
   (ref, conversationId) => ChatThreadNotifier(conversationId, ref),
 );
