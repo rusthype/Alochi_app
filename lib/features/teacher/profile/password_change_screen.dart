@@ -6,6 +6,7 @@ import '../../../theme/spacing.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_input.dart';
+import '../../../core/utils/validators.dart';
 import 'password_change_provider.dart';
 
 class PasswordChangeScreen extends ConsumerStatefulWidget {
@@ -28,25 +29,6 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
     _newCtrl.dispose();
     _confirmCtrl.dispose();
     super.dispose();
-  }
-
-  String? _validateOld(String? v) {
-    if (v == null || v.isEmpty) return "Eski parol kiritilishi shart";
-    return null;
-  }
-
-  String? _validateNew(String? v) {
-    if (v == null || v.isEmpty) return "Yangi parol kiritilishi shart";
-    if (v.length < 8) return "Parol kamida 8 ta belgidan iborat bo'lishi kerak";
-    if (v == _oldCtrl.text)
-      return "Yangi parol eski paroldan farq qilishi kerak";
-    return null;
-  }
-
-  String? _validateConfirm(String? v) {
-    if (v == null || v.isEmpty) return "Parolni takrorlang";
-    if (v != _newCtrl.text) return "Parollar mos kelmadi";
-    return null;
   }
 
   Future<void> _submit() async {
@@ -132,7 +114,7 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
                       hintText: 'Joriy parolingizni kiriting',
                       controller: _oldCtrl,
                       isPassword: true,
-                      validator: _validateOld,
+                      validator: (v) => Validators.required(v, fieldName: 'Eski parol'),
                       prefixIcon: const Icon(Icons.lock_outline_rounded,
                           color: AppColors.brandMuted, size: 20),
                     ),
@@ -144,7 +126,15 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
                       hintText: 'Kamida 8 ta belgi',
                       controller: _newCtrl,
                       isPassword: true,
-                      validator: _validateNew,
+                      validator: (v) => Validators.compose([
+                        (val) => Validators.password(val),
+                        (val) {
+                          if (val == _oldCtrl.text) {
+                            return "Yangi parol eski paroldan farq qilishi kerak";
+                          }
+                          return null;
+                        }
+                      ])(v),
                       prefixIcon: const Icon(Icons.lock_reset_rounded,
                           color: AppColors.brandMuted, size: 20),
                     ),
@@ -156,7 +146,7 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
                       hintText: 'Yangi parolni qaytadan kiriting',
                       controller: _confirmCtrl,
                       isPassword: true,
-                      validator: _validateConfirm,
+                      validator: (v) => Validators.passwordMatch(v, _newCtrl.text),
                       prefixIcon: const Icon(Icons.check_circle_outline_rounded,
                           color: AppColors.brandMuted, size: 20),
                     ),
@@ -165,6 +155,7 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
               ),
             ),
           ),
+
 
           // Sticky CTA
           Container(

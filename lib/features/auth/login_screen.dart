@@ -6,6 +6,7 @@ import '../../theme/typography.dart';
 import '../../shared/widgets/alochi_button.dart';
 import '../../shared/widgets/alochi_input.dart';
 import '../../shared/widgets/alochi_card.dart';
+import '../../core/utils/validators.dart';
 import 'auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -155,12 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           keyboardType: TextInputType.text,
                           prefixIcon: const Icon(Icons.person_outline_rounded,
                               size: 20),
-                          validator: (v) {
-                            if (v == null || v.isEmpty) {
-                              return 'Foydalanuvchi nomini kiriting';
-                            }
-                            return null;
-                          },
+                          validator: Validators.username,
                         ),
                         const SizedBox(height: 20),
                         AlochiInput(
@@ -170,11 +166,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           isPassword: true,
                           prefixIcon:
                               const Icon(Icons.lock_outline_rounded, size: 20),
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'Parol kiriting';
-                            if (v.length < 6) return 'Parol kamida 6 ta belgi';
-                            return null;
-                          },
+                          validator: (v) => Validators.required(v, fieldName: 'Parol'),
                         ),
                         const SizedBox(height: 12),
                         Row(

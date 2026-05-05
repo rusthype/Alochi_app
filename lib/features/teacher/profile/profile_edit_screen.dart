@@ -9,6 +9,7 @@ import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_input.dart';
 import '../../../core/models/teacher_profile_model.dart';
+import '../../../core/utils/validators.dart';
 import 'profile_provider.dart';
 import 'profile_edit_provider.dart';
 
@@ -38,21 +39,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     _initialized = true;
     _nameCtrl.text = profile.name;
     _phoneCtrl.text = profile.phone;
-  }
-
-  String? _validateName(String? v) {
-    if (v == null || v.trim().isEmpty) return 'Ism kiritilishi shart';
-    if (v.trim().length < 2) return 'Ism kamida 2 ta harf';
-    return null;
-  }
-
-  String? _validatePhone(String? v) {
-    if (v == null || v.trim().isEmpty) return null; // optional
-    final digits = v.trim().replaceAll(RegExp(r'\D'), '');
-    // Accept +998XXXXXXXXX (12 chars with +) or 9 digits
-    if (digits.length == 9) return null;
-    if (digits.length == 12 && digits.startsWith('998')) return null;
-    return "Telefon +998XXXXXXXXX yoki 9 xonali bo'lishi kerak";
   }
 
   Future<void> _submit() async {
@@ -111,8 +97,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             phoneCtrl: _phoneCtrl,
             isLoading: editState.isLoading,
             onSubmit: _submit,
-            validateName: _validateName,
-            validatePhone: _validatePhone,
           );
         },
         loading: () => const Center(
@@ -124,8 +108,6 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           phoneCtrl: _phoneCtrl,
           isLoading: editState.isLoading,
           onSubmit: _submit,
-          validateName: _validateName,
-          validatePhone: _validatePhone,
         ),
       ),
     );
@@ -141,8 +123,6 @@ class _EditBody extends StatelessWidget {
   final TextEditingController phoneCtrl;
   final bool isLoading;
   final VoidCallback onSubmit;
-  final String? Function(String?) validateName;
-  final String? Function(String?) validatePhone;
 
   const _EditBody({
     required this.formKey,
@@ -151,8 +131,6 @@ class _EditBody extends StatelessWidget {
     required this.phoneCtrl,
     required this.isLoading,
     required this.onSubmit,
-    required this.validateName,
-    required this.validatePhone,
   });
 
   @override
@@ -208,7 +186,10 @@ class _EditBody extends StatelessWidget {
                     label: 'Ism familiya',
                     hintText: 'Masalan: Shoiraxon Yusupova',
                     controller: nameCtrl,
-                    validator: validateName,
+                    validator: Validators.compose([
+                      (v) => Validators.required(v, fieldName: 'Ism familiya'),
+                      Validators.minLength(2, fieldName: 'Ism familiya'),
+                    ]),
                     prefixIcon: const Icon(Icons.person_outline_rounded,
                         color: AppColors.brandMuted, size: 20),
                   ),
@@ -219,7 +200,10 @@ class _EditBody extends StatelessWidget {
                     label: 'Telefon raqam',
                     hintText: '+998 XX XXX XX XX',
                     controller: phoneCtrl,
-                    validator: validatePhone,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return null;
+                      return Validators.phone(v);
+                    },
                     keyboardType: TextInputType.phone,
                     prefixIcon: const Icon(Icons.phone_outlined,
                         color: AppColors.brandMuted, size: 20),
@@ -253,8 +237,6 @@ class _EditBodyFallback extends StatelessWidget {
   final TextEditingController phoneCtrl;
   final bool isLoading;
   final VoidCallback onSubmit;
-  final String? Function(String?) validateName;
-  final String? Function(String?) validatePhone;
 
   const _EditBodyFallback({
     required this.formKey,
@@ -262,8 +244,6 @@ class _EditBodyFallback extends StatelessWidget {
     required this.phoneCtrl,
     required this.isLoading,
     required this.onSubmit,
-    required this.validateName,
-    required this.validatePhone,
   });
 
   @override
@@ -286,7 +266,10 @@ class _EditBodyFallback extends StatelessWidget {
                     label: 'Ism familiya',
                     hintText: 'Masalan: Shoiraxon Yusupova',
                     controller: nameCtrl,
-                    validator: validateName,
+                    validator: Validators.compose([
+                      (v) => Validators.required(v, fieldName: 'Ism familiya'),
+                      Validators.minLength(2, fieldName: 'Ism familiya'),
+                    ]),
                     prefixIcon: const Icon(Icons.person_outline_rounded,
                         color: AppColors.brandMuted, size: 20),
                   ),
@@ -295,7 +278,10 @@ class _EditBodyFallback extends StatelessWidget {
                     label: 'Telefon raqam',
                     hintText: '+998 XX XXX XX XX',
                     controller: phoneCtrl,
-                    validator: validatePhone,
+                    validator: (v) {
+                      if (v == null || v.trim().isEmpty) return null;
+                      return Validators.phone(v);
+                    },
                     keyboardType: TextInputType.phone,
                     prefixIcon: const Icon(Icons.phone_outlined,
                         color: AppColors.brandMuted, size: 20),
@@ -310,6 +296,7 @@ class _EditBodyFallback extends StatelessWidget {
     );
   }
 }
+
 
 // ─── Read-only field ──────────────────────────────────────────────────────────
 

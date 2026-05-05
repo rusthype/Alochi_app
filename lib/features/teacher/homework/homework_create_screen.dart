@@ -9,6 +9,7 @@ import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_input.dart';
 import '../../../core/models/group_model.dart';
+import '../../../core/utils/validators.dart';
 import '../groups/groups_provider.dart';
 import 'homework_provider.dart';
 
@@ -42,7 +43,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AlochiAppBar(title: 'Yangi vazifa'),
+      appBar: const AlochiAppBar(title: 'Yangi vazifa'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.l),
         child: Form(
@@ -54,16 +55,24 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                 controller: _titleController,
                 label: 'Sarlavha',
                 hintText: 'Vazifa sarlavhasi...',
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Sarlavha kiritish shart' : null,
+                validator: Validators.compose([
+                  (v) => Validators.required(v, fieldName: 'Sarlavha'),
+                  Validators.minLength(3, fieldName: 'Sarlavha'),
+                  Validators.maxLength(100, fieldName: 'Sarlavha'),
+                ]),
               ),
               const SizedBox(height: AppSpacing.m),
               _MultilineInput(
                 controller: _descController,
                 label: 'Tavsif',
                 hintText: "Vazifa haqida batafsil yozing...",
+                validator: Validators.compose([
+                  (v) => Validators.required(v, fieldName: 'Tavsif'),
+                  Validators.minLength(10, fieldName: 'Tavsif'),
+                ]),
               ),
               const SizedBox(height: AppSpacing.m),
+
               // Group selector
               groupsAsync.when(
                 data: (groups) => _GroupDropdown(
@@ -272,11 +281,13 @@ class _MultilineInput extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String hintText;
+  final String? Function(String?)? validator;
 
   const _MultilineInput({
     required this.controller,
     required this.label,
     required this.hintText,
+    this.validator,
   });
 
   @override
@@ -295,6 +306,7 @@ class _MultilineInput extends StatelessWidget {
         TextFormField(
           controller: controller,
           maxLines: 4,
+          validator: validator,
           style: AppTextStyles.body.copyWith(color: AppColors.ink),
           decoration: InputDecoration(
             hintText: hintText,
@@ -315,12 +327,21 @@ class _MultilineInput extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadii.m),
               borderSide: const BorderSide(color: AppColors.brand, width: 1.5),
             ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+              borderSide: const BorderSide(color: AppColors.danger),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+              borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+            ),
           ),
         ),
       ],
     );
   }
 }
+
 
 class _FieldSkeleton extends StatelessWidget {
   final String label;
