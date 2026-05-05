@@ -61,9 +61,13 @@ class _HomeworkListBody extends ConsumerWidget {
     }
 
     return RefreshIndicator(
-      onRefresh: () => ref.refresh(homeworkListProvider.future),
       color: AppColors.brand,
+      onRefresh: () async {
+        ref.invalidate(homeworkListProvider);
+        await ref.read(homeworkListProvider.future);
+      },
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(AppSpacing.l),
         children: [
           _StatsRow(stats: data.stats),
