@@ -186,6 +186,9 @@ class _GroupStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final avgGradeStr = group.avgGrade > 0 ? group.avgGrade.toStringAsFixed(1) : '--';
+    final attPctStr = group.attendancePct > 0 ? '${group.attendancePct.toStringAsFixed(0)}%' : '--';
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(
@@ -193,21 +196,21 @@ class _GroupStatsRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _StatTile(
+          const _StatTile(
             label: "Keldi",
-            value: group.studentsCount.toString(),
+            value: '--',
             valueColor: AppColors.ink,
           ),
           _StatDivider(),
           _StatTile(
             label: "O'rtacha",
-            value: group.avgGrade.toStringAsFixed(1),
+            value: avgGradeStr,
             valueColor: AppColors.brand,
           ),
           _StatDivider(),
           _StatTile(
             label: 'Davomat',
-            value: '${group.attendancePct.toStringAsFixed(0)}%',
+            value: attPctStr,
             valueColor: _attendanceColor(group.attendancePct),
           ),
         ],
