@@ -26,7 +26,7 @@ class MessagesListScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.edit_outlined, color: AppColors.brand),
             tooltip: 'Yangi xabar',
-            onPressed: () {},
+            onPressed: () => context.push('/teacher/messages/compose'),
           ),
         ],
       ),

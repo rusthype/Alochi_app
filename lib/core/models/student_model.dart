@@ -9,6 +9,9 @@ class StudentModel {
   final double? avgGrade;
   final int? lastGrade;
   final String? avatarUrl;
+  final int xp;
+  final int level;
+  final String? schoolName;
   final List<ParentModel> parents;
   final List<AttendanceDayModel> recentAttendance;
   final List<RecentGradeModel> recentGrades;
@@ -24,6 +27,9 @@ class StudentModel {
     this.avgGrade,
     this.lastGrade,
     this.avatarUrl,
+    this.xp = 0,
+    this.level = 1,
+    this.schoolName,
     this.parents = const [],
     this.recentAttendance = const [],
     this.recentGrades = const [],
@@ -55,6 +61,9 @@ class StudentModel {
       avgGrade: (json['avg_grade'] as num?)?.toDouble(),
       lastGrade: (json['last_grade'] as num?)?.toInt(),
       avatarUrl: json['avatar_url']?.toString(),
+      xp: (json['xp'] as num?)?.toInt() ?? 0,
+      level: (json['level'] as num?)?.toInt() ?? 1,
+      schoolName: json['school_name']?.toString(),
       parents: parentsList.isEmpty
           ? []
           : parentsList

@@ -292,6 +292,27 @@ class TeacherApi {
     }
   }
 
+  /// POST /teacher/homework/
+  Future<HomeworkModel> createHomework({
+    required String groupId,
+    required String title,
+    required String description,
+    required String dueDate,
+  }) async {
+    try {
+      final data = await _client.post('/teacher/homework/', data: {
+        'group_id': groupId,
+        'title': title,
+        'description': description,
+        'due_date': dueDate,
+      }) as Map<String, dynamic>;
+      return HomeworkModel.fromJson(data);
+    } catch (e, st) {
+      debugPrint('createHomework error: $e\n$st');
+      rethrow;
+    }
+  }
+
   /// POST /teacher/homework/:id/remind/
   Future<void> sendHomeworkReminder(String hwId) async {
     try {
@@ -388,6 +409,22 @@ class TeacherApi {
       return ConversationDetailModel(conversation: conv, messages: msgs);
     } catch (e, st) {
       debugPrint('getConversationDetail error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/messages/
+  Future<void> sendNewMessage({
+    required String recipientId,
+    required String body,
+  }) async {
+    try {
+      await _client.post('/teacher/messages/', data: {
+        'recipient_id': recipientId,
+        'body': body,
+      });
+    } catch (e, st) {
+      debugPrint('sendNewMessage error: $e\n$st');
       rethrow;
     }
   }

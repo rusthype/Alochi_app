@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
+import '../../../theme/spacing.dart';
+import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
@@ -57,15 +60,17 @@ class _StudentProfileBody extends StatelessWidget {
         children: [
           _HeroSection(student: student),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.m),
                 _ThreeStatTiles(student: student),
                 const SizedBox(height: 24),
-                _ParentContactSection(parents: student.parents),
-                const SizedBox(height: 24),
+                if (student.parents.isNotEmpty) ...[
+                  _ParentContactSection(parents: student.parents),
+                  const SizedBox(height: 24),
+                ],
                 _AttendanceCalendarSection(days: student.recentAttendance),
                 const SizedBox(height: 24),
                 _TeacherNotesSection(),
@@ -106,16 +111,18 @@ class _HeroSection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const AlochiPill(
-                  label: '5-A Guruh', variant: AlochiPillVariant.brand),
-              const SizedBox(width: 8),
-              Text(
-                "39-maktab",
-                style: AppTextStyles.bodyS
-                    .copyWith(color: const Color(0xFF6B7280)),
-              ),
-            ],
-          ),
+              AlochiPill(
+                  label: '${student.classId} Guruh',
+                  variant: AlochiPillVariant.brand),
+              if (student.schoolName != null) ...[
+                const SizedBox(width: 8),
+                Text(
+                  student.schoolName!,
+                  style: AppTextStyles.bodyS
+                      .copyWith(color: const Color(0xFF6B7280)),
+                ),
+              ],
+              ],          ),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -124,7 +131,7 @@ class _HeroSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(100),
             ),
             child: Text(
-              "★ 1240 XP · 5-daraja",
+              "★ ${student.xp} XP · ${student.level}-daraja",
               style: AppTextStyles.label.copyWith(
                 color: AppColors.brand,
                 fontWeight: FontWeight.w600,
@@ -136,7 +143,7 @@ class _HeroSection extends StatelessWidget {
             children: [
               Expanded(
                 child: AlochiButton.primary(
-                  label: "Otaga yozish",
+                  label: "Ota-onaga yozish",
                   onPressed: () {},
                 ),
               ),
@@ -183,10 +190,10 @@ class _ThreeStatTiles extends StatelessWidget {
           valueColor: avg < 4.0 ? const Color(0xFFD97706) : AppColors.brand,
         ),
         const SizedBox(width: 10),
-        const _StatTile(
+        _StatTile(
           label: 'VAZIFA',
-          value: '12',
-          valueColor: AppColors.ink,
+          value: '${student.missedLessons ?? 0}',
+          valueColor: (student.missedLessons ?? 0) > 2 ? AppColors.danger : AppColors.ink,
         ),
       ],
     );
@@ -381,22 +388,20 @@ class _AttendanceCalendarSection extends StatelessWidget {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: List.generate(14, (index) {
+            children: days.map((day) {
               return Container(
                 width: 44,
                 height: 36,
                 margin: const EdgeInsets.only(right: 6),
                 decoration: BoxDecoration(
-                  color: index % 4 == 0
-                      ? const Color(0xFFFCEBEB)
-                      : const Color(0xFFE1F5EE),
+                  color: _statusColor(day.status),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "${index + 1}",
+                      _dayFromDate(day.date),
                       style: AppTextStyles.caption.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 9,
@@ -404,7 +409,7 @@ class _AttendanceCalendarSection extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "MAY",
+                      _monthFromDate(day.date),
                       style: AppTextStyles.caption.copyWith(
                         fontSize: 8,
                         color: const Color(0xFF6B7280),
@@ -413,11 +418,49 @@ class _AttendanceCalendarSection extends StatelessWidget {
                   ],
                 ),
               );
-            }),
+            }).toList(),
           ),
         ),
+        if (days.isEmpty)
+          Text(
+            "Ma'lumot mavjud emas",
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+          ),
       ],
     );
+  }
+
+  Color _statusColor(String status) {
+    switch (status) {
+      case 'present':
+        return const Color(0xFFE1F5EE);
+      case 'late':
+        return const Color(0xFFFEF3C7);
+      case 'absent':
+        return const Color(0xFFFCEBEB);
+      default:
+        return const Color(0xFFF3F4F6);
+    }
+  }
+
+  String _dayFromDate(String date) {
+    try {
+      return DateTime.parse(date).day.toString();
+    } catch (_) {
+      return '';
+    }
+  }
+
+  String _monthFromDate(String date) {
+    try {
+      final months = [
+        'YAN', 'FEV', 'MAR', 'APR', 'MAY', 'IYUN',
+        'IYUL', 'AVG', 'SEN', 'OKT', 'NOV', 'DEK'
+      ];
+      return months[DateTime.parse(date).month - 1];
+    } catch (_) {
+      return '';
+    }
   }
 }
 
@@ -460,12 +503,30 @@ class _TeacherNotesSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Matematika fanidan juda faol, lekin darsga kech qolishga moyilligi bor. Ota-onasi bilan gaplashish kerak.",
-                style: AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+                "O'quvchi haqida izoh yozilmagan.",
+                style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
               ),
               const SizedBox(height: 10),
               GestureDetector(
-                onTap: () {},
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Izoh qo\'shish'),
+                    content: const TextField(
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: 'Izohingizni yozing...',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Yopish'),
+                      ),
+                    ],
+                  ),
+                ),
                 child: Text(
                   "+ Yozuv qo'shish",
                   style: AppTextStyles.bodyS.copyWith(

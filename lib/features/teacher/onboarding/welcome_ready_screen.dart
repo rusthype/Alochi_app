@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_card.dart';
+import '../../auth/auth_provider.dart';
 import 'onboarding_widgets.dart';
 import 'welcome_intro_screen.dart';
 
-class WelcomeReadyScreen extends StatelessWidget {
+class WelcomeReadyScreen extends ConsumerWidget {
   const WelcomeReadyScreen({super.key});
 
-  Future<void> _finish(BuildContext context) async {
+  Future<void> _finish(BuildContext context, WidgetRef ref) async {
     await markOnboardingComplete();
+    ref.read(authProvider.notifier).clearOnboardingFlag();
     if (context.mounted) {
       context.go('/teacher/dashboard');
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -97,7 +100,7 @@ class WelcomeReadyScreen extends StatelessWidget {
               // CTA
               AlochiButton.primary(
                 label: 'Boshlash',
-                onPressed: () => _finish(context),
+                onPressed: () => _finish(context, ref),
               ),
               const SizedBox(height: AppSpacing.l),
             ],

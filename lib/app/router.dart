@@ -38,6 +38,7 @@ import '../features/teacher/homework/homework_create_screen.dart';
 import '../features/teacher/homework/homework_detail_screen.dart';
 import '../features/teacher/messages/messages_list_screen.dart';
 import '../features/teacher/messages/chat_thread_screen.dart';
+import '../features/teacher/messages/message_compose_screen.dart';
 import '../features/teacher/ai/ai_welcome_screen.dart';
 import '../features/teacher/ai/ai_chat_screen.dart';
 import '../features/teacher/telegram/telegram_parents_screen.dart';
@@ -227,6 +228,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/messages',
             builder: (context, state) => const MessagesListScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/messages/compose',
+            builder: (context, state) => const MessageComposeScreen(),
           ),
           GoRoute(
             path: '/teacher/messages/:id',

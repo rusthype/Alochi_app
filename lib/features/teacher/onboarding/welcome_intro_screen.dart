@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../auth/auth_provider.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
@@ -27,8 +28,9 @@ Future<void> markOnboardingComplete() async {
 class WelcomeIntroScreen extends ConsumerWidget {
   const WelcomeIntroScreen({super.key});
 
-  Future<void> _skip(BuildContext context) async {
+  Future<void> _skip(BuildContext context, WidgetRef ref) async {
     await markOnboardingComplete();
+    ref.read(authProvider.notifier).clearOnboardingFlag();
     if (context.mounted) {
       context.go('/teacher/dashboard');
     }
@@ -46,7 +48,7 @@ class WelcomeIntroScreen extends ConsumerWidget {
               top: AppSpacing.s,
               right: AppSpacing.l,
               child: TextButton(
-                onPressed: () => _skip(context),
+                onPressed: () => _skip(context, ref),
                 child: Text(
                   "O'tkazib yuborish",
                   style: AppTextStyles.bodyS.copyWith(
