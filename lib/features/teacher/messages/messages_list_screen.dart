@@ -63,8 +63,12 @@ class _ConversationsList extends ConsumerWidget {
 
     return RefreshIndicator(
       color: AppColors.brand,
-      onRefresh: () async => ref.invalidate(conversationsProvider),
+      onRefresh: () async {
+        ref.invalidate(conversationsProvider);
+        await ref.read(conversationsProvider.future);
+      },
       child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: conversations.length,
         separatorBuilder: (_, __) => const Divider(
           height: 1,
