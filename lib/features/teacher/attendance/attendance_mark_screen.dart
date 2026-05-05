@@ -197,60 +197,86 @@ class _LiveStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.l, vertical: AppSpacing.s),
-      padding: const EdgeInsets.all(AppSpacing.m),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
+    return Padding(
+      padding: const EdgeInsets.all(14),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _StatPill(
-              count: state.presentCount,
-              label: 'Keldi',
-              color: const Color(0xFF0F9A6E)),
-          _StatPill(
-              count: state.lateCount,
-              label: 'Kech',
-              color: const Color(0xFFD97706)),
-          _StatPill(
-              count: state.absentCount, label: "Yo'q", color: AppColors.danger),
-          _StatPill(
-              count: state.unmarkedCount,
-              label: 'Belgilanmagan',
-              color: AppColors.brandMuted),
+          _StatTile(
+            count: state.presentCount,
+            label: 'KELDI',
+            bgColor: const Color(0xFFE1F5EE),
+            textColor: const Color(0xFF0F9A6E),
+          ),
+          const SizedBox(width: 8),
+          _StatTile(
+            count: state.lateCount,
+            label: 'KECH',
+            bgColor: const Color(0xFFFAEEDA),
+            textColor: const Color(0xFFD97706),
+          ),
+          const SizedBox(width: 8),
+          _StatTile(
+            count: state.absentCount,
+            label: "YO'Q",
+            bgColor: const Color(0xFFFCEBEB),
+            textColor: const Color(0xFFDC2626),
+          ),
+          const SizedBox(width: 8),
+          _StatTile(
+            count: state.unmarkedCount,
+            label: 'QOLDI',
+            bgColor: const Color(0xFFF4F5F7),
+            textColor: const Color(0xFF9CA3AF),
+          ),
         ],
       ),
     );
   }
 }
 
-class _StatPill extends StatelessWidget {
+class _StatTile extends StatelessWidget {
   final int count;
   final String label;
-  final Color color;
+  final Color bgColor;
+  final Color textColor;
 
-  const _StatPill(
-      {required this.count, required this.label, required this.color});
+  const _StatTile({
+    required this.count,
+    required this.label,
+    required this.bgColor,
+    required this.textColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          count.toString(),
-          style: AppTextStyles.titleM.copyWith(color: color),
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(10),
         ),
-        Text(
-          label,
-          style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+        child: Column(
+          children: [
+            Text(
+              count.toString(),
+              style: AppTextStyles.titleL.copyWith(
+                color: textColor,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Text(
+              label,
+              style: AppTextStyles.caption.copyWith(
+                color: textColor.withValues(alpha: 0.8),
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -263,31 +289,33 @@ class _AllPresentDashedCta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.l, vertical: AppSpacing.s),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       child: GestureDetector(
         onTap: onPressed,
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadii.l),
+            color: const Color(0xFFE8F2EF),
+            borderRadius: BorderRadius.circular(12),
+            // Custom dashed border simulation or solid if not available
             border: Border.all(
-              color: AppColors.brand,
-              width: 1.5,
-              style: BorderStyle.solid,
+              color: AppColors.brand.withValues(alpha: 0.3),
+              width: 1,
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle_outline_rounded,
-                  color: AppColors.brand, size: 18),
-              const SizedBox(width: AppSpacing.s),
+              const Icon(Icons.check_circle_rounded,
+                  color: AppColors.brand, size: 20),
+              const SizedBox(width: 8),
               Text(
                 'Hammasi keldi',
                 style: AppTextStyles.body.copyWith(
-                    color: AppColors.brand, fontWeight: FontWeight.w600),
+                  color: AppColors.brand,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -311,22 +339,25 @@ class _StudentAttendanceRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.s),
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.m, vertical: AppSpacing.m),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Row(
         children: [
           AlochiAvatar(name: student.fullName, size: 36),
-          const SizedBox(width: AppSpacing.m),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               student.fullName,
-              style: AppTextStyles.body.copyWith(color: AppColors.ink),
+              style: AppTextStyles.titleM.copyWith(
+                color: AppColors.ink,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -346,44 +377,28 @@ class _StickySaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!state.hasUnsavedChanges) return const SizedBox.shrink();
-
     final canSave = state.canSave;
     return Container(
-      padding: const EdgeInsets.fromLTRB(
-          AppSpacing.l, AppSpacing.m, AppSpacing.l, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 30),
       decoration: const BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -2),
+          ),
+        ],
       ),
       child: ElevatedButton(
-        onPressed: canSave && !state.isSaving
-            ? () => onSave()
-            : state.unmarkedCount > 0
-                ? () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '${state.unmarkedCount} ta o\'quvchi belgilanmagan',
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                        margin: const EdgeInsets.fromLTRB(
-                            AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-                        backgroundColor: AppColors.brand,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadii.m),
-                        ),
-                      ),
-                    );
-                  }
-                : null,
+        onPressed: canSave && !state.isSaving ? onSave : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: canSave ? AppColors.brand : AppColors.brandTint,
+          backgroundColor: AppColors.brand,
           foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 48),
+          minimumSize: const Size(double.infinity, 52),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.m),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
         child: state.isSaving
@@ -393,9 +408,33 @@ class _StickySaveButton extends StatelessWidget {
                 child: CircularProgressIndicator(
                     strokeWidth: 2, color: Colors.white),
               )
-            : Text(
-                'Saqlash  ${state.markedCount}/${state.students.length}',
-                style: AppTextStyles.button.copyWith(color: Colors.white),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Saqlash',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Text(
+                      '${state.markedCount}/${state.students.length}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
       ),
     );
