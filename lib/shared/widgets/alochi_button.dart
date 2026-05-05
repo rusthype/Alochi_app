@@ -11,7 +11,7 @@ enum AlochiButtonVariant {
   ghost,
 }
 
-class AlochiButton extends StatelessWidget {
+class AlochiButton extends StatefulWidget {
   final String label;
   final VoidCallback? onPressed;
   final AlochiButtonVariant variant;
@@ -75,14 +75,21 @@ class AlochiButton extends StatelessWidget {
   }) : variant = AlochiButtonVariant.ghost;
 
   @override
+  State<AlochiButton> createState() => _AlochiButtonState();
+}
+
+class _AlochiButtonState extends State<AlochiButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final bool isDisabled = onPressed == null || isLoading;
+    final bool isDisabled = widget.onPressed == null || widget.isLoading;
 
     Color backgroundColor;
     Color foregroundColor;
     BorderSide borderSide = BorderSide.none;
 
-    switch (variant) {
+    switch (widget.variant) {
       case AlochiButtonVariant.primary:
         backgroundColor = AppColors.brand;
         foregroundColor = Colors.white;
@@ -106,50 +113,71 @@ class AlochiButton extends StatelessWidget {
         break;
     }
 
-    if (isDisabled && variant != AlochiButtonVariant.ghost && variant != AlochiButtonVariant.secondary) {
+    if (isDisabled &&
+        widget.variant != AlochiButtonVariant.ghost &&
+        widget.variant != AlochiButtonVariant.secondary) {
       backgroundColor = backgroundColor.withValues(alpha: 0.5);
     }
 
-    return SizedBox(
-      width: width ?? double.infinity,
-      height: 48,
-      child: ElevatedButton(
-        onPressed: isDisabled ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.m),
-            side: borderSide,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          disabledBackgroundColor: backgroundColor,
-          disabledForegroundColor: foregroundColor.withValues(alpha: 0.6),
-        ),
-        child: isLoading
-            ? SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: foregroundColor,
-                ),
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 20),
-                    const SizedBox(width: 8),
-                  ],
-                  Text(
-                    label,
-                    style: AppTextStyles.button.copyWith(color: foregroundColor),
-                  ),
-                ],
+    final content = widget.isLoading
+        ? SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: foregroundColor,
+            ),
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.icon != null) ...[
+                Icon(widget.icon, size: 20),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                widget.label,
+                style: AppTextStyles.button.copyWith(color: foregroundColor),
               ),
+            ],
+          );
+
+    return SizedBox(
+      width: widget.width ?? double.infinity,
+      height: 48,
+      child: AnimatedScale(
+        scale: _isPressed && !isDisabled ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Material(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(AppRadii.m),
+          child: InkWell(
+            onTap: isDisabled ? null : widget.onPressed,
+            onTapDown: (_) => setState(() => _isPressed = true),
+            onTapUp: (_) => setState(() => _isPressed = false),
+            onTapCancel: () => setState(() => _isPressed = false),
+            borderRadius: BorderRadius.circular(AppRadii.m),
+            overlayColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.pressed)) {
+                return foregroundColor.withValues(alpha: 0.12);
+              }
+              if (states.contains(WidgetState.hovered)) {
+                return foregroundColor.withValues(alpha: 0.04);
+              }
+              return null;
+            }),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadii.m),
+                border: Border.fromBorderSide(borderSide),
+              ),
+              child: Center(child: content),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -12,22 +12,31 @@ enum AlochiPillVariant {
   neutral,
 }
 
-class AlochiPill extends StatelessWidget {
+class AlochiPill extends StatefulWidget {
   final String label;
   final AlochiPillVariant variant;
+  final VoidCallback? onTap;
 
   const AlochiPill({
     super.key,
     required this.label,
     this.variant = AlochiPillVariant.brand,
+    this.onTap,
   });
+
+  @override
+  State<AlochiPill> createState() => _AlochiPillState();
+}
+
+class _AlochiPillState extends State<AlochiPill> {
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     Color backgroundColor;
     Color foregroundColor;
 
-    switch (variant) {
+    switch (widget.variant) {
       case AlochiPillVariant.brand:
         backgroundColor = AppColors.brandSoft;
         foregroundColor = AppColors.brand;
@@ -54,19 +63,35 @@ class AlochiPill extends StatelessWidget {
         break;
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(AppRadii.round),
-      ),
-      child: Text(
-        label,
-        style: AppTextStyles.label.copyWith(
-          color: foregroundColor,
-          fontWeight: FontWeight.w600,
+    final pill = AnimatedScale(
+      scale: _pressed ? 0.95 : 1.0,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOut,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(AppRadii.round),
+        ),
+        child: Text(
+          widget.label,
+          style: AppTextStyles.label.copyWith(
+            color: foregroundColor,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
+    );
+
+    if (widget.onTap == null) return pill;
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      behavior: HitTestBehavior.opaque,
+      child: pill,
     );
   }
 }
