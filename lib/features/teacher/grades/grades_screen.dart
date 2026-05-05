@@ -120,33 +120,40 @@ class _GradesBody extends ConsumerWidget {
       children: [
         _DateHeader(today: today),
         Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.l,
-              AppSpacing.m,
-              AppSpacing.l,
-              AppSpacing.xxl,
-            ),
-            itemCount: data.students.length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: AppSpacing.s),
-            itemBuilder: (context, index) {
-              final student = data.students[index];
-              // Last journal grade for this student (most recent date)
-              int? existingGrade;
-              final studentJournal = data.journal[student.id];
-              if (studentJournal != null && studentJournal.isNotEmpty) {
-                final sortedDates = studentJournal.keys.toList()..sort();
-                existingGrade = studentJournal[sortedDates.last];
-              }
-              final pendingGrade = editState.pending[student.id];
-              return _GradeRow(
-                student: student,
-                existingGrade: existingGrade,
-                pendingGrade: pendingGrade ?? 0,
-                onGradeChanged: (g) => notifier.setGrade(student.id, g),
-              );
+          child: RefreshIndicator(
+            color: AppColors.brand,
+            onRefresh: () async {
+              ref.invalidate(gradesJournalProvider(groupId));
+              await ref.read(gradesJournalProvider(groupId).future);
             },
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.l,
+                AppSpacing.m,
+                AppSpacing.l,
+                AppSpacing.xxl,
+              ),
+              itemCount: data.students.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s),
+              itemBuilder: (context, index) {
+                final student = data.students[index];
+                // Last journal grade for this student (most recent date)
+                int? existingGrade;
+                final studentJournal = data.journal[student.id];
+                if (studentJournal != null && studentJournal.isNotEmpty) {
+                  final sortedDates = studentJournal.keys.toList()..sort();
+                  existingGrade = studentJournal[sortedDates.last];
+                }
+                final pendingGrade = editState.pending[student.id];
+                return _GradeRow(
+                  student: student,
+                  existingGrade: existingGrade,
+                  pendingGrade: pendingGrade ?? 0,
+                  onGradeChanged: (g) => notifier.setGrade(student.id, g),
+                );
+              },
+            ),
           ),
         ),
         _SaveBar(state: editState, onSave: notifier.saveAll),
@@ -211,9 +218,8 @@ class _GradeRow extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(
-          color: pendingGrade > 0
-              ? AppColors.brandLight
-              : const Color(0xFFE5E7EB),
+          color:
+              pendingGrade > 0 ? AppColors.brandLight : const Color(0xFFE5E7EB),
         ),
       ),
       child: Row(
