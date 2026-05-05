@@ -1,9 +1,5 @@
-<svg width="432" height="432" viewBox="0 0 432 432" xmlns="http://www.w3.org/2000/svg">
-  <!-- Android Adaptive Icon · Foreground layer · 432×432
-       Safe zone is center 264×264 (system masks corners differently per launcher)
-       Background is set via res/values/ic_launcher_background.xml = #1F6F65 -->
-
-  <g transform="translate(56, 56) scale(0.625)" fill="#FFFFFF">
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(51.2, 51.2) scale(0.8)" fill="#FFFFFF">
     <path d="M 256 388 C 230 392, 200 398, 170 412 C 140 426, 115 444, 100 460 L 110 462 C 130 446, 158 430, 188 420 C 218 410, 240 405, 256 405 Z" opacity="0.85"/>
     <path d="M 256 388 C 282 392, 312 398, 342 412 C 372 426, 397 444, 412 460 L 402 462 C 382 446, 354 430, 324 420 C 294 410, 272 405, 256 405 Z" opacity="0.85"/>
     <path d="M 256 392 C 248 410, 240 432, 232 458 C 226 478, 222 488, 220 492 L 230 492 C 234 480, 240 462, 246 442 C 252 422, 256 408, 256 400 Z" opacity="0.7"/>

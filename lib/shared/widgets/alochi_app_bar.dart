@@ -5,6 +5,7 @@ import '../../theme/typography.dart';
 class AlochiAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final Widget? titleWidget;
+  final Widget? leading;
   final List<Widget>? actions;
   final bool showBackButton;
   final VoidCallback? onBack;
@@ -15,6 +16,7 @@ class AlochiAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     this.title,
     this.titleWidget,
+    this.leading,
     this.actions,
     this.showBackButton = true,
     this.onBack,
@@ -31,13 +33,13 @@ class AlochiAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: backgroundColor ?? Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: showBackButton && Navigator.of(context).canPop()
+      leading: leading ?? (showBackButton && Navigator.of(context).canPop()
           ? IconButton(
               icon: const Icon(Icons.arrow_back_ios_new,
                   size: 20, color: AppColors.ink),
               onPressed: onBack ?? () => Navigator.of(context).pop(),
             )
-          : null,
+          : null),
       actions: actions,
     );
   }
