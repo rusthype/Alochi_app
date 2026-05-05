@@ -6,6 +6,17 @@ import '../models/student_model.dart';
 import '../models/attendance_model.dart';
 import '../models/lesson_detail_model.dart';
 import '../models/message_model.dart';
+import '../models/grades_model.dart';
+import '../models/homework_model.dart';
+import '../models/ai_message_model.dart';
+import '../models/teacher_profile_model.dart';
+import '../models/telegram_model.dart';
+
+export '../models/grades_model.dart';
+export '../models/homework_model.dart';
+export '../models/ai_message_model.dart';
+export '../models/teacher_profile_model.dart';
+export '../models/telegram_model.dart';
 
 class TeacherApi {
   final _client = ApiClient.instance;
@@ -338,165 +349,131 @@ class TeacherApi {
       rethrow;
     }
   }
-}
 
-// ────────────────────────────────────────────────────────────────────────────
-// Grades models
-// ────────────────────────────────────────────────────────────────────────────
+  // ───── AI ────────────────────────────────────────────────────────────────
 
-class GradesJournalData {
-  final List<GradeStudentRow> students;
-  final List<String> dates;
-  final Map<String, Map<String, int>> journal; // studentId → {date → grade}
-  final String groupId;
-
-  const GradesJournalData({
-    required this.students,
-    required this.dates,
-    required this.journal,
-    required this.groupId,
-  });
-
-  factory GradesJournalData.fromJson(
-      Map<String, dynamic> json, String groupId) {
-    final rawStudents = json['students'] as List? ?? [];
-    final rawDates = json['dates'] as List? ?? [];
-    final rawJournal = json['journal'] as Map<String, dynamic>? ?? {};
-
-    final students = rawStudents.isEmpty
-        ? <GradeStudentRow>[]
-        : rawStudents
-            .map((e) => GradeStudentRow.fromJson(e as Map<String, dynamic>))
-            .toList();
-    final dates = rawDates.map((d) => d.toString()).toList();
-
-    final journal = <String, Map<String, int>>{};
-    rawJournal.forEach((studentId, dateMap) {
-      if (dateMap is Map) {
-        final inner = <String, int>{};
-        dateMap.forEach((date, grade) {
-          inner[date.toString()] = (grade as num?)?.toInt() ?? 0;
-        });
-        journal[studentId] = inner;
-      }
-    });
-
-    return GradesJournalData(
-      students: students,
-      dates: dates,
-      journal: journal,
-      groupId: groupId,
-    );
-  }
-
-  GradesJournalData empty() => GradesJournalData(
-        students: [],
-        dates: [],
-        journal: {},
-        groupId: groupId,
-      );
-}
-
-class GradeStudentRow {
-  final String id;
-  final String name;
-
-  const GradeStudentRow({required this.id, required this.name});
-
-  factory GradeStudentRow.fromJson(Map<String, dynamic> json) {
-    return GradeStudentRow(
-      id: json['id']?.toString() ?? '',
-      name: json['name']?.toString() ?? '',
-    );
-  }
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Homework models
-// ────────────────────────────────────────────────────────────────────────────
-
-class HomeworkListData {
-  final HomeworkStats stats;
-  final List<HomeworkModel> assignments;
-
-  const HomeworkListData({required this.stats, required this.assignments});
-
-  factory HomeworkListData.fromJson(Map<String, dynamic> json) {
-    final rawStats = json['stats'] as Map<String, dynamic>? ?? {};
-    final rawList = json['assignments'] as List? ?? [];
-    return HomeworkListData(
-      stats: HomeworkStats.fromJson(rawStats),
-      assignments: rawList.isEmpty
-          ? []
-          : rawList
-              .map((e) => HomeworkModel.fromJson(e as Map<String, dynamic>))
-              .toList(),
-    );
-  }
-}
-
-class HomeworkStats {
-  final int submitted;
-  final int onTime;
-  final int pending;
-
-  const HomeworkStats(
-      {required this.submitted, required this.onTime, required this.pending});
-
-  factory HomeworkStats.fromJson(Map<String, dynamic> json) {
-    return HomeworkStats(
-      submitted: (json['submitted'] as num?)?.toInt() ?? 0,
-      onTime: (json['on_time'] as num?)?.toInt() ?? 0,
-      pending: (json['pending'] as num?)?.toInt() ?? 0,
-    );
-  }
-}
-
-class HomeworkModel {
-  final String id;
-  final String title;
-  final String description;
-  final String subject;
-  final String groupName;
-  final String deadline;
-  final int responseCount;
-  final bool isActive;
-
-  const HomeworkModel({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.subject,
-    required this.groupName,
-    required this.deadline,
-    required this.responseCount,
-    required this.isActive,
-  });
-
-  factory HomeworkModel.fromJson(Map<String, dynamic> json) {
-    // Determine active from deadline
-    bool active = true;
-    final dl = json['deadline']?.toString() ?? '';
-    if (dl.isNotEmpty) {
-      try {
-        final deadlineDate = DateTime.parse(dl);
-        active = deadlineDate.isAfter(DateTime.now());
-      } catch (_) {}
+  /// POST /teacher/ai/chat/ → {reply: "..."}
+  Future<String> sendAiMessage(String message) async {
+    try {
+      final data = await _client.post(
+        '/teacher/ai/chat/',
+        data: {'message': message},
+      ) as Map<String, dynamic>;
+      return data['reply']?.toString() ?? '';
+    } catch (e, st) {
+      debugPrint('sendAiMessage error: $e\n$st');
+      rethrow;
     }
-    final isActiveParsed = json['is_active'];
-    if (isActiveParsed != null) active = isActiveParsed == true;
+  }
 
-    return HomeworkModel(
-      id: json['id']?.toString() ?? '',
-      title: json['title']?.toString() ?? '',
-      description: json['description']?.toString() ?? '',
-      subject: json['subject']?.toString() ?? '',
-      groupName: json['group_name']?.toString() ??
-          json['class_name']?.toString() ??
-          '',
-      deadline: dl,
-      responseCount: (json['response_count'] as num?)?.toInt() ?? 0,
-      isActive: active,
-    );
+  /// GET /teacher/ai/history/ → list of {role, content, timestamp}
+  Future<List<AiMessageModel>> getAiHistory() async {
+    try {
+      final data = await _client.get('/teacher/ai/history/');
+      List<dynamic> list;
+      if (data is List) {
+        list = data;
+      } else if (data is Map<String, dynamic>) {
+        list = data['results'] as List? ?? data['messages'] as List? ?? [];
+      } else {
+        list = [];
+      }
+      if (list.isEmpty) return [];
+      return list
+          .map((e) => AiMessageModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e, st) {
+      debugPrint('getAiHistory error: $e\n$st');
+      return [];
+    }
+  }
+
+  // ───── Telegram ──────────────────────────────────────────────────────────
+
+  /// GET /teacher/telegram/groups-status/ — may 404 (backend pending)
+  Future<List<TelegramGroupStatusData>> getTelegramGroupsStatus() async {
+    try {
+      final data = await _client.get('/teacher/telegram/groups-status/');
+      List<dynamic> list;
+      if (data is List) {
+        list = data;
+      } else if (data is Map<String, dynamic>) {
+        list = data['results'] as List? ?? data['groups'] as List? ?? [];
+      } else {
+        list = [];
+      }
+      if (list.isEmpty) return [];
+      return list
+          .map(
+              (e) => TelegramGroupStatusData.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e, st) {
+      debugPrint('getTelegramGroupsStatus error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// GET /teacher/telegram/groups/{id}/unlinked-parents/ — may 404
+  Future<List<UnlinkedParentData>> getUnlinkedParents(String groupId) async {
+    try {
+      final data = await _client
+          .get('/teacher/telegram/groups/$groupId/unlinked-parents/');
+      List<dynamic> list;
+      if (data is List) {
+        list = data;
+      } else if (data is Map<String, dynamic>) {
+        list = data['results'] as List? ?? data['parents'] as List? ?? [];
+      } else {
+        list = [];
+      }
+      if (list.isEmpty) return [];
+      return list
+          .map((e) => UnlinkedParentData.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e, st) {
+      debugPrint('getUnlinkedParents error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/telegram/groups/{id}/remind/{parentId}/ — send one reminder
+  Future<void> sendTelegramReminder(String groupId, String parentId) async {
+    try {
+      await _client.post(
+        '/teacher/telegram/groups/$groupId/remind/$parentId/',
+        data: {},
+      );
+    } catch (e, st) {
+      debugPrint('sendTelegramReminder error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/telegram/groups/{id}/remind-all/ — bulk reminder
+  Future<void> sendTelegramReminderAll(String groupId) async {
+    try {
+      await _client.post(
+        '/teacher/telegram/groups/$groupId/remind-all/',
+        data: {},
+      );
+    } catch (e, st) {
+      debugPrint('sendTelegramReminderAll error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  // ───── Teacher profile ───────────────────────────────────────────────────
+
+  /// GET /teacher/profile/ → {id, name, username, phone}
+  Future<TeacherProfileModel> getTeacherProfile() async {
+    try {
+      final data =
+          await _client.get('/teacher/profile/') as Map<String, dynamic>;
+      return TeacherProfileModel.fromJson(data);
+    } catch (e, st) {
+      debugPrint('getTeacherProfile error: $e\n$st');
+      rethrow;
+    }
   }
 }
+
