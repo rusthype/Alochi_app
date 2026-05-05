@@ -29,6 +29,33 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     super.dispose();
   }
 
+  Future<void> _sendMessage() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+    // Do NOT clear before the API call — text is preserved on error
+    try {
+      await ref
+          .read(chatThreadProvider(widget.conversationId).notifier)
+          .sendMessage(text);
+      if (!mounted) return;
+      _controller.clear(); // Only clear on success
+      _scrollToBottom();
+    } catch (e) {
+      // Text remains in the controller so the user can retry
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Xabar yuborilmadi: $e',
+            style: AppTextStyles.bodyS.copyWith(color: Colors.white),
+          ),
+          backgroundColor: AppColors.danger,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -84,15 +111,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               _ChatComposer(
                 controller: _controller,
                 isSending: state.isSending,
-                onSend: () async {
-                  final text = _controller.text.trim();
-                  if (text.isEmpty) return;
-                  _controller.clear();
-                  await ref
-                      .read(chatThreadProvider(widget.conversationId).notifier)
-                      .sendMessage(text);
-                  _scrollToBottom();
-                },
+                onSend: _sendMessage,
               ),
             ],
           );
