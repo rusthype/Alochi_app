@@ -43,6 +43,9 @@ import '../features/teacher/ai/ai_chat_screen.dart';
 import '../features/teacher/telegram/telegram_parents_screen.dart';
 import '../features/teacher/telegram/unlinked_parents_screen.dart';
 import '../features/teacher/profile/profile_screen.dart' as teacher_profile;
+import '../features/teacher/profile/profile_edit_screen.dart';
+import '../features/teacher/profile/password_change_screen.dart';
+import '../features/teacher/onboarding/welcome_intro_screen.dart';
 import '../core/models/test_model.dart';
 import '../core/utils/date_utils.dart';
 
@@ -79,6 +82,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (!isAuth && !isPublic) return '/teacher/auth/login';
 
       if (isAuth) {
+        // Show onboarding for first-time teacher logins
+        if (role == 'teacher' &&
+            authState.needsOnboarding &&
+            loc != '/teacher/onboarding/intro') {
+          return '/teacher/onboarding/intro';
+        }
         // If on teacher login while authenticated as teacher, go to dashboard
         if (loc == '/teacher/auth/login' && role == 'teacher') {
           return '/teacher/dashboard';
@@ -214,6 +223,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/profile/telegram',
             builder: (context, state) => const TelegramParentsScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/profile/edit',
+            builder: (context, state) => const ProfileEditScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/profile/password',
+            builder: (context, state) => const PasswordChangeScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/onboarding/intro',
+            builder: (context, state) => const WelcomeIntroScreen(),
           ),
           GoRoute(
             path: '/teacher/ai',
