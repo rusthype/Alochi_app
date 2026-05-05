@@ -326,3 +326,18 @@ Har vazifadan keyin **Uzbek tilida** hisobot bering:
 - Real qurilma test natijasi
 - Bloklar
 - Keyingi qadam taklifi
+
+## Available Skills
+Use these skills by reading them at the start of relevant tasks:
+
+### Flutter/Mobile
+- .gemini/skills/frontend-design/SKILL.md — UI components, design patterns
+- .gemini/skills/debugging-strategies/SKILL.md — Debug Flutter issues
+
+### Code Quality
+- .gemini/skills/systematic-debugging/SKILL.md — Root cause analysis
+- .gemini/skills/code-refactoring/SKILL.md — Refactoring patterns
+
+### Usage
+When starting a task, read the relevant skill first:
+"Read .gemini/skills/systematic-debugging/SKILL.md then fix the bug"
