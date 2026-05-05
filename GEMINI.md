@@ -328,16 +328,28 @@ Har vazifadan keyin **Uzbek tilida** hisobot bering:
 - Keyingi qadam taklifi
 
 ## Available Skills
-Use these skills by reading them at the start of relevant tasks:
+Project skills are in .gemini/skills/ folder.
+Usage in prompts: "Use skill: systematic-debugging" or "Read .gemini/skills/systematic-debugging/SKILL.md"
 
-### Flutter/Mobile
-- .gemini/skills/frontend-design/SKILL.md — UI components, design patterns
-- .gemini/skills/debugging-strategies/SKILL.md — Debug Flutter issues
+### Skills list:
+- systematic-debugging — Root cause analysis, bug investigation
+- code-refactoring — Refactoring patterns, clean code
+- frontend-design — UI components, design quality
+- debugging-strategies — Debugging approaches
+- verification-before-completion — Verify before committing
+- tdd-test-writer — Test-driven development
+- python-error-handling — Python/Django error handling
+- refactoring — General refactoring
+- ui-styling — UI styling patterns
+- webapp-testing — Web/app testing
 
-### Code Quality
-- .gemini/skills/systematic-debugging/SKILL.md — Root cause analysis
-- .gemini/skills/code-refactoring/SKILL.md — Refactoring patterns
-
-### Usage
-When starting a task, read the relevant skill first:
-"Read .gemini/skills/systematic-debugging/SKILL.md then fix the bug"
+### A'lochi specific rules (always apply):
+- Flutter 3.41.4, Riverpod 2.6.1, go_router, Dio
+- Brand teal #1F6F65 (AppColors.brand)
+- No emoji in code
+- No Co-Authored-By in commits
+- Theme tokens only: AppColors, AppTextStyles, AppSpacing, AppRadii
+- flutter analyze 0 errors before every commit
+- Uzbek language for all user-facing strings
+- Backend: https://api.alochi.org/api/v1
+- Branch: v1.1-mobile-redesign
