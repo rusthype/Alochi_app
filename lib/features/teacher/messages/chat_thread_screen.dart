@@ -49,7 +49,13 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
             'Xabar yuborilmadi: $e',
             style: AppTextStyles.bodyS.copyWith(color: Colors.white),
           ),
-          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+          backgroundColor: AppColors.brand,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
           duration: const Duration(seconds: 3),
         ),
       );

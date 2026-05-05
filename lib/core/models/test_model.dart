@@ -60,7 +60,8 @@ class OptionModel {
   final String label;
   final String text;
 
-  const OptionModel({required this.id, required this.label, required this.text});
+  const OptionModel(
+      {required this.id, required this.label, required this.text});
 
   factory OptionModel.fromJson(Map<String, dynamic> json) {
     return OptionModel(
@@ -94,16 +95,13 @@ class TestResultModel {
 
   factory TestResultModel.fromJson(Map<String, dynamic> json) {
     return TestResultModel(
-      attemptId:
-          json['attempt_id']?.toString() ?? json['id']?.toString() ?? '',
+      attemptId: json['attempt_id']?.toString() ?? json['id']?.toString() ?? '',
       score: (json['score_percent'] as num?)?.toDouble() ??
           (json['score'] as num?)?.toDouble() ??
           0.0,
       correct: json['correct_count'] ?? json['correct'] ?? 0,
-      wrong: json['incorrect_count'] ??
-          json['wrong_count'] ??
-          json['wrong'] ??
-          0,
+      wrong:
+          json['incorrect_count'] ?? json['wrong_count'] ?? json['wrong'] ?? 0,
       skipped: json['skipped_count'] ?? json['skipped'] ?? 0,
       xpEarned: json['xp_earned'] ?? json['xp_reward'] ?? 0,
       coinsEarned: json['coins_earned'] ?? 0,

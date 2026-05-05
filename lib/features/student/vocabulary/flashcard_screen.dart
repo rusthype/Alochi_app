@@ -7,8 +7,7 @@ import '../../../core/api/student_api.dart';
 import '../../../core/models/vocabulary.dart';
 
 final _wordsProvider =
-    FutureProvider.family<List<VocabularyWord>, String>(
-        (ref, topicId) async {
+    FutureProvider.family<List<VocabularyWord>, String>((ref, topicId) async {
   return StudentApi().getVocabularyWords(topicId);
 });
 
@@ -17,8 +16,7 @@ class FlashcardScreen extends ConsumerStatefulWidget {
   const FlashcardScreen({super.key, required this.topicId});
 
   @override
-  ConsumerState<FlashcardScreen> createState() =>
-      _FlashcardScreenState();
+  ConsumerState<FlashcardScreen> createState() => _FlashcardScreenState();
 }
 
 class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
@@ -74,8 +72,7 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
       body: async.when(
         loading: () => const LoadingOverlay(),
         error: (e, _) => Center(
-            child: Text('Xatolik: $e',
-                style: const TextStyle(color: kRed))),
+            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (words) {
           if (words.isEmpty) {
             return const Center(
@@ -118,20 +115,17 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                               ? _CardFace(
                                   color: kBgCard,
                                   child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       const Text("O'zbekcha",
                                           style: TextStyle(
-                                              color: kTextMuted,
-                                              fontSize: 12)),
+                                              color: kTextMuted, fontSize: 12)),
                                       const SizedBox(height: 16),
                                       Text(word.word,
                                           style: const TextStyle(
                                               color: kTextPrimary,
                                               fontSize: 32,
-                                              fontWeight:
-                                                  FontWeight.w900),
+                                              fontWeight: FontWeight.w900),
                                           textAlign: TextAlign.center),
                                       const SizedBox(height: 24),
                                       const Row(
@@ -139,8 +133,7 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                                             MainAxisAlignment.center,
                                         children: [
                                           Icon(Icons.touch_app_rounded,
-                                              color: kTextMuted,
-                                              size: 16),
+                                              color: kTextMuted, size: 16),
                                           Text('  Bosing',
                                               style: TextStyle(
                                                   color: kTextMuted,
@@ -156,14 +149,12 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                                     ..rotateY(3.14159),
                                   child: _CardFace(
                                     color: kOrange.withValues(alpha: 0.1),
-                                    borderColor:
-                                        kOrange.withValues(alpha: 0.4),
+                                    borderColor: kOrange.withValues(alpha: 0.4),
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        if (word.translationRu
-                                            .isNotEmpty) ...[
+                                        if (word.translationRu.isNotEmpty) ...[
                                           const Text('RU',
                                               style: TextStyle(
                                                   color: kTextMuted,
@@ -172,14 +163,11 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                                               style: const TextStyle(
                                                   color: kTextPrimary,
                                                   fontSize: 24,
-                                                  fontWeight:
-                                                      FontWeight.w700),
-                                              textAlign:
-                                                  TextAlign.center),
+                                                  fontWeight: FontWeight.w700),
+                                              textAlign: TextAlign.center),
                                           const SizedBox(height: 12),
                                         ],
-                                        if (word.translationEn
-                                            .isNotEmpty) ...[
+                                        if (word.translationEn.isNotEmpty) ...[
                                           const Text('EN',
                                               style: TextStyle(
                                                   color: kTextMuted,
@@ -188,22 +176,17 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                                               style: const TextStyle(
                                                   color: kTextSecondary,
                                                   fontSize: 20),
-                                              textAlign:
-                                                  TextAlign.center),
+                                              textAlign: TextAlign.center),
                                           const SizedBox(height: 12),
                                         ],
-                                        if (word.exampleSentence !=
-                                            null) ...[
-                                          const Divider(
-                                              color: kBgBorder),
+                                        if (word.exampleSentence != null) ...[
+                                          const Divider(color: kBgBorder),
                                           Text(word.exampleSentence!,
                                               style: const TextStyle(
                                                   color: kTextMuted,
                                                   fontSize: 13,
-                                                  fontStyle:
-                                                      FontStyle.italic),
-                                              textAlign:
-                                                  TextAlign.center),
+                                                  fontStyle: FontStyle.italic),
+                                              textAlign: TextAlign.center),
                                         ],
                                       ],
                                     ),
@@ -219,16 +202,14 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: _current > 0
-                            ? () => _go(-1, words.length)
-                            : null,
+                        onPressed:
+                            _current > 0 ? () => _go(-1, words.length) : null,
                         icon: const Icon(Icons.arrow_back_rounded),
                         label: const Text('Oldingi'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: kTextSecondary,
                           side: const BorderSide(color: kBgBorder),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                       ),
                     ),
@@ -236,10 +217,8 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen>
                     Expanded(
                       child: _current < words.length - 1
                           ? ElevatedButton.icon(
-                              onPressed: () =>
-                                  _go(1, words.length),
-                              icon: const Icon(
-                                  Icons.arrow_forward_rounded),
+                              onPressed: () => _go(1, words.length),
+                              icon: const Icon(Icons.arrow_forward_rounded),
                               label: const Text('Keyingi'),
                             )
                           : ElevatedButton.icon(
@@ -264,8 +243,7 @@ class _CardFace extends StatelessWidget {
   final Widget child;
   final Color color;
   final Color? borderColor;
-  const _CardFace(
-      {required this.child, required this.color, this.borderColor});
+  const _CardFace({required this.child, required this.color, this.borderColor});
 
   @override
   Widget build(BuildContext context) {
@@ -274,8 +252,7 @@ class _CardFace extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: borderColor ?? kBgBorder, width: 1.5),
+        border: Border.all(color: borderColor ?? kBgBorder, width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),

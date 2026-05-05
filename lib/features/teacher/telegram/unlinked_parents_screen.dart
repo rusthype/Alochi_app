@@ -105,7 +105,13 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
               'Eslatma yuborildi',
               style: AppTextStyles.bodyS.copyWith(color: Colors.white),
             ),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
             backgroundColor: AppColors.success,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -118,7 +124,13 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
               'Eslatma yuborilmadi: ${e.toString()}',
               style: AppTextStyles.bodyS.copyWith(color: Colors.white),
             ),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
             backgroundColor: AppColors.danger,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -141,7 +153,13 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
               "Barcha ${parents.length} ota-onaga eslatma yuborildi",
               style: AppTextStyles.bodyS.copyWith(color: Colors.white),
             ),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
             backgroundColor: AppColors.success,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -154,7 +172,13 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
               'Eslatma yuborilmadi: ${e.toString()}',
               style: AppTextStyles.bodyS.copyWith(color: Colors.white),
             ),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
             backgroundColor: AppColors.danger,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );

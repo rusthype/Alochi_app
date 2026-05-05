@@ -1,5 +1,6 @@
 /// Centralized date utilities for the A'lochi app.
 /// All date formatting and calendar helpers belong here.
+library;
 
 /// Returns today's day name in Uzbek (Monday-based).
 /// Example: Monday → 'Dushanba', Sunday → 'Yakshanba'
@@ -36,18 +37,38 @@ String timeAgo(DateTime date) {
   return formatDateIso(date);
 }
 
-/// Returns true if the lesson at [time] (format "HH:MM") is currently in progress.
-/// Assumes a lesson lasts 45 minutes.
+/// Returns true if the lesson at [time] (format "HH:MM" or "HH:MM - HH:MM") is currently in progress.
+/// If only start time is provided, assumes a lesson lasts 45 minutes.
 bool isLessonNow(String time) {
   if (time.isEmpty) return false;
   try {
-    final parts = time.split(':');
-    if (parts.length < 2) return false;
-    final h = int.parse(parts[0]);
-    final m = int.parse(parts[1]);
+    // Handle ranges like "08:00 - 08:45"
+    final rangeParts = time.split('-');
+    final startTimeStr = rangeParts.first.trim();
+    final endTimeStr = rangeParts.length > 1 ? rangeParts[1].trim() : '';
+
+    final startParts = startTimeStr.split(':');
+    if (startParts.length < 2) return false;
+    final h = int.parse(startParts[0].trim());
+    final m = int.parse(startParts[1].trim());
+
     final now = DateTime.now();
     final lessonStart = DateTime(now.year, now.month, now.day, h, m);
-    final lessonEnd = lessonStart.add(const Duration(minutes: 45));
+    DateTime lessonEnd;
+
+    if (endTimeStr.isNotEmpty) {
+      final endParts = endTimeStr.split(':');
+      if (endParts.length >= 2) {
+        final eh = int.parse(endParts[0].trim());
+        final em = int.parse(endParts[1].trim());
+        lessonEnd = DateTime(now.year, now.month, now.day, eh, em);
+      } else {
+        lessonEnd = lessonStart.add(const Duration(minutes: 45));
+      }
+    } else {
+      lessonEnd = lessonStart.add(const Duration(minutes: 45));
+    }
+
     return now.isAfter(lessonStart) && now.isBefore(lessonEnd);
   } catch (_) {
     return false;

@@ -106,9 +106,15 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_selectedGroupId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Guruh tanlang'),
-          backgroundColor: Color(0xFFD97706),
+        SnackBar(
+          content: const Text('Guruh tanlang'),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+          backgroundColor: AppColors.brand,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
         ),
       );
       return;
@@ -122,9 +128,15 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
       ref.invalidate(homeworkListProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vazifa yaratildi'),
-          backgroundColor: Color(0xFF0F9A6E),
+        SnackBar(
+          content: const Text('Vazifa yaratildi'),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+          backgroundColor: AppColors.brand,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
         ),
       );
       context.pop();
@@ -133,7 +145,13 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
-          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+          backgroundColor: AppColors.brand,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
         ),
       );
     } finally {
@@ -184,15 +202,15 @@ class _GroupDropdown extends StatelessWidget {
             ),
             hint: Text(
               'Guruhni tanlang',
-              style:
-                  AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
             ),
             items: groups
                 .map((g) => DropdownMenuItem<String>(
                       value: g.id,
                       child: Text(
                         '${g.code} · ${g.subjectName}',
-                        style: AppTextStyles.body.copyWith(color: AppColors.ink),
+                        style:
+                            AppTextStyles.body.copyWith(color: AppColors.ink),
                       ),
                     ))
                 .toList(),
@@ -238,8 +256,8 @@ class _DeadlinePicker extends StatelessWidget {
                 return Theme(
                   data: Theme.of(ctx).copyWith(
                     colorScheme: Theme.of(ctx).colorScheme.copyWith(
-                      primary: AppColors.brand,
-                    ),
+                          primary: AppColors.brand,
+                        ),
                   ),
                   child: child!,
                 );
@@ -267,9 +285,7 @@ class _DeadlinePicker extends StatelessWidget {
                       ? '${value!.day.toString().padLeft(2, '0')}.${value!.month.toString().padLeft(2, '0')}.${value!.year}'
                       : 'Sanani tanlang',
                   style: AppTextStyles.body.copyWith(
-                    color: value != null
-                        ? AppColors.ink
-                        : AppColors.brandMuted,
+                    color: value != null ? AppColors.ink : AppColors.brandMuted,
                   ),
                 ),
               ],
@@ -314,8 +330,7 @@ class _MultilineInput extends StatelessWidget {
           style: AppTextStyles.body.copyWith(color: AppColors.ink),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle:
-                AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+            hintStyle: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.all(AppSpacing.m),
@@ -345,7 +360,6 @@ class _MultilineInput extends StatelessWidget {
     );
   }
 }
-
 
 class _FieldSkeleton extends StatelessWidget {
   final String label;

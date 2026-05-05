@@ -23,8 +23,7 @@ class AppNotification {
       title: json['title'] ?? '',
       body: json['body'] ?? json['message'] ?? '',
       isRead: json['is_read'] ?? false,
-      createdAt:
-          DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       type: json['type'],
       actionUrl: json['action_url'],
     );

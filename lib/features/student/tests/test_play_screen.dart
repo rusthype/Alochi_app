@@ -84,14 +84,12 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
         backgroundColor: kBgCard,
         title: const Text('Testni yakunlash?',
             style: TextStyle(color: kTextPrimary)),
-        content: Text(
-            'Javob berilgan: ${_answers.length}/${_questions.length}',
+        content: Text('Javob berilgan: ${_answers.length}/${_questions.length}',
             style: const TextStyle(color: kTextSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Bekor',
-                style: TextStyle(color: kTextSecondary)),
+            child: const Text('Bekor', style: TextStyle(color: kTextSecondary)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -134,15 +132,12 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-          backgroundColor: kBgMain, body: LoadingOverlay());
+      return const Scaffold(backgroundColor: kBgMain, body: LoadingOverlay());
     }
     if (_error != null) {
       return Scaffold(
         backgroundColor: kBgMain,
-        body: Center(
-            child: Text(_error!,
-                style: const TextStyle(color: kRed))),
+        body: Center(child: Text(_error!, style: const TextStyle(color: kRed))),
       );
     }
 
@@ -156,8 +151,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: _timerColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
@@ -211,8 +205,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                     final opt = entry.value;
                     final isSelected = _answers[q.id] == idx;
                     return GestureDetector(
-                      onTap: () => setState(
-                          () => _answers[q.id] = idx),
+                      onTap: () => setState(() => _answers[q.id] = idx),
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
@@ -222,8 +215,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                               : kBgCard,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color:
-                                isSelected ? kOrange : kBgBorder,
+                            color: isSelected ? kOrange : kBgBorder,
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -233,9 +225,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: isSelected
-                                    ? kOrange
-                                    : kBgBorder,
+                                color: isSelected ? kOrange : kBgBorder,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -244,8 +234,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                                         color: isSelected
                                             ? Colors.white
                                             : kTextSecondary,
-                                        fontWeight:
-                                            FontWeight.w700)),
+                                        fontWeight: FontWeight.w700)),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -282,8 +271,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: kTextSecondary,
                         side: const BorderSide(color: kBgBorder),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),
@@ -292,14 +280,11 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                   child: _current < _questions.length - 1
                       ? ElevatedButton.icon(
                           onPressed: _next,
-                          icon: const Icon(
-                              Icons.arrow_forward_rounded),
+                          icon: const Icon(Icons.arrow_forward_rounded),
                           label: const Text('Keyingi'),
                         )
                       : ElevatedButton.icon(
-                          onPressed: _submitting
-                              ? null
-                              : _showSubmitDialog,
+                          onPressed: _submitting ? null : _showSubmitDialog,
                           icon: const Icon(Icons.check_rounded),
                           label: const Text('Yuborish'),
                         ),

@@ -7,8 +7,7 @@ import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/vocabulary.dart';
 
-final _vocabTopicsProvider =
-    FutureProvider<List<VocabularyTopic>>((ref) async {
+final _vocabTopicsProvider = FutureProvider<List<VocabularyTopic>>((ref) async {
   return StudentApi().getVocabularyTopics();
 });
 
@@ -24,27 +23,23 @@ class VocabularyScreen extends ConsumerWidget {
       body: async.when(
         loading: () => const LoadingWidget(),
         error: (e, _) => Center(
-            child: Text('Xatolik: $e',
-                style: const TextStyle(color: kRed))),
+            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (topics) {
           if (topics.isEmpty) {
-            return const AlochiEmptyState(
-                title: "So'z mavzulari topilmadi");
+            return const AlochiEmptyState(title: "So'z mavzulari topilmadi");
           }
           return LayoutBuilder(builder: (ctx, constraints) {
             final cols = constraints.maxWidth > 600 ? 3 : 2;
             return GridView.builder(
               padding: const EdgeInsets.all(16),
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: cols,
                 childAspectRatio: 0.95,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
               ),
               itemCount: topics.length,
-              itemBuilder: (ctx, i) =>
-                  _TopicCard(topic: topics[i]),
+              itemBuilder: (ctx, i) => _TopicCard(topic: topics[i]),
             );
           });
         },
@@ -82,8 +77,7 @@ class _TopicCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 4),
                 Text("${topic.wordCount} so'z",
-                    style: const TextStyle(
-                        color: kTextMuted, fontSize: 12)),
+                    style: const TextStyle(color: kTextMuted, fontSize: 12)),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -96,8 +90,7 @@ class _TopicCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text('${(topic.progress * 100).toInt()}%',
-                    style: const TextStyle(
-                        color: kTextMuted, fontSize: 10)),
+                    style: const TextStyle(color: kTextMuted, fontSize: 10)),
               ],
             ),
           ),
@@ -106,8 +99,8 @@ class _TopicCard extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () => context.go(
-                      '/student/vocabulary/${topic.id}/flashcard'),
+                  onPressed: () =>
+                      context.go('/student/vocabulary/${topic.id}/flashcard'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: kBlue,
                     side: BorderSide(color: kBlue.withValues(alpha: 0.5)),
@@ -120,8 +113,8 @@ class _TopicCard extends StatelessWidget {
               const SizedBox(width: 6),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () => context.go(
-                      '/student/vocabulary/${topic.id}/quiz'),
+                  onPressed: () =>
+                      context.go('/student/vocabulary/${topic.id}/quiz'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     textStyle: const TextStyle(fontSize: 11),

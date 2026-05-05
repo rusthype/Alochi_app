@@ -35,8 +35,7 @@ class _NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-          horizontal: isWide ? 80 : 24, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: isWide ? 80 : 24, vertical: 16),
       decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: kBgBorder))),
       child: Row(
@@ -66,8 +65,7 @@ class _HeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-          horizontal: isWide ? 80 : 24, vertical: 80),
+      padding: EdgeInsets.symmetric(horizontal: isWide ? 80 : 24, vertical: 80),
       child: isWide
           ? Row(children: [
               Expanded(child: _heroContent(context)),
@@ -86,8 +84,7 @@ class _HeroSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: kOrange.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
@@ -117,8 +114,7 @@ class _HeroSection extends StatelessWidget {
         const SizedBox(height: 16),
         const Text(
           "Test ishlang, XP yig'ing, leaderboardda o'z o'rningizni egallab oling.",
-          style: TextStyle(
-              color: kTextSecondary, fontSize: 16, height: 1.6),
+          style: TextStyle(color: kTextSecondary, fontSize: 16, height: 1.6),
         ),
         const SizedBox(height: 32),
         Row(
@@ -134,8 +130,8 @@ class _HeroSection extends StatelessWidget {
               style: OutlinedButton.styleFrom(
                 foregroundColor: kTextSecondary,
                 side: const BorderSide(color: kBgBorder),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 24, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -181,14 +177,30 @@ class _FeaturesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const features = [
-      (Icons.quiz_rounded, kOrange, 'Testlar',
-          'Minglab test savollari bilan bilimingizni sinang'),
-      (Icons.star_rounded, kYellow, 'XP & Darajalar',
-          "Har bir test uchun tajriba ballari yig'ing"),
-      (Icons.leaderboard_rounded, kGreen, 'Leaderboard',
-          "Do'stlaringiz bilan raqobatlashing"),
-      (Icons.storefront_rounded, kPurple, "Do'kon",
-          "Tangalar bilan maxsus sovg'alar sotib oling"),
+      (
+        Icons.quiz_rounded,
+        kOrange,
+        'Testlar',
+        'Minglab test savollari bilan bilimingizni sinang'
+      ),
+      (
+        Icons.star_rounded,
+        kYellow,
+        'XP & Darajalar',
+        "Har bir test uchun tajriba ballari yig'ing"
+      ),
+      (
+        Icons.leaderboard_rounded,
+        kGreen,
+        'Leaderboard',
+        "Do'stlaringiz bilan raqobatlashing"
+      ),
+      (
+        Icons.storefront_rounded,
+        kPurple,
+        "Do'kon",
+        "Tangalar bilan maxsus sovg'alar sotib oling"
+      ),
     ];
 
     return Container(
@@ -212,10 +224,7 @@ class _FeaturesSection extends StatelessWidget {
               childAspectRatio: 1.1,
               children: features
                   .map((f) => _FeatureCard(
-                      icon: f.$1,
-                      color: f.$2,
-                      title: f.$3,
-                      description: f.$4))
+                      icon: f.$1, color: f.$2, title: f.$3, description: f.$4))
                   .toList(),
             );
           }),
@@ -266,8 +275,7 @@ class _FeatureCard extends StatelessWidget {
           const SizedBox(height: 4),
           Expanded(
             child: Text(description,
-                style: const TextStyle(
-                    color: kTextSecondary, fontSize: 12)),
+                style: const TextStyle(color: kTextSecondary, fontSize: 12)),
           ),
         ],
       ),
@@ -319,8 +327,10 @@ class _CtaSection extends StatelessWidget {
       margin: const EdgeInsets.all(24),
       padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-            colors: [kOrange.withValues(alpha: 0.2), kPurple.withValues(alpha: 0.2)]),
+        gradient: LinearGradient(colors: [
+          kOrange.withValues(alpha: 0.2),
+          kPurple.withValues(alpha: 0.2)
+        ]),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: kOrange.withValues(alpha: 0.3)),
       ),

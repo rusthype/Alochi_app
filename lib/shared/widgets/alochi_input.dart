@@ -62,7 +62,9 @@ class _AlochiInputState extends State<AlochiInput> {
             suffixIcon: widget.isPassword
                 ? IconButton(
                     icon: Icon(
-                      _obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      _obscureText
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
                       color: const Color(0xFF9CA3AF),
                     ),
                     onPressed: () {
@@ -94,7 +96,8 @@ class _AlochiInputState extends State<AlochiInput> {
               borderRadius: BorderRadius.all(Radius.circular(AppRadii.s)),
               borderSide: BorderSide(color: AppColors.danger, width: 1.5),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
         ),
       ],

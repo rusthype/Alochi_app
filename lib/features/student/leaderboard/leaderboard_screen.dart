@@ -41,18 +41,9 @@ class LeaderboardScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(4),
               child: Row(
                 children: [
-                  _ScopeTab(
-                      label: 'Global',
-                      value: 'global',
-                      current: scope),
-                  _ScopeTab(
-                      label: 'Shahar',
-                      value: 'city',
-                      current: scope),
-                  _ScopeTab(
-                      label: 'Maktab',
-                      value: 'school',
-                      current: scope),
+                  _ScopeTab(label: 'Global', value: 'global', current: scope),
+                  _ScopeTab(label: 'Shahar', value: 'city', current: scope),
+                  _ScopeTab(label: 'Maktab', value: 'school', current: scope),
                 ],
               ),
             ),
@@ -61,12 +52,11 @@ class LeaderboardScreen extends ConsumerWidget {
             child: async.when(
               loading: () => const LoadingWidget(),
               error: (e, _) => Center(
-                  child: Text('Xatolik: $e',
-                      style: const TextStyle(color: kRed))),
+                  child:
+                      Text('Xatolik: $e', style: const TextStyle(color: kRed))),
               data: (entries) {
                 if (entries.isEmpty) {
-                  return const AlochiEmptyState(
-                      title: "Ma'lumot topilmadi");
+                  return const AlochiEmptyState(title: "Ma'lumot topilmadi");
                 }
                 final top3 = entries.take(3).toList();
                 final rest = entries.skip(3).toList();
@@ -74,11 +64,9 @@ class LeaderboardScreen extends ConsumerWidget {
                 final currentEntry = entries
                     .where((e) =>
                         e.isCurrentUser ||
-                        (currentUserId != null &&
-                            e.userId == currentUserId))
+                        (currentUserId != null && e.userId == currentUserId))
                     .firstOrNull;
-                final isInTop = currentEntry != null &&
-                    currentEntry.rank <= 10;
+                final isInTop = currentEntry != null && currentEntry.rank <= 10;
 
                 // Build flat item list for ListView.builder
                 final hasPodium = top3.length >= 2;
@@ -87,13 +75,12 @@ class LeaderboardScreen extends ConsumerWidget {
                 // Indices: 0 = podium (if present), 1..N = rest rows,
                 // then optional divider + sticky current user + trailing space
                 final int podiumCount = hasPodium ? 1 : 0;
-                final int stickyCount = stickyEntry != null ? 3 : 0; // divider + row + space
-                final itemCount =
-                    podiumCount + 1 + rest.length + stickyCount;
+                final int stickyCount =
+                    stickyEntry != null ? 3 : 0; // divider + row + space
+                final itemCount = podiumCount + 1 + rest.length + stickyCount;
 
                 return ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: itemCount,
                   itemBuilder: (ctx, i) {
                     if (hasPodium && i == 0) {
@@ -143,17 +130,14 @@ class _ScopeTab extends ConsumerWidget {
   final String value;
   final String current;
   const _ScopeTab(
-      {required this.label,
-      required this.value,
-      required this.current});
+      {required this.label, required this.value, required this.current});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSelected = current == value;
     return Expanded(
       child: GestureDetector(
-        onTap: () =>
-            ref.read(_scopeProvider.notifier).state = value,
+        onTap: () => ref.read(_scopeProvider.notifier).state = value,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
@@ -164,11 +148,8 @@ class _ScopeTab extends ConsumerWidget {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color:
-                  isSelected ? Colors.white : kTextSecondary,
-              fontWeight: isSelected
-                  ? FontWeight.w700
-                  : FontWeight.normal,
+              color: isSelected ? Colors.white : kTextSecondary,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
               fontSize: 14,
             ),
           ),
@@ -184,15 +165,10 @@ class _Podium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ordered = entries.length >= 3
-        ? [entries[1], entries[0], entries[2]]
-        : entries;
+    final ordered =
+        entries.length >= 3 ? [entries[1], entries[0], entries[2]] : entries;
     const heights = [100.0, 130.0, 80.0];
-    const colors = [
-      Color(0xFFC0C0C0),
-      Color(0xFFFFD700),
-      Color(0xFFCD7F32)
-    ];
+    const colors = [Color(0xFFC0C0C0), Color(0xFFFFD700), Color(0xFFCD7F32)];
     const sizes = [40.0, 52.0, 36.0];
 
     return Container(
@@ -205,8 +181,7 @@ class _Podium extends StatelessWidget {
       child: Column(
         children: [
           const Text('Top 3',
-              style:
-                  TextStyle(color: kTextSecondary, fontSize: 12)),
+              style: TextStyle(color: kTextSecondary, fontSize: 12)),
           const SizedBox(height: 16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -215,9 +190,7 @@ class _Podium extends StatelessWidget {
               ordered.length > 3 ? 3 : ordered.length,
               (i) => _PodiumSlot(
                 entry: ordered[i],
-                color: i < colors.length
-                    ? colors[i]
-                    : kTextMuted,
+                color: i < colors.length ? colors[i] : kTextMuted,
                 height: i < heights.length ? heights[i] : 80,
                 avatarSize: i < sizes.length ? sizes[i] : 36,
               ),
@@ -248,31 +221,24 @@ class _PodiumSlot extends StatelessWidget {
         const SizedBox(height: 8),
         Text(entry.name.split(' ').first,
             style: const TextStyle(
-                color: kTextPrimary,
-                fontSize: 12,
-                fontWeight: FontWeight.w600),
+                color: kTextPrimary, fontSize: 12, fontWeight: FontWeight.w600),
             overflow: TextOverflow.ellipsis),
         Text('${entry.xp} XP',
             style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.w700)),
+                color: color, fontSize: 11, fontWeight: FontWeight.w700)),
         const SizedBox(height: 4),
         Container(
           width: 60,
           height: height,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.2),
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(8)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             border: Border.all(color: color.withValues(alpha: 0.4)),
           ),
           child: Center(
             child: Text('#${entry.rank}',
                 style: TextStyle(
-                    color: color,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900)),
+                    color: color, fontSize: 20, fontWeight: FontWeight.w900)),
           ),
         ),
       ],
@@ -283,24 +249,18 @@ class _PodiumSlot extends StatelessWidget {
 class _RankRow extends StatelessWidget {
   final LeaderboardEntry entry;
   final bool isCurrentUser;
-  const _RankRow(
-      {required this.entry, required this.isCurrentUser});
+  const _RankRow({required this.entry, required this.isCurrentUser});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(
-          horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isCurrentUser
-            ? kOrange.withValues(alpha: 0.1)
-            : kBgCard,
+        color: isCurrentUser ? kOrange.withValues(alpha: 0.1) : kBgCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isCurrentUser
-              ? kOrange.withValues(alpha: 0.5)
-              : kBgBorder,
+          color: isCurrentUser ? kOrange.withValues(alpha: 0.5) : kBgBorder,
           width: isCurrentUser ? 2 : 1,
         ),
       ),
@@ -328,17 +288,14 @@ class _RankRow extends StatelessWidget {
                             : FontWeight.normal)),
                 if (entry.school != null)
                   Text(entry.school!,
-                      style: const TextStyle(
-                          color: kTextMuted, fontSize: 12),
+                      style: const TextStyle(color: kTextMuted, fontSize: 12),
                       overflow: TextOverflow.ellipsis),
               ],
             ),
           ),
           Text('${entry.xp} XP',
               style: TextStyle(
-                  color: isCurrentUser
-                      ? kOrange
-                      : kTextSecondary,
+                  color: isCurrentUser ? kOrange : kTextSecondary,
                   fontWeight: FontWeight.w700)),
         ],
       ),

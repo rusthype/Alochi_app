@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/models/lesson_model.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_card.dart';
@@ -139,10 +140,15 @@ class _TimetableLessonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlochiCard(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.m),
-        child: Row(
+    return GestureDetector(
+      onTap: () => context.push(
+        '/teacher/lessons/${lesson.id}',
+        extra: lesson,
+      ),
+      child: AlochiCard(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.m),
+          child: Row(
           children: [
             // Time
             SizedBox(
@@ -204,6 +210,7 @@ class _TimetableLessonCard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

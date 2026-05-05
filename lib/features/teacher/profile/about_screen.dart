@@ -80,10 +80,13 @@ class AboutScreen extends StatelessWidget {
                       const SizedBox(height: AppSpacing.s),
                       Text(
                         "A'lochi platformasi tomonidan yaratilgan.\nO'zbekiston, Toshkent.",
-                        style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+                        style: AppTextStyles.body
+                            .copyWith(color: AppColors.brandMuted),
                       ),
                       const SizedBox(height: AppSpacing.m),
-                      Text("alochi.org", style: AppTextStyles.body.copyWith(color: AppColors.brand)),
+                      Text("alochi.org",
+                          style: AppTextStyles.body
+                              .copyWith(color: AppColors.brand)),
                     ],
                   ),
                 ),
@@ -92,7 +95,8 @@ class AboutScreen extends StatelessWidget {
               Center(
                 child: Text(
                   "© 2026 A'lochi. Barcha huquqlar himoyalangan.",
-                  style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.brandMuted),
                   textAlign: TextAlign.center,
                 ),
               ),

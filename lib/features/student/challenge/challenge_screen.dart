@@ -57,7 +57,9 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
       'correct': isCorrect,
     });
     _bgAnim = ColorTween(
-      begin: isCorrect ? kGreen.withValues(alpha: 0.1) : kRed.withValues(alpha: 0.1),
+      begin: isCorrect
+          ? kGreen.withValues(alpha: 0.1)
+          : kRed.withValues(alpha: 0.1),
       end: Colors.transparent,
     ).animate(_feedbackCtrl);
     _feedbackCtrl.forward(from: 0).then((_) {
@@ -89,8 +91,8 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
   Widget build(BuildContext context) {
     final async = ref.watch(_challengeProvider);
     return async.when(
-      loading: () => const Scaffold(
-          backgroundColor: kBgMain, body: LoadingWidget()),
+      loading: () =>
+          const Scaffold(backgroundColor: kBgMain, body: LoadingWidget()),
       error: (e, _) => Scaffold(
         backgroundColor: kBgMain,
         appBar: AppBar(title: const Text('Kunlik musobaqa')),
@@ -98,10 +100,10 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded,
-                  color: kRed, size: 48),
+              const Icon(Icons.error_outline_rounded, color: kRed, size: 48),
               const SizedBox(height: 16),
-              const Text('Musobaqa topilmadi', style: TextStyle(color: kTextSecondary)),
+              const Text('Musobaqa topilmadi',
+                  style: TextStyle(color: kTextSecondary)),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () => context.go('/student/dashboard'),
@@ -112,8 +114,8 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
         ),
       ),
       data: (data) {
-        final questions = ((data['questions'] ?? []) as List)
-            .cast<Map<String, dynamic>>();
+        final questions =
+            ((data['questions'] ?? []) as List).cast<Map<String, dynamic>>();
         if (questions.isEmpty) {
           return Scaffold(
             backgroundColor: kBgMain,
@@ -141,8 +143,8 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
           );
         }
         final q = questions[_currentQuestion];
-        final options = ((q['options'] ?? []) as List)
-            .cast<Map<String, dynamic>>();
+        final options =
+            ((q['options'] ?? []) as List).cast<Map<String, dynamic>>();
         final correctIdx = q['correct_index'] as int? ?? 0;
         final totalTime = data['time_limit'] as int? ?? 300;
         final opponent = data['opponent'] as Map<String, dynamic>?;
@@ -240,8 +242,7 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
                         bgColor = kOrange.withValues(alpha: 0.15);
                       }
                       return GestureDetector(
-                        onTap: () => _onSelect(
-                            i, questions, i == correctIdx),
+                        onTap: () => _onSelect(i, questions, i == correctIdx),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.all(12),
@@ -296,8 +297,7 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen>
 class _OpponentCard extends StatefulWidget {
   final Map<String, dynamic> opponent;
   final int timeLimit;
-  const _OpponentCard(
-      {required this.opponent, required this.timeLimit});
+  const _OpponentCard({required this.opponent, required this.timeLimit});
 
   @override
   State<_OpponentCard> createState() => _OpponentCardState();
@@ -328,8 +328,7 @@ class _OpponentCardState extends State<_OpponentCard> {
   Widget build(BuildContext context) {
     final minutes = _remaining ~/ 60;
     final seconds = _remaining % 60;
-    final timeStr =
-        '$minutes:${seconds.toString().padLeft(2, '0')}';
+    final timeStr = '$minutes:${seconds.toString().padLeft(2, '0')}';
     final color = _remaining < 60
         ? kRed
         : _remaining < 120
@@ -349,11 +348,9 @@ class _OpponentCardState extends State<_OpponentCard> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-                color: kPurple.withValues(alpha: 0.2),
-                shape: BoxShape.circle),
+                color: kPurple.withValues(alpha: 0.2), shape: BoxShape.circle),
             child: const Center(
-              child: Icon(Icons.person_rounded,
-                  color: kPurple, size: 24),
+              child: Icon(Icons.person_rounded, color: kPurple, size: 24),
             ),
           ),
           const SizedBox(width: 12),
@@ -361,16 +358,11 @@ class _OpponentCardState extends State<_OpponentCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                    widget.opponent['name'] as String? ??
-                        'Raqib',
+                Text(widget.opponent['name'] as String? ?? 'Raqib',
                     style: const TextStyle(
-                        color: kTextPrimary,
-                        fontWeight: FontWeight.w600)),
-                Text(
-                    '${widget.opponent['xp'] ?? 0} XP',
-                    style:
-                        const TextStyle(color: kTextMuted, fontSize: 12)),
+                        color: kTextPrimary, fontWeight: FontWeight.w600)),
+                Text('${widget.opponent['xp'] ?? 0} XP',
+                    style: const TextStyle(color: kTextMuted, fontSize: 12)),
               ],
             ),
           ),
@@ -379,9 +371,7 @@ class _OpponentCardState extends State<_OpponentCard> {
               Icon(Icons.timer_rounded, color: color, size: 20),
               Text(timeStr,
                   style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18)),
+                      color: color, fontWeight: FontWeight.w700, fontSize: 18)),
             ],
           ),
         ],

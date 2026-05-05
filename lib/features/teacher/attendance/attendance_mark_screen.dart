@@ -37,9 +37,15 @@ class AttendanceMarkScreen extends ConsumerWidget {
         final data = next.valueOrNull;
         if (data != null && data.savedSuccessfully) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Davomat saqlandi'),
-              backgroundColor: Color(0xFF0F9A6E),
+            SnackBar(
+              content: const Text('Davomat saqlandi'),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.fromLTRB(
+                  AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+              backgroundColor: AppColors.brand,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadii.m),
+              ),
             ),
           );
           if (context.canPop()) context.pop();
@@ -48,7 +54,13 @@ class AttendanceMarkScreen extends ConsumerWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(data.error ?? 'Xatolik yuz berdi'),
-              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.fromLTRB(
+                  AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+              backgroundColor: AppColors.brand,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadii.m),
+              ),
             ),
           );
         }
@@ -96,9 +108,15 @@ class AttendanceMarkScreen extends ConsumerWidget {
           ],
         ),
         loading: () => const _AttendanceLoadingSkeleton(),
-        error: (err, _) => AlochiEmptyState(
-          title: 'Yuklab bo\'lmadi',
-          subtitle: err.toString(),
+        error: (err, _) => Center(
+          child: AlochiEmptyState(
+            icon: Icons.error_outline_rounded,
+            iconColor: AppColors.danger,
+            title: 'Yuklab bo\'lmadi',
+            subtitle: 'Qayta urinib ko\'ring',
+            actionLabel: 'Yangilash',
+            onAction: () => ref.invalidate(attendanceMarkingProvider(key)),
+          ),
         ),
       ),
     );
@@ -146,8 +164,8 @@ class _ClassDatePills extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(classId,
-                    style: AppTextStyles.label
-                        .copyWith(color: AppColors.brand, fontWeight: FontWeight.w600)),
+                    style: AppTextStyles.label.copyWith(
+                        color: AppColors.brand, fontWeight: FontWeight.w600)),
                 const SizedBox(width: 4),
                 const Icon(Icons.keyboard_arrow_down_rounded,
                     size: 16, color: AppColors.brand),
@@ -163,8 +181,7 @@ class _ClassDatePills extends StatelessWidget {
             ),
             child: Text(
               date,
-              style: AppTextStyles.label
-                  .copyWith(color: AppColors.brandMuted),
+              style: AppTextStyles.label.copyWith(color: AppColors.brandMuted),
             ),
           ),
         ],
@@ -201,9 +218,7 @@ class _LiveStatsRow extends StatelessWidget {
               label: 'Kech',
               color: const Color(0xFFD97706)),
           _StatPill(
-              count: state.absentCount,
-              label: "Yo'q",
-              color: AppColors.danger),
+              count: state.absentCount, label: "Yo'q", color: AppColors.danger),
           _StatPill(
               count: state.unmarkedCount,
               label: 'Belgilanmagan',
@@ -233,8 +248,7 @@ class _StatPill extends StatelessWidget {
         ),
         Text(
           label,
-          style:
-              AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+          style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
         ),
       ],
     );
@@ -272,8 +286,8 @@ class _AllPresentDashedCta extends StatelessWidget {
               const SizedBox(width: AppSpacing.s),
               Text(
                 'Hammasi keldi',
-                style: AppTextStyles.body
-                    .copyWith(color: AppColors.brand, fontWeight: FontWeight.w600),
+                style: AppTextStyles.body.copyWith(
+                    color: AppColors.brand, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -352,14 +366,19 @@ class _StickySaveButton extends StatelessWidget {
                         content: Text(
                           '${state.unmarkedCount} ta o\'quvchi belgilanmagan',
                         ),
-                        backgroundColor: AppColors.warning,
+                        behavior: SnackBarBehavior.floating,
+                        margin: const EdgeInsets.fromLTRB(
+                            AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+                        backgroundColor: AppColors.brand,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.m),
+                        ),
                       ),
                     );
                   }
                 : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor:
-              canSave ? AppColors.brand : AppColors.brandTint,
+          backgroundColor: canSave ? AppColors.brand : AppColors.brandTint,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 48),
           elevation: 0,

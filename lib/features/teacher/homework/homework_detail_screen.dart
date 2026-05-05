@@ -78,8 +78,7 @@ class _HomeworkDetailBodyState extends ConsumerState<_HomeworkDetailBody>
           unselectedLabelColor: AppColors.brandMuted,
           indicatorColor: AppColors.brand,
           indicatorWeight: 2,
-          labelStyle:
-              AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
+          labelStyle: AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
           unselectedLabelStyle: AppTextStyles.label,
           tabs: const [
             Tab(text: 'Topshiriqlar'),
@@ -112,9 +111,15 @@ class _HomeworkDetailBodyState extends ConsumerState<_HomeworkDetailBody>
       await api.sendHomeworkReminder(widget.hwId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Eslatma yuborildi'),
-          backgroundColor: Color(0xFF0F9A6E),
+        SnackBar(
+          content: const Text('Eslatma yuborildi'),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+          backgroundColor: const Color(0xFF0F9A6E),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
         ),
       );
     } catch (e) {
@@ -122,7 +127,13 @@ class _HomeworkDetailBodyState extends ConsumerState<_HomeworkDetailBody>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.toString()),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
           backgroundColor: AppColors.danger,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
         ),
       );
     } finally {
@@ -165,8 +176,7 @@ class _HwHeader extends StatelessWidget {
             const SizedBox(height: AppSpacing.s),
             Text(
               hw.description,
-              style:
-                  AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
             ),
           ],
           const SizedBox(height: AppSpacing.m),
@@ -174,17 +184,14 @@ class _HwHeader extends StatelessWidget {
             spacing: AppSpacing.m,
             children: [
               if (hw.groupName.isNotEmpty)
-                _InfoBadge(
-                    icon: Icons.group_outlined, label: hw.groupName),
+                _InfoBadge(icon: Icons.group_outlined, label: hw.groupName),
               if (hw.subject.isNotEmpty)
                 _InfoBadge(icon: Icons.book_outlined, label: hw.subject),
               if (hw.deadline.isNotEmpty)
                 _InfoBadge(
                   icon: Icons.schedule_outlined,
                   label: _formatDate(hw.deadline),
-                  color: hw.isActive
-                      ? AppColors.brandMuted
-                      : AppColors.danger,
+                  color: hw.isActive ? AppColors.brandMuted : AppColors.danger,
                 ),
             ],
           ),
@@ -249,14 +256,12 @@ class _ResponsesTab extends StatelessWidget {
             const SizedBox(height: AppSpacing.m),
             Text(
               '${hw.responseCount} ta javob',
-              style:
-                  AppTextStyles.titleM.copyWith(color: AppColors.ink),
+              style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
             ),
             const SizedBox(height: AppSpacing.s),
             Text(
               "O'quvchi javobi tafsilotlari V1.2 da",
-              style: AppTextStyles.bodyS
-                  .copyWith(color: AppColors.brandMuted),
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
             ),
           ],
         ),
@@ -301,8 +306,8 @@ class _RemindersTab extends StatelessWidget {
                     children: [
                       Text(
                         'Eslatma yuborish',
-                        style: AppTextStyles.titleM
-                            .copyWith(color: AppColors.ink),
+                        style:
+                            AppTextStyles.titleM.copyWith(color: AppColors.ink),
                       ),
                       Text(
                         "Barcha topshirmagan o'quvchilarga",
@@ -326,8 +331,7 @@ class _RemindersTab extends StatelessWidget {
             const SizedBox(height: AppSpacing.m),
             Text(
               'Vazifa muddati tugagan — eslatma yuborib bo\'lmaydi',
-              style: AppTextStyles.bodyS
-                  .copyWith(color: AppColors.brandMuted),
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
               textAlign: TextAlign.center,
             ),
           ],

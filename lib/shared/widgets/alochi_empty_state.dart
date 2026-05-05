@@ -1,73 +1,79 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../../theme/colors.dart';
 import '../../theme/typography.dart';
+import '../../theme/spacing.dart';
 import 'alochi_button.dart';
 
 class AlochiEmptyState extends StatelessWidget {
+  final IconData icon;
   final String title;
   final String? subtitle;
-  final String? illustrationPath;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final Color? iconColor;
+  final double iconSize;
+
+  // Backward compatibility aliases
   final String? ctaLabel;
   final VoidCallback? onCtaPressed;
 
   const AlochiEmptyState({
-    super.key,
+    this.icon = Icons.hourglass_empty_rounded,
     required this.title,
     this.subtitle,
-    this.illustrationPath,
+    this.actionLabel,
+    this.onAction,
+    this.iconColor,
+    this.iconSize = 64,
     this.ctaLabel,
     this.onCtaPressed,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveActionLabel = actionLabel ?? ctaLabel;
+    final effectiveOnAction = onAction ?? onCtaPressed;
+
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(AppSpacing.xxl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (illustrationPath != null) ...[
-              if (illustrationPath!.endsWith('.svg'))
-                SvgPicture.asset(
-                  illustrationPath!,
-                  height: 160,
-                  placeholderBuilder: (context) => const SizedBox(height: 160),
-                )
-              else
-                Image.asset(
-                  illustrationPath!,
-                  height: 160,
-                ),
-              const SizedBox(height: 24),
-            ] else ...[
-              const Icon(
-                Icons.hourglass_empty_rounded,
-                size: 80,
-                color: Color(0xFFE5E7EB),
+            Container(
+              width: iconSize + AppSpacing.xl,
+              height: iconSize + AppSpacing.xl,
+              decoration: const BoxDecoration(
+                color: AppColors.brandSoft,
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 24),
-            ],
+              child: Icon(
+                icon,
+                size: iconSize,
+                color: iconColor ?? AppColors.brand,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.l),
             Text(
               title,
-              style: AppTextStyles.titleL.copyWith(color: AppColors.ink),
+              style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
               textAlign: TextAlign.center,
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.s),
               Text(
                 subtitle!,
-                style: AppTextStyles.body.copyWith(color: const Color(0xFF6B7280)),
+                style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
                 textAlign: TextAlign.center,
               ),
             ],
-            if (ctaLabel != null && onCtaPressed != null) ...[
-              const SizedBox(height: 32),
-              AlochiButton.primary(
-                label: ctaLabel!,
-                onPressed: onCtaPressed,
-                width: 200,
+            if (effectiveActionLabel != null && effectiveOnAction != null) ...[
+              const SizedBox(height: AppSpacing.l),
+              AlochiButton.secondary(
+                label: effectiveActionLabel,
+                onPressed: effectiveOnAction,
               ),
             ],
           ],

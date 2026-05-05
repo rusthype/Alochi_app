@@ -9,6 +9,7 @@ import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/models/teacher_dashboard.dart';
+import '../../../core/models/lesson_model.dart';
 import '../notifications/notifications_provider.dart';
 import '../profile/profile_provider.dart';
 import 'dashboard_provider.dart';
@@ -36,25 +37,27 @@ class TeacherDashboardScreen extends ConsumerWidget {
                   _GreetingHeader(
                     todayLessonsCount: summary.todayLessons.length,
                   ),
+                  const SizedBox(height: AppSpacing.l),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                    child: _QuickStatsRow(
+                      groupsCount: summary.groupsCount,
+                      studentsCount: summary.studentsCount,
+                      activeHomeworkCount: summary.activeHomeworkCount,
+                    ),
+                  ),
                   if (summary.todayLessons.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xxl),
                     _TodayLessonsHorizontalList(lessons: summary.todayLessons),
+                  ] else ...[
+                    const SizedBox(height: AppSpacing.xxl),
+                    const _EmptyLessonsPlaceholder(),
                   ],
                   if (summary.concerns.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xxl),
                     _ConcernsSection(concerns: summary.concerns),
                   ],
-                  if (summary.todayLessons.isEmpty && summary.concerns.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      child: Center(
-                        child: Text(
-                          'Hozircha hech qanday ma\'lumot yo\'q',
-                          style: AppTextStyles.bodyS
-                              .copyWith(color: const Color(0xFF6B7280)),
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -97,6 +100,123 @@ class TeacherDashboardScreen extends ConsumerWidget {
   }
 }
 
+class _QuickStatsRow extends StatelessWidget {
+  final int groupsCount;
+  final int studentsCount;
+  final int activeHomeworkCount;
+
+  const _QuickStatsRow({
+    required this.groupsCount,
+    required this.studentsCount,
+    required this.activeHomeworkCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _StatCard(
+            icon: Icons.group_outlined,
+            label: 'Guruhlar',
+            value: '$groupsCount',
+          ),
+        ),
+        const SizedBox(width: AppSpacing.m),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.person_outline,
+            label: 'O\'quvchilar',
+            value: '$studentsCount',
+          ),
+        ),
+        const SizedBox(width: AppSpacing.m),
+        Expanded(
+          child: _StatCard(
+            icon: Icons.assignment_outlined,
+            label: 'Vazifalar',
+            value: '$activeHomeworkCount',
+            valueColor: activeHomeworkCount > 0 ? AppColors.accent : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  const _StatCard({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlochiCard(
+      padding: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.m,
+          vertical: AppSpacing.m,
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.brand, size: 24),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              value,
+              style: AppTextStyles.titleL.copyWith(
+                color: valueColor ?? AppColors.ink,
+              ),
+            ),
+            Text(
+              label,
+              style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyLessonsPlaceholder extends StatelessWidget {
+  const _EmptyLessonsPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(Icons.check_circle_outline,
+                color: AppColors.brand, size: 48),
+            const SizedBox(height: AppSpacing.m),
+            const Text(
+              'Bugun darslaringiz yo\'q',
+              style: AppTextStyles.titleM,
+            ),
+            const SizedBox(height: AppSpacing.s),
+            Text(
+              'Yaxshi dam oling!',
+              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _DashboardLoadingSkeleton extends StatelessWidget {
   const _DashboardLoadingSkeleton();
 
@@ -108,12 +228,25 @@ class _DashboardLoadingSkeleton extends StatelessWidget {
         AlochiSkeleton(width: 200, height: 28),
         SizedBox(height: AppSpacing.s),
         AlochiSkeleton(width: 280, height: 14),
+        SizedBox(height: AppSpacing.l),
+        Row(
+          children: [
+            Expanded(child: AlochiSkeletonCard(height: 100)),
+            SizedBox(width: AppSpacing.m),
+            Expanded(child: AlochiSkeletonCard(height: 100)),
+            SizedBox(width: AppSpacing.m),
+            Expanded(child: AlochiSkeletonCard(height: 100)),
+          ],
+        ),
         SizedBox(height: AppSpacing.xl),
         AlochiSkeleton(width: 160, height: 20),
         SizedBox(height: AppSpacing.m),
-        AlochiSkeletonCard(height: 100),
-        AlochiSkeletonCard(height: 100),
-        AlochiSkeletonCard(height: 100),
+        AlochiSkeletonCard(height: 180),
+        SizedBox(height: AppSpacing.xl),
+        AlochiSkeleton(width: 160, height: 20),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 80),
+        AlochiSkeletonCard(height: 80),
       ],
     );
   }
@@ -218,29 +351,23 @@ class _TodayLessonsHorizontalList extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.m),
-        if (lessons.isEmpty)
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.l),
-            child: Text('Bugun darslaringiz yo\'q'),
-          )
-        else
-          SizedBox(
-            height: 200,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-              scrollDirection: Axis.horizontal,
-              physics: const PageScrollPhysics(),
-              itemCount: lessons.length,
-              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.m),
-              itemBuilder: (context, index) {
-                final lesson = lessons[index];
-                if (lesson.isActive) {
-                  return _LessonCardActive(lesson: lesson);
-                }
-                return _LessonCard(lesson: lesson);
-              },
-            ),
+        SizedBox(
+          height: 200,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+            scrollDirection: Axis.horizontal,
+            physics: const PageScrollPhysics(),
+            itemCount: lessons.length,
+            separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.m),
+            itemBuilder: (context, index) {
+              final lesson = lessons[index];
+              if (lesson.isActive) {
+                return _LessonCardActive(lesson: lesson);
+              }
+              return _LessonCard(lesson: lesson);
+            },
           ),
+        ),
         const SizedBox(height: AppSpacing.s),
         Center(
           child: TextButton(
@@ -264,7 +391,23 @@ class _LessonCardActive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/teacher/lesson/${lesson.id}'),
+      onTap: () {
+        // Convert to LessonModel for extra
+        final lessonModel = LessonModel(
+          id: lesson.id,
+          groupId: lesson.groupId,
+          groupName: lesson.className,
+          subject: lesson.subject,
+          startTime: lesson.time.split('-').first.trim(),
+          endTime: lesson.time.contains('-') 
+              ? lesson.time.split('-').last.trim() 
+              : '',
+          room: '',
+          isNow: lesson.isActive,
+          studentsCount: lesson.studentCount,
+        );
+        context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
+      },
       child: Container(
         width: 230,
         padding: const EdgeInsets.all(AppSpacing.l),
@@ -341,7 +484,23 @@ class _LessonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/teacher/lesson/${lesson.id}'),
+      onTap: () {
+        // Convert to LessonModel for extra
+        final lessonModel = LessonModel(
+          id: lesson.id,
+          groupId: lesson.groupId,
+          groupName: lesson.className,
+          subject: lesson.subject,
+          startTime: lesson.time.split('-').first.trim(),
+          endTime: lesson.time.contains('-') 
+              ? lesson.time.split('-').last.trim() 
+              : '',
+          room: '',
+          isNow: lesson.isActive,
+          studentsCount: lesson.studentCount,
+        );
+        context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
+      },
       child: AlochiCard(
         padding: const EdgeInsets.all(AppSpacing.l),
         borderRadius: AppRadii.l,

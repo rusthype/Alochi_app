@@ -28,7 +28,8 @@ class AlochiBottomNav extends StatelessWidget {
         backgroundColor: Colors.white,
         selectedItemColor: AppColors.brand,
         unselectedItemColor: const Color(0xFF9CA3AF),
-        selectedLabelStyle: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
+        selectedLabelStyle:
+            AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
         unselectedLabelStyle: AppTextStyles.caption,
         elevation: 0,
         items: const [

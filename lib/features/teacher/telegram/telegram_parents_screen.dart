@@ -214,5 +214,3 @@ class _GroupCard extends StatelessWidget {
     );
   }
 }
-
-

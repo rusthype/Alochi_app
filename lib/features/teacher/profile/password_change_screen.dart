@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
+import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_input.dart';
@@ -44,7 +45,13 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
             "Parol o'zgartirildi",
             style: AppTextStyles.bodyS.copyWith(color: Colors.white),
           ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
           backgroundColor: AppColors.success,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -64,7 +71,13 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
               next.error!,
               style: AppTextStyles.bodyS.copyWith(color: Colors.white),
             ),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
             backgroundColor: AppColors.danger,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -114,7 +127,8 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
                       hintText: 'Joriy parolingizni kiriting',
                       controller: _oldCtrl,
                       isPassword: true,
-                      validator: (v) => Validators.required(v, fieldName: 'Eski parol'),
+                      validator: (v) =>
+                          Validators.required(v, fieldName: 'Eski parol'),
                       prefixIcon: const Icon(Icons.lock_outline_rounded,
                           color: AppColors.brandMuted, size: 20),
                     ),
@@ -146,7 +160,8 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
                       hintText: 'Yangi parolni qaytadan kiriting',
                       controller: _confirmCtrl,
                       isPassword: true,
-                      validator: (v) => Validators.passwordMatch(v, _newCtrl.text),
+                      validator: (v) =>
+                          Validators.passwordMatch(v, _newCtrl.text),
                       prefixIcon: const Icon(Icons.check_circle_outline_rounded,
                           color: AppColors.brandMuted, size: 20),
                     ),
@@ -155,7 +170,6 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
               ),
             ),
           ),
-
 
           // Sticky CTA
           Container(

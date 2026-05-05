@@ -26,8 +26,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
   @override
   void initState() {
     super.initState();
-    _confetti =
-        ConfettiController(duration: const Duration(seconds: 3));
+    _confetti = ConfettiController(duration: const Duration(seconds: 3));
     if (widget.result != null) {
       _result = widget.result;
       if (_result!.score >= 80) _confetti.play();
@@ -62,8 +61,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-          backgroundColor: kBgMain, body: LoadingOverlay());
+      return const Scaffold(backgroundColor: kBgMain, body: LoadingOverlay());
     }
     if (_error != null) {
       return Scaffold(
@@ -72,8 +70,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(_error!,
-                  style: const TextStyle(color: kTextSecondary)),
+              Text(_error!, style: const TextStyle(color: kTextSecondary)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.go('/student/dashboard'),
@@ -96,8 +93,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
                   style: TextStyle(color: kTextSecondary)),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () =>
-                    context.go('/student/dashboard'),
+                onPressed: () => context.go('/student/dashboard'),
                 child: const Text('Bosh sahifaga'),
               ),
             ],
@@ -162,8 +158,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
                             ),
                             const Text('Ball',
                                 style: TextStyle(
-                                    color: kTextSecondary,
-                                    fontSize: 12)),
+                                    color: kTextSecondary, fontSize: 12)),
                           ],
                         ),
                       ),
@@ -239,8 +234,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
                             Expanded(
                               child: Text(a.questionText,
                                   style: const TextStyle(
-                                      color: kTextPrimary,
-                                      fontSize: 13),
+                                      color: kTextPrimary, fontSize: 13),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis),
                             ),
@@ -253,23 +247,21 @@ class _TestResultScreenState extends State<TestResultScreen> {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => context
-                            .go('/student/tests/${widget.id}/play'),
+                        onPressed: () =>
+                            context.go('/student/tests/${widget.id}/play'),
                         icon: const Icon(Icons.refresh_rounded),
                         label: const Text('Qayta'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: kTextSecondary,
                           side: const BorderSide(color: kBgBorder),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () =>
-                            context.go('/student/dashboard'),
+                        onPressed: () => context.go('/student/dashboard'),
                         icon: const Icon(Icons.home_rounded),
                         label: const Text('Bosh sahifa'),
                       ),
@@ -284,9 +276,7 @@ class _TestResultScreenState extends State<TestResultScreen> {
             child: ConfettiWidget(
               confettiController: _confetti,
               blastDirectionality: BlastDirectionality.explosive,
-              colors: const [
-                kOrange, kGreen, kYellow, kPurple, kBlue
-              ],
+              colors: const [kOrange, kGreen, kYellow, kPurple, kBlue],
             ),
           ),
         ],
@@ -308,12 +298,9 @@ class _StatBadge extends StatelessWidget {
       children: [
         Text(value,
             style: TextStyle(
-                color: color,
-                fontSize: 28,
-                fontWeight: FontWeight.w900)),
+                color: color, fontSize: 28, fontWeight: FontWeight.w900)),
         Text(label,
-            style: const TextStyle(
-                color: kTextSecondary, fontSize: 12)),
+            style: const TextStyle(color: kTextSecondary, fontSize: 12)),
       ],
     );
   }
@@ -324,15 +311,12 @@ class _RewardChip extends StatelessWidget {
   final String value;
   final Color color;
   const _RewardChip(
-      {required this.icon,
-      required this.value,
-      required this.color});
+      {required this.icon, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
@@ -344,8 +328,7 @@ class _RewardChip extends StatelessWidget {
           Icon(icon, color: color, size: 16),
           const SizedBox(width: 6),
           Text(value,
-              style: TextStyle(
-                  color: color, fontWeight: FontWeight.w700)),
+              style: TextStyle(color: color, fontWeight: FontWeight.w700)),
         ],
       ),
     );

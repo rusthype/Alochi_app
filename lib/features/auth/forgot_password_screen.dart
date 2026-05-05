@@ -31,8 +31,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       await AuthApi().forgotPassword(_ctrl.text.trim());
       setState(() => _sent = true);
     } catch (_) {
-      setState(() =>
-          _error = "Xatolik yuz berdi. Qayta urinib ko'ring.");
+      setState(() => _error = "Xatolik yuz berdi. Qayta urinib ko'ring.");
     } finally {
       setState(() => _loading = false);
     }
@@ -106,8 +105,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         controller: _ctrl,
                         decoration: const InputDecoration(
                           labelText: 'Foydalanuvchi nomi',
-                          prefixIcon:
-                              Icon(Icons.person_outline_rounded),
+                          prefixIcon: Icon(Icons.person_outline_rounded),
                         ),
                       ),
                       const SizedBox(height: 24),

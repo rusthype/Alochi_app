@@ -116,7 +116,7 @@ class ChatThreadNotifier extends StateNotifier<AsyncValue<ChatThreadState>> {
   Future<void> refresh() => _load();
 }
 
-final chatThreadProvider = StateNotifierProvider.autoDispose.family<ChatThreadNotifier,
-    AsyncValue<ChatThreadState>, String>(
+final chatThreadProvider = StateNotifierProvider.autoDispose
+    .family<ChatThreadNotifier, AsyncValue<ChatThreadState>, String>(
   (ref, conversationId) => ChatThreadNotifier(conversationId, ref),
 );

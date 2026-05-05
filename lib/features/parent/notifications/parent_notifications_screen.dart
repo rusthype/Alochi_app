@@ -35,18 +35,15 @@ class ParentNotificationsScreen extends ConsumerWidget {
       body: async.when(
         loading: () => const LoadingWidget(),
         error: (e, _) => Center(
-            child: Text('Xatolik: $e',
-                style: const TextStyle(color: kRed))),
+            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (notifications) {
           if (notifications.isEmpty) {
-            return const AlochiEmptyState(
-                title: "Yangi bildirishnomalar yo'q");
+            return const AlochiEmptyState(title: "Yangi bildirishnomalar yo'q");
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: notifications.length,
-            itemBuilder: (ctx, i) =>
-                _NotificationCard(n: notifications[i]),
+            itemBuilder: (ctx, i) => _NotificationCard(n: notifications[i]),
           );
         },
       ),
@@ -116,8 +113,7 @@ class _NotificationCard extends StatelessWidget {
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Center(
-                child: Icon(_icon(), color: color, size: 20)),
+            child: Center(child: Icon(_icon(), color: color, size: 20)),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -126,15 +122,12 @@ class _NotificationCard extends StatelessWidget {
               children: [
                 Text(n.title,
                     style: TextStyle(
-                        color: n.isRead
-                            ? kTextSecondary
-                            : kTextPrimary,
+                        color: n.isRead ? kTextSecondary : kTextPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 14)),
                 const SizedBox(height: 4),
                 Text(n.body,
-                    style: const TextStyle(
-                        color: kTextMuted, fontSize: 13),
+                    style: const TextStyle(color: kTextMuted, fontSize: 13),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis),
               ],
@@ -145,8 +138,8 @@ class _NotificationCard extends StatelessWidget {
               width: 8,
               height: 8,
               margin: const EdgeInsets.only(top: 4, left: 8),
-              decoration: const BoxDecoration(
-                  color: kOrange, shape: BoxShape.circle),
+              decoration:
+                  const BoxDecoration(color: kOrange, shape: BoxShape.circle),
             ),
         ],
       ),

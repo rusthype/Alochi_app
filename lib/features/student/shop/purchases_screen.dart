@@ -7,8 +7,7 @@ import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/shop_item.dart';
 
-final _purchasesProvider =
-    FutureProvider<List<Purchase>>((ref) async {
+final _purchasesProvider = FutureProvider<List<Purchase>>((ref) async {
   return StudentApi().getPurchases();
 });
 
@@ -24,8 +23,7 @@ class PurchasesScreen extends ConsumerWidget {
       body: async.when(
         loading: () => const LoadingWidget(),
         error: (e, _) => Center(
-            child: Text('Xatolik: $e',
-                style: const TextStyle(color: kRed))),
+            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (purchases) {
           if (purchases.isEmpty) {
             return const AlochiEmptyState(
@@ -57,18 +55,21 @@ class PurchasesScreen extends ConsumerWidget {
                           ? CachedNetworkImage(
                               imageUrl: p.item.imageUrl!,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
-                              errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
+                              placeholder: (context, url) => const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2)),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.broken_image, size: 24),
                             )
-                          : const Icon(
-                              Icons.card_giftcard_rounded,
+                          : const Icon(Icons.card_giftcard_rounded,
                               color: kTextMuted),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(p.item.name,
                               style: const TextStyle(
@@ -77,8 +78,7 @@ class PurchasesScreen extends ConsumerWidget {
                           Text(
                               '${p.purchasedAt.day}.${p.purchasedAt.month}.${p.purchasedAt.year}',
                               style: const TextStyle(
-                                  color: kTextMuted,
-                                  fontSize: 12)),
+                                  color: kTextMuted, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -89,8 +89,7 @@ class PurchasesScreen extends ConsumerWidget {
                         const SizedBox(width: 4),
                         Text('${p.pricePaid}',
                             style: const TextStyle(
-                                color: kYellow,
-                                fontWeight: FontWeight.w700)),
+                                color: kYellow, fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ],

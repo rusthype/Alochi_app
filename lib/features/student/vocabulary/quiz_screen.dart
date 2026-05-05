@@ -31,13 +31,11 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Future<void> _load() async {
     try {
-      final words =
-          await StudentApi().getVocabularyWords(widget.topicId);
+      final words = await StudentApi().getVocabularyWords(widget.topicId);
       words.shuffle();
       final options = words.map((w) {
         final opts = [w];
-        final others =
-            words.where((o) => o.id != w.id).toList()..shuffle();
+        final others = words.where((o) => o.id != w.id).toList()..shuffle();
         opts.addAll(others.take(3));
         opts.shuffle();
         return opts;
@@ -76,8 +74,7 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-          backgroundColor: kBgMain, body: LoadingOverlay());
+      return const Scaffold(backgroundColor: kBgMain, body: LoadingOverlay());
     }
 
     final total = _words?.length ?? 0;
@@ -91,8 +88,7 @@ class _QuizScreenState extends State<QuizScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_circle_rounded,
-                    size: 80, color: kGreen),
+                const Icon(Icons.check_circle_rounded, size: 80, color: kGreen),
                 const SizedBox(height: 16),
                 const Text('Quiz yakunlandi!',
                     style: TextStyle(
@@ -102,14 +98,13 @@ class _QuizScreenState extends State<QuizScreen> {
                 const SizedBox(height: 8),
                 Text("$_correct / $total to'g'ri",
                     style: TextStyle(
-                        color: scoreColor(
-                            total > 0 ? _correct * 100 / total : 0),
+                        color:
+                            scoreColor(total > 0 ? _correct * 100 / total : 0),
                         fontSize: 20,
                         fontWeight: FontWeight.w900)),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () =>
-                      context.go('/student/vocabulary'),
+                  onPressed: () => context.go('/student/vocabulary'),
                   child: const Text("So'zlarga qaytish"),
                 ),
               ],
@@ -124,8 +119,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
     return Scaffold(
       backgroundColor: kBgMain,
-      appBar: AppBar(
-          title: Text('${_current + 1} / $total')),
+      appBar: AppBar(title: Text('${_current + 1} / $total')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -141,8 +135,7 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
             const SizedBox(height: 32),
             const Text('Tarjimasini toping:',
-                style: TextStyle(
-                    color: kTextSecondary, fontSize: 14)),
+                style: TextStyle(color: kTextSecondary, fontSize: 14)),
             const SizedBox(height: 8),
             Text(word.word,
                 style: const TextStyle(
@@ -179,8 +172,7 @@ class _QuizScreenState extends State<QuizScreen> {
                       decoration: BoxDecoration(
                         color: bg,
                         borderRadius: BorderRadius.circular(12),
-                        border:
-                            Border.all(color: border, width: 1.5),
+                        border: Border.all(color: border, width: 1.5),
                       ),
                       child: Center(
                         child: Text(

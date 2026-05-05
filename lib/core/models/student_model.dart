@@ -4,6 +4,8 @@ class StudentModel {
   final String lastName;
   final String classId;
   final double? attendancePct;
+  final int? totalLessons;
+  final int? missedLessons;
   final double? avgGrade;
   final int? lastGrade;
   final String? avatarUrl;
@@ -17,6 +19,8 @@ class StudentModel {
     required this.lastName,
     required this.classId,
     this.attendancePct,
+    this.totalLessons,
+    this.missedLessons,
     this.avgGrade,
     this.lastGrade,
     this.avatarUrl,
@@ -46,18 +50,27 @@ class StudentModel {
       lastName: json['last_name']?.toString() ?? '',
       classId: json['class_id']?.toString() ?? '',
       attendancePct: (json['attendance_pct'] as num?)?.toDouble(),
+      totalLessons: (json['total_lessons'] as num?)?.toInt(),
+      missedLessons: (json['missed_lessons'] as num?)?.toInt(),
       avgGrade: (json['avg_grade'] as num?)?.toDouble(),
       lastGrade: (json['last_grade'] as num?)?.toInt(),
       avatarUrl: json['avatar_url']?.toString(),
       parents: parentsList.isEmpty
           ? []
-          : parentsList.map((e) => ParentModel.fromJson(e as Map<String, dynamic>)).toList(),
+          : parentsList
+              .map((e) => ParentModel.fromJson(e as Map<String, dynamic>))
+              .toList(),
       recentAttendance: attList.isEmpty
           ? []
-          : attList.map((e) => AttendanceDayModel.fromJson(e as Map<String, dynamic>)).toList(),
+          : attList
+              .map(
+                  (e) => AttendanceDayModel.fromJson(e as Map<String, dynamic>))
+              .toList(),
       recentGrades: gradesList.isEmpty
           ? []
-          : gradesList.map((e) => RecentGradeModel.fromJson(e as Map<String, dynamic>)).toList(),
+          : gradesList
+              .map((e) => RecentGradeModel.fromJson(e as Map<String, dynamic>))
+              .toList(),
     );
   }
 }

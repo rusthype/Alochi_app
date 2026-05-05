@@ -3,7 +3,8 @@ import '../../../core/api/teacher_api.dart';
 import '../../../core/models/notification.dart';
 import '../dashboard/dashboard_provider.dart';
 
-final notificationsProvider = FutureProvider<List<AppNotification>>((ref) async {
+final notificationsProvider =
+    FutureProvider<List<AppNotification>>((ref) async {
   final api = ref.read(teacherApiProvider);
   return api.getNotifications();
 });
@@ -34,7 +35,8 @@ class NotificationNotifier extends StateNotifier<void> {
 }
 
 final notificationActionProvider =
-    StateNotifierProvider<NotificationNotifier, void>((ref) => NotificationNotifier(ref));
+    StateNotifierProvider<NotificationNotifier, void>(
+        (ref) => NotificationNotifier(ref));
 
 final unreadNotificationsCountProvider = Provider<int>((ref) {
   final asyncNotifications = ref.watch(notificationsProvider);

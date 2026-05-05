@@ -11,8 +11,12 @@ import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_search_bar.dart';
+import '../../../shared/widgets/alochi_card.dart';
 import '../../../core/models/group_model.dart';
 import '../../../core/models/student_model.dart';
+import '../../../core/api/teacher_api.dart';
+import '../grades/grades_provider.dart';
+import '../dashboard/dashboard_provider.dart';
 import 'groups_provider.dart';
 
 class GroupDetailScreen extends ConsumerStatefulWidget {
@@ -59,7 +63,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
               ),
               Text(
                 "${group.studentsCount} o'quvchi",
-                style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+                style:
+                    AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
               ),
             ],
           ),
@@ -89,8 +94,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
             unselectedLabelColor: AppColors.brandMuted,
             indicatorColor: AppColors.brand,
             indicatorWeight: 2,
-            labelStyle: AppTextStyles.label
-                .copyWith(fontWeight: FontWeight.w600),
+            labelStyle:
+                AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
             unselectedLabelStyle: AppTextStyles.label,
             tabs: const [
               Tab(text: "O'quvchilar"),
@@ -124,8 +129,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                               textAlign: TextAlign.center),
                           const SizedBox(height: AppSpacing.m),
                           TextButton(
-                            onPressed: () =>
-                                ref.refresh(groupStudentsProvider(widget.groupId)),
+                            onPressed: () => ref
+                                .refresh(groupStudentsProvider(widget.groupId)),
                             child: Text('Qayta urinish',
                                 style: AppTextStyles.body
                                     .copyWith(color: AppColors.brand)),
@@ -138,21 +143,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                 // Attendance tab
                 _AttendanceTab(groupId: widget.groupId),
                 // Grades tab
-                groupAsync.when(
-                  data: (group) => _GradesTab(
-                    groupId: widget.groupId,
-                    subject: group.subjectName,
-                    groupName: group.code,
-                  ),
-                  loading: () => const Center(
-                    child: CircularProgressIndicator(color: AppColors.brand),
-                  ),
-                  error: (_, __) => _GradesTab(
-                    groupId: widget.groupId,
-                    subject: '',
-                    groupName: '',
-                  ),
-                ),
+                _GradesJournalBody(groupId: widget.groupId),
                 // Analytics tab — placeholder (V1.2)
                 Center(
                   child: Padding(
@@ -186,8 +177,11 @@ class _GroupStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avgGradeStr = group.avgGrade > 0 ? group.avgGrade.toStringAsFixed(1) : '--';
-    final attPctStr = group.attendancePct > 0 ? '${group.attendancePct.toStringAsFixed(0)}%' : '--';
+    final avgGradeStr =
+        group.avgGrade > 0 ? group.avgGrade.toStringAsFixed(1) : '--';
+    final attPctStr = group.attendancePct > 0
+        ? '${group.attendancePct.toStringAsFixed(0)}%'
+        : '--';
 
     return Container(
       color: Colors.white,
@@ -417,8 +411,8 @@ class _AttendanceTab extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Guruh davomati va tarixi',
-                    style: AppTextStyles.body
-                        .copyWith(color: AppColors.brandInk),
+                    style:
+                        AppTextStyles.body.copyWith(color: AppColors.brandInk),
                   ),
                 ),
               ],
@@ -456,60 +450,175 @@ class _AttendanceTab extends StatelessWidget {
 
 // ─── Grades Tab ───────────────────────────────────────────────────────────────
 
-class _GradesTab extends StatelessWidget {
+class _GradesJournalBody extends ConsumerWidget {
   final String groupId;
-  final String subject;
-  final String groupName;
+  const _GradesJournalBody({required this.groupId});
 
-  const _GradesTab({
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final journalAsync = ref.watch(gradesJournalProvider(groupId));
+
+    return journalAsync.when(
+      data: (journal) {
+        if (journal.students.isEmpty) {
+          return const AlochiEmptyState(
+            icon: Icons.star_outline,
+            title: 'Baholar yo\'q',
+            subtitle: 'Hali hech qanday baho qo\'yilmagan',
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.all(AppSpacing.l),
+          itemCount: journal.students.length,
+          itemBuilder: (context, index) {
+            final student = journal.students[index];
+            return _StudentGradeRow(
+              student: student,
+              groupId: groupId,
+            );
+          },
+        );
+      },
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.brand),
+      ),
+      error: (e, _) => AlochiEmptyState(
+        icon: Icons.error_outline,
+        title: 'Yuklab bo\'lmadi',
+        subtitle: 'Qayta urinib ko\'ring',
+        actionLabel: 'Yangilash',
+        onAction: () => ref.invalidate(gradesJournalProvider(groupId)),
+      ),
+    );
+  }
+}
+
+class _StudentGradeRow extends ConsumerStatefulWidget {
+  final GradeStudentRow student;
+  final String groupId;
+
+  const _StudentGradeRow({
+    required this.student,
     required this.groupId,
-    required this.subject,
-    required this.groupName,
   });
 
   @override
+  ConsumerState<_StudentGradeRow> createState() => _StudentGradeRowState();
+}
+
+class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
+  int? _selectedGrade;
+  bool _saving = false;
+
+  @override
   Widget build(BuildContext context) {
+    final today = DateTime.now();
+    final todayKey =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final todayGrade = widget.student.gradesByDate[todayKey];
+
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.m),
-            decoration: BoxDecoration(
-              color: AppColors.brandSoft,
-              borderRadius: BorderRadius.circular(AppRadii.l),
+      padding: const EdgeInsets.only(bottom: AppSpacing.s),
+      child: AlochiCard(
+        padding: const EdgeInsets.all(AppSpacing.m),
+        child: Row(
+          children: [
+            // Avatar
+            CircleAvatar(
+              radius: 18,
+              backgroundColor: AppColors.brandSoft,
+              child: Text(
+                widget.student.name.isNotEmpty
+                    ? widget.student.name[0].toUpperCase()
+                    : '?',
+                style: AppTextStyles.label.copyWith(color: AppColors.brand),
+              ),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.grade_outlined,
-                    color: AppColors.brand, size: 20),
-                const SizedBox(width: AppSpacing.m),
-                Expanded(
-                  child: Text(
-                    'Guruh baholari jurnali',
-                    style: AppTextStyles.body
-                        .copyWith(color: AppColors.brandInk),
+            const SizedBox(width: AppSpacing.m),
+            // Name + average
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.student.name, style: AppTextStyles.label),
+                  Text(
+                    'O\'rtacha: ${widget.student.average.toStringAsFixed(1)}',
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.brandMuted),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.l),
-          AlochiButton.primary(
-            label: 'Baho qo\'yish',
-            icon: Icons.edit_rounded,
-            onPressed: () => context.push(
-              '/teacher/groups/$groupId/grades',
-              extra: {
-                'subject': subject,
-                'groupName': groupName,
-              },
+            // Grade buttons: 2, 3, 4, 5
+            Row(
+              children: [2, 3, 4, 5].map((grade) {
+                final isSelected = _selectedGrade == grade ||
+                    (todayGrade == grade && _selectedGrade == null);
+                return GestureDetector(
+                  onTap: _saving ? null : () => _setGrade(grade, todayKey),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    margin: const EdgeInsets.only(left: 4),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected ? _gradeColor(grade) : AppColors.brandSoft,
+                      borderRadius: BorderRadius.circular(AppRadii.s),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$grade',
+                        style: AppTextStyles.label.copyWith(
+                          color: isSelected ? Colors.white : AppColors.brandMuted,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  Color _gradeColor(int grade) {
+    if (grade == 5) return AppColors.success;
+    if (grade == 4) return AppColors.brand;
+    if (grade == 3) return AppColors.warning;
+    return AppColors.danger;
+  }
+
+  Future<void> _setGrade(int grade, String date) async {
+    setState(() {
+      _selectedGrade = grade;
+      _saving = true;
+    });
+    try {
+      final api = ref.read(teacherApiProvider);
+      await api.setGrade(
+        studentId: widget.student.id,
+        grade: grade,
+        date: date,
+        groupId: widget.groupId,
+      );
+      ref.invalidate(gradesJournalProvider(widget.groupId));
+    } catch (e) {
+      if (mounted) {
+        setState(() => _selectedGrade = null);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Saqlashda xato'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 }
 
@@ -541,14 +650,10 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                      height: 14,
-                      width: 140,
-                      color: const Color(0xFFF3F4F6)),
+                      height: 14, width: 140, color: const Color(0xFFF3F4F6)),
                   const SizedBox(height: 6),
                   Container(
-                      height: 11,
-                      width: 100,
-                      color: const Color(0xFFF3F4F6)),
+                      height: 11, width: 100, color: const Color(0xFFF3F4F6)),
                 ],
               ),
             ),

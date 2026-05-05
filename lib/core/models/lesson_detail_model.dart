@@ -24,8 +24,11 @@ class LessonDetailModel {
   factory LessonDetailModel.fromJson(Map<String, dynamic> json) {
     return LessonDetailModel(
       id: json['id']?.toString() ?? '',
-      groupId: json['group_id']?.toString() ?? json['class_id']?.toString() ?? '',
-      groupCode: json['group_code']?.toString() ?? json['class_code']?.toString() ?? '',
+      groupId:
+          json['group_id']?.toString() ?? json['class_id']?.toString() ?? '',
+      groupCode: json['group_code']?.toString() ??
+          json['class_code']?.toString() ??
+          '',
       subjectName: json['subject_name']?.toString() ?? '',
       startTime: json['start_time']?.toString() ?? '',
       endTime: json['end_time']?.toString() ?? '',

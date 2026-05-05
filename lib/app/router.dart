@@ -51,7 +51,9 @@ import '../features/teacher/onboarding/welcome_features_screen.dart';
 import '../features/teacher/onboarding/welcome_ready_screen.dart';
 import '../features/teacher/notifications/notifications_screen.dart';
 import '../features/teacher/lesson/week_timetable_screen.dart';
+import '../features/teacher/lesson/lesson_detail_screen.dart';
 import '../core/models/test_model.dart';
+import '../core/models/lesson_model.dart';
 import '../core/utils/date_utils.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -142,6 +144,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/timetable',
             builder: (context, state) => const WeekTimetableScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/lessons/:lessonId',
+            builder: (context, state) {
+              final lessonId = state.pathParameters['lessonId']!;
+              final lesson = state.extra as LessonModel?;
+              return LessonDetailScreen(lessonId: lessonId, lesson: lesson);
+            },
           ),
           GoRoute(
             path: '/teacher/groups',

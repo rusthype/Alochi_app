@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/user.dart';
 import '../../core/api/auth_api.dart';
 import '../../core/storage/storage.dart';
+import '../../core/services/fcm_service.dart';
+import '../teacher/dashboard/dashboard_provider.dart';
 
 class AuthState {
   final UserModel? user;
@@ -35,8 +37,9 @@ class AuthState {
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthApi _api = AuthApi();
+  final Ref _ref;
 
-  AuthNotifier() : super(const AuthState(isLoading: true)) {
+  AuthNotifier(this._ref) : super(const AuthState(isLoading: true)) {
     _init();
   }
 
@@ -46,6 +49,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (token != null) {
         final user = await _api.me();
         state = AuthState(user: user);
+
+        // Register FCM if authenticated as teacher
+        if (user.role == 'teacher') {
+          _registerFCM();
+        }
       } else {
         state = const AuthState();
       }
@@ -63,11 +71,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (user.role == 'teacher') {
         final done = await AppStorage.readKey('first_login_complete');
         needsOnboarding = done != 'true';
+
+        // Register FCM token
+        _registerFCM();
       }
       state = AuthState(user: user, needsOnboarding: needsOnboarding);
     } catch (_) {
       state = state.copyWith(
-          isLoading: false, error: 'Login failed. Check your credentials.');
+          isLoading: false,
+          error: 'Login amalga oshmadi. Ma\'lumotlarni tekshiring');
+    }
+  }
+
+  Future<void> _registerFCM() async {
+    try {
+      final fcm = FCMService();
+      await fcm.registerToken(_ref.read(teacherApiProvider));
+    } catch (e) {
+      // Silent fail
     }
   }
 
@@ -77,10 +98,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    // Unregister FCM token before logout if teacher
+    if (state.user?.role == 'teacher') {
+      try {
+        final fcm = FCMService();
+        await fcm.unregisterToken(_ref.read(teacherApiProvider));
+      } catch (e) {
+        // Silent fail
+      }
+    }
+
     await _api.logout();
     state = const AuthState();
   }
 }
 
 final authProvider =
-    StateNotifierProvider<AuthNotifier, AuthState>((ref) => AuthNotifier());
+    StateNotifierProvider<AuthNotifier, AuthState>((ref) => AuthNotifier(ref));

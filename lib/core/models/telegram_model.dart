@@ -43,8 +43,7 @@ class UnlinkedParentData {
 
   factory UnlinkedParentData.fromJson(Map<String, dynamic> json) {
     return UnlinkedParentData(
-      parentId:
-          json['parent_id']?.toString() ?? json['id']?.toString() ?? '',
+      parentId: json['parent_id']?.toString() ?? json['id']?.toString() ?? '',
       parentName:
           json['parent_name']?.toString() ?? json['name']?.toString() ?? '',
       studentName: json['student_name']?.toString() ?? '',

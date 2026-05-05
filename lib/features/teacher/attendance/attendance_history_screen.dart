@@ -254,8 +254,9 @@ class _AttendanceChart extends StatelessWidget {
       return BarChartGroupData(
         x: entry.key,
         barRods: [
-          const BarChartRodData(
+          BarChartRodData(
             toY: rate,
+
             color: rate >= 75
                 ? AppColors.brand
                 : rate >= 50
@@ -282,7 +283,7 @@ class _AttendanceChart extends StatelessWidget {
                 BarChartData(
                   barGroups: bars,
                   maxY: 100,
-                  gridData: FlGridData(show: false),
+                  gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     leftTitles: const AxisTitles(
@@ -291,9 +292,11 @@ class _AttendanceChart extends StatelessWidget {
                         sideTitles: SideTitles(showTitles: false)),
                     rightTitles: const AxisTitles(
                         sideTitles: SideTitles(showTitles: false)),
+
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
+
                         getTitlesWidget: (value, meta) {
                           final idx = value.toInt();
                           if (idx < 0 || idx >= displayDays.length) {

@@ -15,16 +15,21 @@ class StudentApi {
   Future<List<Achievement>> getAchievements() async {
     final data = await _client.get('/gamification/achievements/');
     final list = (data is Map ? data['results'] : data) as List? ?? [];
-    return list.map((e) => Achievement.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => Achievement.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
-  Future<List<TestModel>> getTestCatalog({String? bookId, String? search}) async {
+  Future<List<TestModel>> getTestCatalog(
+      {String? bookId, String? search}) async {
     final data = await _client.get('/tests/catalog/', params: {
       if (bookId != null) 'book': bookId,
       if (search != null && search.isNotEmpty) 'search': search,
     }) as Map<String, dynamic>;
     final list = data['results'] as List? ?? [];
-    return list.map((e) => TestModel.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => TestModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<Map<String, dynamic>>> getBooks() async {
@@ -56,7 +61,8 @@ class StudentApi {
     return TestResultModel.fromJson(data);
   }
 
-  Future<List<LeaderboardEntry>> getLeaderboard({String scope = 'global'}) async {
+  Future<List<LeaderboardEntry>> getLeaderboard(
+      {String scope = 'global'}) async {
     final data = await _client.get('/leaderboard/', params: {'scope': scope});
     final list = (data is Map ? data['results'] ?? data : data) as List? ?? [];
     return list
@@ -69,13 +75,17 @@ class StudentApi {
       if (bookId != null) 'book_id': bookId,
     });
     final list = (data is Map ? data['results'] ?? data : data) as List? ?? [];
-    return list.map((e) => VocabularyTopic.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => VocabularyTopic.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<VocabularyWord>> getVocabularyWords(String topicId) async {
     final data = await _client.get('/vocabulary/topics/$topicId/words/');
     final list = (data is Map ? data['results'] ?? data : data) as List? ?? [];
-    return list.map((e) => VocabularyWord.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => VocabularyWord.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Map<String, dynamic>> getWallet() async =>
@@ -86,16 +96,21 @@ class StudentApi {
       if (category != null) 'category': category,
     });
     final list = (data is Map ? data['results'] ?? data : data) as List? ?? [];
-    return list.map((e) => ShopItem.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => ShopItem.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Map<String, dynamic>> purchaseItem(String slug) async =>
-      await _client.post('/shop/items/$slug/purchase/', data: {}) as Map<String, dynamic>;
+      await _client.post('/shop/items/$slug/purchase/', data: {})
+          as Map<String, dynamic>;
 
   Future<List<Purchase>> getPurchases() async {
     final data = await _client.get('/shop/purchases/');
     final list = (data is Map ? data['results'] ?? data : data) as List? ?? [];
-    return list.map((e) => Purchase.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => Purchase.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Map<String, dynamic>> getHomework() async =>
@@ -104,7 +119,9 @@ class StudentApi {
   Future<List<AppNotification>> getNotifications() async {
     final data = await _client.get('/notifications/');
     final list = (data is Map ? data['results'] ?? data : data) as List? ?? [];
-    return list.map((e) => AppNotification.fromJson(e as Map<String, dynamic>)).toList();
+    return list
+        .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<Map<String, dynamic>> getUnreadCount() async =>

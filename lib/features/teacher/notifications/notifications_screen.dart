@@ -24,7 +24,8 @@ class NotificationsScreen extends ConsumerWidget {
         title: 'Bildirishnomalar',
         actions: [
           TextButton(
-            onPressed: () => ref.read(notificationActionProvider.notifier).markAllAsRead(),
+            onPressed: () =>
+                ref.read(notificationActionProvider.notifier).markAllAsRead(),
             child: Text(
               'Hammasini o\'qildi',
               style: AppTextStyles.label.copyWith(color: AppColors.brand),
@@ -120,9 +121,12 @@ class _NotificationCard extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         if (!notification.isRead) {
-          ref.read(notificationActionProvider.notifier).markAsRead(notification.id);
+          ref
+              .read(notificationActionProvider.notifier)
+              .markAsRead(notification.id);
         }
-        if (notification.actionUrl != null && notification.actionUrl!.isNotEmpty) {
+        if (notification.actionUrl != null &&
+            notification.actionUrl!.isNotEmpty) {
           context.push(notification.actionUrl!);
         }
       },
@@ -153,7 +157,9 @@ class _NotificationCard extends ConsumerWidget {
                           notification.title,
                           style: AppTextStyles.titleM.copyWith(
                             color: AppColors.ink,
-                            fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.w700,
+                            fontWeight: notification.isRead
+                                ? FontWeight.w500
+                                : FontWeight.w700,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -174,7 +180,9 @@ class _NotificationCard extends ConsumerWidget {
                   Text(
                     notification.body,
                     style: AppTextStyles.bodyS.copyWith(
-                      color: notification.isRead ? AppColors.brandMuted : AppColors.ink,
+                      color: notification.isRead
+                          ? AppColors.brandMuted
+                          : AppColors.ink,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -182,7 +190,8 @@ class _NotificationCard extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     timeAgo(notification.createdAt),
-                    style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.brandMuted),
                   ),
                 ],
               ),
@@ -220,11 +229,16 @@ class _NotificationsSkeleton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 16, width: 120, color: const Color(0xFFF3F4F6)),
+                  Container(
+                      height: 16, width: 120, color: const Color(0xFFF3F4F6)),
                   const SizedBox(height: 8),
-                  Container(height: 14, width: double.infinity, color: const Color(0xFFF3F4F6)),
+                  Container(
+                      height: 14,
+                      width: double.infinity,
+                      color: const Color(0xFFF3F4F6)),
                   const SizedBox(height: 4),
-                  Container(height: 14, width: 200, color: const Color(0xFFF3F4F6)),
+                  Container(
+                      height: 14, width: 200, color: const Color(0xFFF3F4F6)),
                 ],
               ),
             ),

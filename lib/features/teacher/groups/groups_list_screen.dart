@@ -22,6 +22,7 @@ class GroupsListScreen extends ConsumerStatefulWidget {
 
 class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
   String _searchQuery = '';
+  String _filter = 'Hammasi';
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +45,20 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
           }
 
           final filteredGroups = groups.where((g) {
+            // Filter logic
+            bool matchesFilter = true;
+            if (_filter == 'Bugun') {
+              matchesFilter = g.nextLessonAt != null;
+            } else if (_filter == 'Boshlang\'ich') {
+              final code = g.code.toLowerCase();
+              matchesFilter = code.contains('1-') ||
+                  code.contains('2-') ||
+                  code.contains('3-') ||
+                  code.contains('4-');
+            }
+
+            if (!matchesFilter) return false;
+
             if (_searchQuery.isEmpty) return true;
             final query = _searchQuery.toLowerCase();
             return g.subjectName.toLowerCase().contains(query) ||
@@ -59,9 +74,57 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
                   AppSpacing.l,
                   AppSpacing.s,
                 ),
-                child: AlochiSearchBar(
-                  hintText: 'Guruh nomi yoki fan...',
-                  onChanged: (value) => setState(() => _searchQuery = value),
+                child: Column(
+                  children: [
+                    AlochiSearchBar(
+                      hintText: 'Guruh nomi yoki fan...',
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
+                    ),
+                    const SizedBox(height: AppSpacing.m),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          'Hammasi',
+                          'Bugun',
+                          'Boshlang\'ich',
+                        ].map((f) {
+                          final isSelected = _filter == f;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: AppSpacing.s),
+                            child: ChoiceChip(
+                              label: Text(f),
+                              selected: isSelected,
+                              onSelected: (v) {
+                                if (v) setState(() => _filter = f);
+                              },
+                              backgroundColor: Colors.white,
+                              selectedColor: AppColors.brandSoft,
+                              labelStyle: AppTextStyles.label.copyWith(
+                                color: isSelected
+                                    ? AppColors.brand
+                                    : AppColors.ink,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(AppRadii.round),
+                                side: BorderSide(
+                                  color: isSelected
+                                      ? AppColors.brand
+                                      : const Color(0xFFE5E7EB),
+                                ),
+                              ),
+                              showCheckmark: false,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -136,8 +199,8 @@ class _GroupCard extends StatelessWidget {
                     children: [
                       Text(
                         group.subjectName,
-                        style: AppTextStyles.titleM
-                            .copyWith(color: AppColors.ink),
+                        style:
+                            AppTextStyles.titleM.copyWith(color: AppColors.ink),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -169,15 +232,14 @@ class _GroupCard extends StatelessWidget {
                                   .copyWith(color: AppColors.brandMuted)),
                           Text(
                             '${group.attendancePct.toStringAsFixed(0)}%',
-                            style: AppTextStyles.caption
-                                .copyWith(color: attColor, fontWeight: FontWeight.w600),
+                            style: AppTextStyles.caption.copyWith(
+                                color: attColor, fontWeight: FontWeight.w600),
                           ),
                         ],
                       ),
                       const SizedBox(height: 4),
                       _ProgressBar(
-                          value: group.attendancePct / 100,
-                          color: attColor),
+                          value: group.attendancePct / 100, color: attColor),
                     ],
                   ),
                 ),
@@ -190,8 +252,8 @@ class _GroupCard extends StatelessWidget {
                             .copyWith(color: AppColors.brandMuted)),
                     Text(
                       group.avgGrade.toStringAsFixed(1),
-                      style: AppTextStyles.titleM
-                          .copyWith(color: AppColors.brand),
+                      style:
+                          AppTextStyles.titleM.copyWith(color: AppColors.brand),
                     ),
                   ],
                 ),

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/teacher_api.dart';
 import '../dashboard/dashboard_provider.dart';
 
-final gradesJournalProvider =
-    FutureProvider.autoDispose.family<GradesJournalData, String>((ref, groupId) async {
+final gradesJournalProvider = FutureProvider.autoDispose
+    .family<GradesJournalData, String>((ref, groupId) async {
   final api = ref.read(teacherApiProvider);
   return api.getGrades(groupId: groupId);
 });
@@ -42,18 +42,16 @@ class GradeEditState {
   bool get hasChanges => pending.values.any((g) => g > 0);
 }
 
-typedef GradeEditKey = ({String groupId, String subject, String date});
+typedef GradeEditKey = ({String groupId, String date});
 
 class GradeEditNotifier extends StateNotifier<GradeEditState> {
   final TeacherApi _api;
   final String groupId;
-  final String subject;
   final String date;
 
   GradeEditNotifier({
     required TeacherApi api,
     required this.groupId,
-    required this.subject,
     required this.date,
   })  : _api = api,
         super(const GradeEditState(pending: {}));
@@ -65,7 +63,8 @@ class GradeEditNotifier extends StateNotifier<GradeEditState> {
     } else {
       updated[studentId] = grade;
     }
-    state = state.copyWith(pending: updated, savedSuccessfully: false, error: null);
+    state =
+        state.copyWith(pending: updated, savedSuccessfully: false, error: null);
   }
 
   Future<void> saveAll() async {
@@ -76,9 +75,9 @@ class GradeEditNotifier extends StateNotifier<GradeEditState> {
           .where((e) => e.value > 0)
           .map((e) => _api.setGrade(
                 studentId: e.key,
-                subject: subject,
                 grade: e.value,
                 date: date,
+                groupId: groupId,
               ))
           .toList();
       await Future.wait(futures);
@@ -94,13 +93,12 @@ class GradeEditNotifier extends StateNotifier<GradeEditState> {
   }
 }
 
-final gradeEditProvider = StateNotifierProvider.autoDispose.family<GradeEditNotifier,
-    GradeEditState, GradeEditKey>((ref, key) {
+final gradeEditProvider = StateNotifierProvider.autoDispose
+    .family<GradeEditNotifier, GradeEditState, GradeEditKey>((ref, key) {
   final api = ref.read(teacherApiProvider);
   return GradeEditNotifier(
     api: api,
     groupId: key.groupId,
-    subject: key.subject,
     date: key.date,
   );
 });

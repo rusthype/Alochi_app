@@ -48,8 +48,9 @@ class _AlochiSkeletonState extends State<AlochiSkeleton>
         width: widget.width,
         height: widget.height,
         decoration: BoxDecoration(
-          color: AppColors.brandSoft.withOpacity(_animation.value),
-          borderRadius: widget.borderRadius ?? BorderRadius.circular(AppRadii.s),
+          color: AppColors.brandSoft.withValues(alpha: _animation.value),
+          borderRadius:
+              widget.borderRadius ?? BorderRadius.circular(AppRadii.s),
         ),
       ),
     );

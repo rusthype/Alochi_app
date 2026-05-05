@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../theme/colors.dart';
 import '../../theme/typography.dart';
+import '../../theme/spacing.dart';
+import '../../theme/radii.dart';
 import '../../shared/widgets/alochi_button.dart';
 import '../../shared/widgets/alochi_input.dart';
 import '../../shared/widgets/alochi_card.dart';
@@ -49,12 +51,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         } else {
           // Non-teacher: show message and logout
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
+            SnackBar(
+              content: const Text(
                 'Bu ilova faqat ustozlar uchun. Iltimos, alohida ilovadan foydalaning',
               ),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.fromLTRB(
+                  AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
               backgroundColor: AppColors.danger,
-              duration: Duration(seconds: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadii.m),
+              ),
+              duration: const Duration(seconds: 4),
             ),
           );
           ref.read(authProvider.notifier).logout();
@@ -64,7 +72,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
             backgroundColor: AppColors.danger,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
           ),
         );
       }
@@ -166,7 +180,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           isPassword: true,
                           prefixIcon:
                               const Icon(Icons.lock_outline_rounded, size: 20),
-                          validator: (v) => Validators.required(v, fieldName: 'Parol'),
+                          validator: (v) =>
+                              Validators.required(v, fieldName: 'Parol'),
                         ),
                         const SizedBox(height: 12),
                         Row(

@@ -58,8 +58,8 @@ class GradesScreen extends ConsumerWidget {
           icon: Icons.error_outline_rounded,
           iconColor: AppColors.danger,
           title: 'Yuklab bo\'lmadi',
-          subtitle: err.toString(),
-          actionLabel: "Qayta urinish",
+          subtitle: 'Qayta urinib ko\'ring',
+          actionLabel: "Yangilash",
           onAction: () => ref.invalidate(gradesJournalProvider(groupId)),
         ),
       ),
@@ -107,7 +107,7 @@ class _GradesBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final key = (groupId: groupId, subject: subject, date: today);
+    final key = (groupId: groupId, date: today);
     final editState = ref.watch(gradeEditProvider(key));
     final notifier = ref.read(gradeEditProvider(key).notifier);
 
@@ -115,9 +115,15 @@ class _GradesBody extends ConsumerWidget {
     ref.listen<GradeEditState>(gradeEditProvider(key), (prev, next) {
       if (next.savedSuccessfully && !(prev?.savedSuccessfully ?? false)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Baholar saqlandi'),
-            backgroundColor: Color(0xFF0F9A6E),
+          SnackBar(
+            content: const Text('Baholar saqlandi'),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+            backgroundColor: AppColors.brand,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
           ),
         );
         ref.invalidate(gradesJournalProvider(groupId));
@@ -126,7 +132,13 @@ class _GradesBody extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.error!),
-            backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+            backgroundColor: AppColors.brand,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
           ),
         );
       }
@@ -162,13 +174,8 @@ class _GradesBody extends ConsumerWidget {
               separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s),
               itemBuilder: (context, index) {
                 final student = data.students[index];
-                // Last journal grade for this student (most recent date)
-                int? existingGrade;
-                final studentJournal = data.journal[student.id];
-                if (studentJournal != null && studentJournal.isNotEmpty) {
-                  final sortedDates = studentJournal.keys.toList()..sort();
-                  existingGrade = studentJournal[sortedDates.last];
-                }
+                // Last journal grade for this student today
+                final existingGrade = student.gradesByDate[today];
                 final pendingGrade = editState.pending[student.id];
                 return _GradeRow(
                   student: student,
@@ -251,11 +258,20 @@ class _GradeRow extends StatelessWidget {
           AlochiAvatar(name: student.name, size: 36),
           const SizedBox(width: AppSpacing.m),
           Expanded(
-            child: Text(
-              student.name,
-              style: AppTextStyles.body.copyWith(color: AppColors.ink),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  student.name,
+                  style: AppTextStyles.body.copyWith(color: AppColors.ink),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  "O'rtacha: ${student.average.toStringAsFixed(1)}",
+                  style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+                ),
+              ],
             ),
           ),
           _GradeSegmented(

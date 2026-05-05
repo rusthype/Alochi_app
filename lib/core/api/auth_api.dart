@@ -35,7 +35,6 @@ class AuthApi {
   }
 
   Future<void> forgotPassword(String username) async {
-    await _client
-        .post('/auth/forgot-password/', data: {'username': username});
+    await _client.post('/auth/forgot-password/', data: {'username': username});
   }
 }

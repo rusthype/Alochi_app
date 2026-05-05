@@ -21,8 +21,7 @@ class LeaderboardEntry {
       {bool isCurrentUser = false}) {
     return LeaderboardEntry(
       rank: json['rank'] ?? 0,
-      userId:
-          json['user_id']?.toString() ?? json['id']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['name'] ?? json['full_name'] ?? '',
       school: json['school'],
       xp: json['xp'] ?? json['total_xp'] ?? 0,

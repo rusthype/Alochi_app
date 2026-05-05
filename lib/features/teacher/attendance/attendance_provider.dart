@@ -5,6 +5,8 @@ import '../../../core/models/attendance_model.dart';
 import '../../../core/models/student_model.dart';
 import '../dashboard/dashboard_provider.dart';
 
+enum AttendancePeriod { week, month, quarter }
+
 class AttendanceMarkingState {
   final String classId;
   final String date;
@@ -33,8 +35,7 @@ class AttendanceMarkingState {
   int get absentCount =>
       statuses.values.where((s) => s == AttendanceStatus.absent).length;
   int get markedCount => presentCount + lateCount + absentCount;
-  int get unmarkedCount =>
-      students.length - markedCount;
+  int get unmarkedCount => students.length - markedCount;
   bool get canSave => hasUnsavedChanges && unmarkedCount == 0;
 
   AttendanceMarkingState copyWith({
@@ -81,8 +82,7 @@ class AttendanceMarkingNotifier
       final existing = await _api.getAttendance(classId: classId, date: date);
       final initialStatuses = <String, AttendanceStatus>{};
       for (final s in students) {
-        initialStatuses[s.id] =
-            existing[s.id] ?? AttendanceStatus.unmarked;
+        initialStatuses[s.id] = existing[s.id] ?? AttendanceStatus.unmarked;
       }
       state = AsyncValue.data(AttendanceMarkingState(
         classId: classId,
@@ -157,8 +157,8 @@ final attendanceMarkingProvider = StateNotifierProvider.autoDispose.family<
   );
 });
 
-final attendanceHistoryProvider =
-    FutureProvider.autoDispose.family<AttendanceHistoryModel, ({String classId, String period})>(
+final attendanceHistoryProvider = FutureProvider.autoDispose
+    .family<AttendanceHistoryModel, ({String classId, String period})>(
         (ref, args) async {
   final api = ref.read(teacherApiProvider);
   return api.getAttendanceHistory(classId: args.classId, period: args.period);

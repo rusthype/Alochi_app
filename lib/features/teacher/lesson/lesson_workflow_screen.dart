@@ -601,7 +601,6 @@ class _Step3GradingContent extends ConsumerWidget {
     final today = _todayString();
     final key = (
       groupId: lesson.groupId,
-      subject: lesson.subjectName,
       date: today,
     );
     final editState = ref.watch(gradeEditProvider(key));

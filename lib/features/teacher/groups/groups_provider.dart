@@ -14,8 +14,8 @@ final groupDetailProvider =
   return api.getGroupDetail(groupId);
 });
 
-final groupStudentsProvider =
-    FutureProvider.autoDispose.family<List<StudentModel>, String>((ref, groupId) async {
+final groupStudentsProvider = FutureProvider.autoDispose
+    .family<List<StudentModel>, String>((ref, groupId) async {
   final api = ref.read(teacherApiProvider);
   return api.getGroupStudents(groupId);
 });

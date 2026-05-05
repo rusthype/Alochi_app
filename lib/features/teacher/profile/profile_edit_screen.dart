@@ -55,7 +55,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
             'Profil yangilandi',
             style: AppTextStyles.bodyS.copyWith(color: Colors.white),
           ),
-          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.fromLTRB(
+              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+          backgroundColor: AppColors.brand,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.m),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -77,7 +83,13 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
               next.error!,
               style: AppTextStyles.bodyS.copyWith(color: Colors.white),
             ),
-            backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.fromLTRB(
+                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+            backgroundColor: AppColors.brand,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.m),
+            ),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -296,7 +308,6 @@ class _EditBodyFallback extends StatelessWidget {
     );
   }
 }
-
 
 // ─── Read-only field ──────────────────────────────────────────────────────────
 

@@ -12,6 +12,7 @@ import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_card.dart';
 import '../../../core/models/student_model.dart';
 import 'student_provider.dart';
 
@@ -65,6 +66,22 @@ class _StudentProfileBody extends StatelessWidget {
           const SizedBox(height: AppSpacing.l),
           _ThreeStatTiles(student: student),
           const SizedBox(height: AppSpacing.l),
+          _AttendanceSummaryCard(
+            attendanceRate: student.attendancePct ?? 0,
+            totalLessons: student.totalLessons ?? 0,
+            missedLessons: student.missedLessons ?? 0,
+          ),
+          const SizedBox(height: AppSpacing.l),
+          _GradesCard(
+            grades: student.recentGrades
+                .map((g) => {
+                      'grade': g.value,
+                      'date': g.date,
+                      'subject': g.topicTitle,
+                    })
+                .toList(),
+          ),
+          const SizedBox(height: AppSpacing.l),
           if (student.parents.isNotEmpty) ...[
             _ParentContactCard(parents: student.parents),
             const SizedBox(height: AppSpacing.l),
@@ -81,6 +98,162 @@ class _StudentProfileBody extends StatelessWidget {
           ],
           _HomeworkSummaryCard(student: student),
           const SizedBox(height: AppSpacing.xxl),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttendanceSummaryCard extends StatelessWidget {
+  final double attendanceRate;
+  final int totalLessons;
+  final int missedLessons;
+
+  const _AttendanceSummaryCard({
+    required this.attendanceRate,
+    required this.totalLessons,
+    required this.missedLessons,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color rateColor = attendanceRate >= 75
+        ? AppColors.success
+        : attendanceRate >= 50
+            ? AppColors.warning
+            : AppColors.danger;
+
+    return AlochiCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Davomat holati', style: AppTextStyles.titleM),
+          const SizedBox(height: AppSpacing.m),
+          Row(
+            children: [
+              // Big percentage
+              Text(
+                '${attendanceRate.toStringAsFixed(0)}%',
+                style: AppTextStyles.displayM.copyWith(color: rateColor),
+              ),
+              const SizedBox(width: AppSpacing.l),
+              // Stats
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Jami darslar: $totalLessons',
+                    style: AppTextStyles.body,
+                  ),
+                  Text(
+                    'O\'tkazib yubordi: $missedLessons',
+                    style: AppTextStyles.body.copyWith(
+                      color: missedLessons > 0
+                          ? AppColors.danger
+                          : AppColors.brandMuted,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.m),
+          // Progress bar
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadii.xs),
+            child: LinearProgressIndicator(
+              value: attendanceRate / 100,
+              backgroundColor: AppColors.brandSoft,
+              valueColor: AlwaysStoppedAnimation<Color>(rateColor),
+              minHeight: 8,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GradesCard extends StatelessWidget {
+  final List<Map<String, dynamic>> grades; // [{date, subject, grade}]
+
+  const _GradesCard({required this.grades});
+
+  Color _gradeColor(int grade) {
+    if (grade == 5) return AppColors.success;
+    if (grade == 4) return AppColors.brand;
+    if (grade == 3) return AppColors.warning;
+    return AppColors.danger;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (grades.isEmpty) {
+      return AlochiCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Baholar', style: AppTextStyles.titleM),
+            const SizedBox(height: AppSpacing.m),
+            Text(
+              'Hali baholar qo\'yilmagan',
+              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Average
+    final avg = grades.map((g) => g['grade'] as int).reduce((a, b) => a + b) /
+        grades.length;
+
+    return AlochiCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Baholar', style: AppTextStyles.titleM),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.m,
+                  vertical: AppSpacing.xs,
+                ),
+                decoration: BoxDecoration(
+                  color: _gradeColor(avg.round()),
+                  borderRadius: BorderRadius.circular(AppRadii.m),
+                ),
+                child: Text(
+                  'O\'rtacha: ${avg.toStringAsFixed(1)}',
+                  style: AppTextStyles.caption.copyWith(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.m),
+          Wrap(
+            spacing: AppSpacing.s,
+            runSpacing: AppSpacing.s,
+            children: grades.take(10).map((g) {
+              final grade = g['grade'] as int;
+              return Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: _gradeColor(grade),
+                  borderRadius: BorderRadius.circular(AppRadii.s),
+                ),
+                child: Center(
+                  child: Text(
+                    '$grade',
+                    style: AppTextStyles.label.copyWith(color: Colors.white),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
         ],
       ),
     );
@@ -276,6 +449,13 @@ class _ParentRow extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Telefon: ${parent.phone}'),
+                    behavior: SnackBarBehavior.floating,
+                    margin: const EdgeInsets.fromLTRB(
+                        AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+                    backgroundColor: AppColors.brand,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadii.m),
+                    ),
                     duration: const Duration(seconds: 2),
                   ),
                 );
@@ -296,9 +476,16 @@ class _ParentRow extends StatelessWidget {
             onTap: () {
               if (parent.id.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Ota-ona kontakt ma'lumotlari yo'q"),
-                    duration: Duration(seconds: 2),
+                  SnackBar(
+                    content: const Text("Ota-ona kontakt ma'lumotlari yo'q"),
+                    behavior: SnackBarBehavior.floating,
+                    margin: const EdgeInsets.fromLTRB(
+                        AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
+                    backgroundColor: AppColors.brand,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadii.m),
+                    ),
+                    duration: const Duration(seconds: 2),
                   ),
                 );
                 return;

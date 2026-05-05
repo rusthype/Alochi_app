@@ -8,12 +8,10 @@ class ChallengeResultScreen extends StatefulWidget {
   const ChallengeResultScreen({super.key, required this.data});
 
   @override
-  State<ChallengeResultScreen> createState() =>
-      _ChallengeResultScreenState();
+  State<ChallengeResultScreen> createState() => _ChallengeResultScreenState();
 }
 
-class _ChallengeResultScreenState
-    extends State<ChallengeResultScreen>
+class _ChallengeResultScreenState extends State<ChallengeResultScreen>
     with SingleTickerProviderStateMixin {
   late ConfettiController _confetti;
   late AnimationController _scaleCtrl;
@@ -22,13 +20,10 @@ class _ChallengeResultScreenState
   @override
   void initState() {
     super.initState();
-    _confetti = ConfettiController(
-        duration: const Duration(seconds: 3));
+    _confetti = ConfettiController(duration: const Duration(seconds: 3));
     _scaleCtrl = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 600));
-    _scale = CurvedAnimation(
-        parent: _scaleCtrl, curve: Curves.elasticOut);
+        vsync: this, duration: const Duration(milliseconds: 600));
+    _scale = CurvedAnimation(parent: _scaleCtrl, curve: Curves.elasticOut);
     _scaleCtrl.forward();
 
     final correct = widget.data['correct'] as int? ?? 0;
@@ -116,10 +111,7 @@ class _ChallengeResultScreenState
                   // Stats row
                   Row(
                     children: [
-                      _Stat(
-                          label: "To'g'ri",
-                          value: '$correct',
-                          color: kGreen),
+                      _Stat(label: "To'g'ri", value: '$correct', color: kGreen),
                       _Stat(
                           label: "Noto'g'ri",
                           value: '${total - correct}',
@@ -137,28 +129,24 @@ class _ChallengeResultScreenState
                       decoration: BoxDecoration(
                         color: kOrange.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                            color: kOrange.withValues(alpha: 0.3)),
+                        border:
+                            Border.all(color: kOrange.withValues(alpha: 0.3)),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.bolt_rounded,
-                              color: kOrange, size: 28),
+                          Icon(Icons.bolt_rounded, color: kOrange, size: 28),
                           SizedBox(width: 12),
                           Expanded(
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('XP qo\'shildi!',
                                     style: TextStyle(
                                         color: kOrange,
                                         fontWeight: FontWeight.w700)),
-                                Text(
-                                    'Musobaqa uchun bonus XP hisoblandi',
+                                Text('Musobaqa uchun bonus XP hisoblandi',
                                     style: TextStyle(
-                                        color: kTextMuted,
-                                        fontSize: 12)),
+                                        color: kTextMuted, fontSize: 12)),
                               ],
                             ),
                           ),
@@ -171,8 +159,7 @@ class _ChallengeResultScreenState
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () =>
-                          context.go('/student/dashboard'),
+                      onPressed: () => context.go('/student/dashboard'),
                       icon: const Icon(Icons.home_rounded),
                       label: const Text('Asosiy sahifa'),
                     ),
@@ -204,8 +191,7 @@ class _Stat extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  const _Stat(
-      {required this.label, required this.value, required this.color});
+  const _Stat({required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -222,13 +208,10 @@ class _Stat extends StatelessWidget {
           children: [
             Text(value,
                 style: TextStyle(
-                    color: color,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800)),
+                    color: color, fontSize: 24, fontWeight: FontWeight.w800)),
             const SizedBox(height: 4),
             Text(label,
-                style:
-                    const TextStyle(color: kTextMuted, fontSize: 12)),
+                style: const TextStyle(color: kTextMuted, fontSize: 12)),
           ],
         ),
       ),

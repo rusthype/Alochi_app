@@ -5,6 +5,7 @@ import '../models/group_model.dart';
 import '../models/student_model.dart';
 import '../models/attendance_model.dart';
 import '../models/lesson_detail_model.dart';
+import '../models/lesson_model.dart';
 import '../models/message_model.dart';
 import '../models/grades_model.dart';
 import '../models/homework_model.dart';
@@ -31,15 +32,34 @@ class TeacherApi {
   Future<TeacherDashboardSummary> getDashboardSummary() async {
     try {
       final results = await Future.wait([
-        _client.get('/teacher/panel/dashboard/'),
-        _client.get('/teacher/timetable/'),
+        _client.get('/teacher/panel/dashboard/').catchError((e) {
+          debugPrint('Dashboard data error: $e');
+          return <String, dynamic>{};
+        }),
+        _client.get('/teacher/timetable/').catchError((e) {
+          debugPrint('Timetable data error: $e');
+          return <String, dynamic>{};
+        }),
+        _client.get('/teacher/panel/groups/').catchError((e) {
+          debugPrint('Groups data error: $e');
+          return <String, dynamic>{'results': []};
+        }),
       ]);
-      final dashData = results[0] as Map<String, dynamic>;
-      final ttData = results[1] as Map<String, dynamic>;
-      return TeacherDashboardSummary.fromComposed(dashData, ttData);
+      final dashData = (results[0] as Map?)?.cast<String, dynamic>() ?? {};
+      final ttData = (results[1] as Map?)?.cast<String, dynamic>() ?? {};
+      
+      List<dynamic> groupsList = [];
+      final groupsResponse = results[2];
+      if (groupsResponse is Map<String, dynamic>) {
+        groupsList = groupsResponse['results'] as List? ?? [];
+      } else if (groupsResponse is List) {
+        groupsList = groupsResponse;
+      }
+
+      return TeacherDashboardSummary.fromComposed(dashData, ttData, groupsList);
     } catch (e, st) {
       debugPrint('getDashboardSummary error: $e\n$st');
-      rethrow;
+      return TeacherDashboardSummary.empty();
     }
   }
 
@@ -209,12 +229,12 @@ class TeacherApi {
 
   // ───── Grades ────────────────────────────────────────────────────────────
 
-  /// GET /teacher/grades/?group_id=X
-  /// Returns {students: [], dates: [], journal: {studentId: {date: grade}}}
+  /// GET /teacher/grades/journal/?group_id=X
+  /// Returns {group: {}, students: [{id, name, grades_by_date: {}, average}]}
   Future<GradesJournalData> getGrades({required String groupId}) async {
     try {
       final data = await _client.get(
-        '/teacher/grades/',
+        '/teacher/grades/journal/',
         params: {'group_id': groupId},
       ) as Map<String, dynamic>;
       return GradesJournalData.fromJson(data, groupId);
@@ -225,19 +245,19 @@ class TeacherApi {
   }
 
   /// POST /teacher/grades/set/
-  /// Payload: {student_id, subject, grade (2-5), date}
+  /// Payload: {student_id, grade (2-5), date, group_id}
   Future<void> setGrade({
     required String studentId,
-    required String subject,
     required int grade,
     required String date,
+    required String groupId,
   }) async {
     try {
       await _client.post('/teacher/grades/set/', data: {
         'student_id': studentId,
-        'subject': subject,
         'grade': grade,
         'date': date,
+        'group_id': groupId,
       });
     } catch (e, st) {
       debugPrint('setGrade error: $e\n$st');
@@ -291,6 +311,40 @@ class TeacherApi {
       return LessonDetailModel.fromJson(data);
     } catch (e, st) {
       debugPrint('getLessonDetail error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  Future<List<LessonModel>> getTodayLessons() async {
+    try {
+      final data = await _client.get('/teacher/lessons/today/');
+      if (data is List) {
+        return data
+            .map((e) => LessonModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+      return [];
+    } catch (e, st) {
+      debugPrint('getTodayLessons error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  Future<Map<String, List<LessonModel>>> getWeekLessons() async {
+    try {
+      final data =
+          await _client.get('/teacher/lessons/week/') as Map<String, dynamic>;
+      return data.map((key, value) {
+        final list = value as List? ?? [];
+        return MapEntry(
+          key,
+          list
+              .map((e) => LessonModel.fromJson(e as Map<String, dynamic>))
+              .toList(),
+        );
+      });
+    } catch (e, st) {
+      debugPrint('getWeekLessons error: $e\n$st');
       rethrow;
     }
   }
@@ -553,6 +607,31 @@ class TeacherApi {
     } catch (e, st) {
       debugPrint('markAllNotificationsAsRead error: $e\n$st');
       rethrow;
+    }
+  }
+
+  // ───── FCM ───────────────────────────────────────────────────────────────
+
+  Future<void> registerFCMToken(String token) async {
+    try {
+      await _client.post('/notifications/fcm/register/', data: {
+        'token': token,
+        'platform': 'android',
+        'device_id': token.length > 16 ? token.substring(0, 16) : token,
+      });
+    } catch (e, st) {
+      debugPrint('registerFCMToken error: $e\n$st');
+      // We don't rethrow as FCM is non-critical
+    }
+  }
+
+  Future<void> unregisterFCMToken(String token) async {
+    try {
+      await _client.post('/notifications/fcm/unregister/', data: {
+        'token': token,
+      });
+    } catch (e, st) {
+      debugPrint('unregisterFCMToken error: $e\n$st');
     }
   }
 }
