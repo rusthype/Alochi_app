@@ -1,11 +1,14 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
+import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
@@ -69,11 +72,15 @@ class _StudentProfileBody extends StatelessWidget {
           if (student.recentAttendance.isNotEmpty) ...[
             _AttendanceCalendar(days: student.recentAttendance),
             const SizedBox(height: AppSpacing.l),
+            _AttendanceLineChart(days: student.recentAttendance),
+            const SizedBox(height: AppSpacing.l),
           ],
           if (student.recentGrades.isNotEmpty) ...[
             _RecentGradesList(grades: student.recentGrades),
             const SizedBox(height: AppSpacing.l),
           ],
+          _HomeworkSummaryCard(student: student),
+          const SizedBox(height: AppSpacing.xxl),
         ],
       ),
     );
@@ -97,8 +104,8 @@ class _HeroSection extends StatelessWidget {
             children: [
               Text(
                 student.fullName,
-                style: AppTextStyles.displayM
-                    .copyWith(color: AppColors.ink, fontWeight: FontWeight.w700),
+                style: AppTextStyles.displayM.copyWith(
+                    color: AppColors.ink, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 4),
               if (student.needsAttention)
@@ -233,7 +240,7 @@ class _ParentRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.s),
+      padding: const EdgeInsets.only(bottom: AppSpacing.m),
       child: Row(
         children: [
           Icon(
@@ -245,17 +252,64 @@ class _ParentRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.s),
           Expanded(
-            child: Text(
-              parent.name,
-              style: AppTextStyles.body.copyWith(color: AppColors.ink),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  parent.name,
+                  style: AppTextStyles.body.copyWith(color: AppColors.ink),
+                ),
+                Text(
+                  parent.relation == 'father' ? 'Otasi' : 'Onasi',
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.brandMuted),
+                ),
+              ],
             ),
           ),
-          Icon(
-            Icons.send_rounded,
-            size: 18,
-            color: parent.telegramLinked
-                ? const Color(0xFF26A5E4)
-                : const Color(0xFF9CA3AF),
+          // Phone button
+          if (parent.phone != null && parent.phone!.isNotEmpty)
+            GestureDetector(
+              onTap: () {
+                // tel:// intent — no url_launcher dep, just show intent
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Telefon: ${parent.phone}'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(AppRadii.s),
+                ),
+                child: const Icon(Icons.phone_outlined,
+                    size: 16, color: AppColors.brandMuted),
+              ),
+            ),
+          const SizedBox(width: AppSpacing.s),
+          // Message/Telegram button
+          GestureDetector(
+            onTap: () => context.push('/teacher/messages'),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: parent.telegramLinked
+                    ? const Color(0xFFE3F2FD)
+                    : const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(AppRadii.s),
+              ),
+              child: Icon(
+                Icons.chat_outlined,
+                size: 16,
+                color: parent.telegramLinked
+                    ? const Color(0xFF26A5E4)
+                    : const Color(0xFF9CA3AF),
+              ),
+            ),
           ),
         ],
       ),
@@ -372,6 +426,188 @@ class _Legend extends StatelessWidget {
   }
 }
 
+// ─── Attendance line chart (fl_chart) ────────────────────────────────────────
+
+class _AttendanceLineChart extends StatelessWidget {
+  final List<AttendanceDayModel> days;
+
+  const _AttendanceLineChart({required this.days});
+
+  @override
+  Widget build(BuildContext context) {
+    // Build rolling present-rate per day (1 = present, 0.5 = late, 0 = absent)
+    final spots = <FlSpot>[];
+    for (int i = 0; i < days.length; i++) {
+      double val;
+      switch (days[i].status) {
+        case 'present':
+          val = 1.0;
+          break;
+        case 'late':
+          val = 0.5;
+          break;
+        case 'absent':
+          val = 0.0;
+          break;
+        default:
+          continue;
+      }
+      spots.add(FlSpot(i.toDouble(), val));
+    }
+
+    if (spots.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Davomat grafigi",
+              style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
+          const SizedBox(height: AppSpacing.m),
+          SizedBox(
+            height: 100,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                titlesData: const FlTitlesData(
+                  leftTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles:
+                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    isCurved: true,
+                    color: AppColors.brand,
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: AppColors.brand.withValues(alpha: 0.08),
+                    ),
+                  ),
+                ],
+                minY: 0,
+                maxY: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Homework summary ─────────────────────────────────────────────────────────
+
+class _HomeworkSummaryCard extends StatelessWidget {
+  final StudentModel student;
+
+  const _HomeworkSummaryCard({required this.student});
+
+  @override
+  Widget build(BuildContext context) {
+    // Derive summary from recent grades as a proxy (grades ≈ submitted homework)
+    final gradedCount = student.recentGrades.length;
+    final att = student.attendancePct;
+    final avg = student.avgGrade;
+
+    if (gradedCount == 0 && att == null && avg == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.assignment_outlined,
+                  size: 18, color: AppColors.brand),
+              const SizedBox(width: AppSpacing.s),
+              Text("Vazifalar holati",
+                  style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.m),
+          if (gradedCount > 0)
+            _SummaryRow(
+              label: "Baholangan",
+              value: "$gradedCount ta",
+              valueColor: AppColors.success,
+            ),
+          if (att != null)
+            _SummaryRow(
+              label: "Davomat",
+              value: "${att.toStringAsFixed(0)}%",
+              valueColor: att >= 75 ? AppColors.success : AppColors.warning,
+            ),
+          if (avg != null)
+            _SummaryRow(
+              label: "O'rtacha baho",
+              value: avg.toStringAsFixed(1),
+              valueColor: avg >= 3.5 ? AppColors.success : AppColors.warning,
+            ),
+          const SizedBox(height: AppSpacing.m),
+          AlochiButton.secondary(
+            label: "Xabar yuborish",
+            icon: Icons.chat_outlined,
+            onPressed: () => context.push('/teacher/messages'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color valueColor;
+
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    required this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted)),
+          Text(value,
+              style: AppTextStyles.body
+                  .copyWith(color: valueColor, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
 class _RecentGradesList extends StatelessWidget {
   final List<RecentGradeModel> grades;
 
@@ -394,8 +630,7 @@ class _RecentGradesList extends StatelessWidget {
           const SizedBox(height: AppSpacing.m),
           ...grades.map(
             (g) => Padding(
-              padding:
-                  const EdgeInsets.only(bottom: AppSpacing.s),
+              padding: const EdgeInsets.only(bottom: AppSpacing.s),
               child: Row(
                 children: [
                   Expanded(
@@ -404,8 +639,8 @@ class _RecentGradesList extends StatelessWidget {
                       children: [
                         Text(
                           g.topicTitle,
-                          style: AppTextStyles.body
-                              .copyWith(color: AppColors.ink),
+                          style:
+                              AppTextStyles.body.copyWith(color: AppColors.ink),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
