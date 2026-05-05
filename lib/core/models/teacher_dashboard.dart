@@ -56,6 +56,7 @@ class TeacherDashboardSummary {
           className:
               m['group_name']?.toString() ?? m['class_name']?.toString() ?? '',
           subject: m['subject']?.toString() ?? '',
+          topic: m['topic']?.toString() ?? '',
           studentCount: (m['student_count'] as num?)?.toInt() ?? 0,
           isActive: isLessonNow(m['time']?.toString() ?? ''),
         );
@@ -78,10 +79,12 @@ class TeacherDashboardSummary {
           className:
               m['group_name']?.toString() ?? m['class_name']?.toString() ?? '',
           subject: m['subject']?.toString() ?? '',
+          topic: m['topic']?.toString() ?? '',
           studentCount: (m['student_count'] as num?)?.toInt() ?? 0,
           isActive: isLessonNow(m['time']?.toString() ?? ''),
         );
       }).toList();
+
     }
 
     final concerns = <ConcernModel>[];
@@ -158,6 +161,7 @@ class DashboardLessonModel {
   final String time;
   final String className;
   final String subject;
+  final String topic;
   final int studentCount;
   final bool isActive;
 
@@ -167,6 +171,7 @@ class DashboardLessonModel {
     required this.time,
     required this.className,
     required this.subject,
+    this.topic = '',
     required this.studentCount,
     this.isActive = false,
   });
@@ -178,11 +183,38 @@ class DashboardLessonModel {
       time: json['time'] ?? '',
       className: json['class_name'] ?? '',
       subject: json['subject'] ?? '',
+      topic: json['topic'] ?? '',
       studentCount: json['student_count'] ?? 0,
       isActive: json['is_active'] ?? false,
     );
   }
+
+  String get timeStatus {
+    if (isActive) return 'Hozir davom etmoqda';
+    try {
+      final startTimeStr = time.split('-').first.trim();
+      final parts = startTimeStr.split(':');
+      if (parts.length < 2) return '';
+      final h = int.parse(parts[0].trim());
+      final m = int.parse(parts[1].trim());
+
+      final now = DateTime.now();
+      final lessonStart = DateTime(now.year, now.month, now.day, h, m);
+      
+      if (now.isAfter(lessonStart)) return 'Tugagan';
+      
+      final diff = lessonStart.difference(now);
+      if (diff.inHours > 0) {
+        return '${diff.inHours} soat keyin';
+      } else {
+        return '${diff.inMinutes} daqiqa keyin';
+      }
+    } catch (_) {
+      return '';
+    }
+  }
 }
+
 
 class ConcernModel {
   final String type;

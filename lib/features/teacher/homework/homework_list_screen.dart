@@ -4,12 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
-import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
-import '../../../shared/widgets/alochi_card.dart';
-import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
-import '../../../core/api/teacher_api.dart';
+import '../../../core/models/homework_model.dart';
 import 'homework_provider.dart';
 
 class HomeworkListScreen extends ConsumerStatefulWidget {
@@ -85,10 +82,10 @@ class _HomeworkListBody extends ConsumerWidget {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.l),
+        padding: const EdgeInsets.all(14),
         children: [
           _StatsRow(stats: data.stats),
-          const SizedBox(height: AppSpacing.l),
+          const SizedBox(height: 20),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -99,26 +96,23 @@ class _HomeworkListBody extends ConsumerWidget {
               ].map((f) {
                 final isSelected = filter == f;
                 return Padding(
-                  padding: const EdgeInsets.only(right: AppSpacing.s),
+                  padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
                     label: Text(f),
                     selected: isSelected,
                     onSelected: (v) {
                       if (v) onFilterChanged(f);
                     },
-                    backgroundColor: Colors.white,
-                    selectedColor: AppColors.brandSoft,
+                    backgroundColor: const Color(0xFFF4F5F7),
+                    selectedColor: const Color(0xFF111827),
                     labelStyle: AppTextStyles.label.copyWith(
-                      color: isSelected ? AppColors.brand : AppColors.ink,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadii.round),
+                      borderRadius: BorderRadius.circular(100),
                       side: BorderSide(
-                        color: isSelected
-                            ? AppColors.brand
-                            : const Color(0xFFE5E7EB),
+                        color: isSelected ? const Color(0xFF111827) : const Color(0xFFE5E7EB),
                       ),
                     ),
                     showCheckmark: false,
@@ -127,24 +121,20 @@ class _HomeworkListBody extends ConsumerWidget {
               }).toList(),
             ),
           ),
-          const SizedBox(height: AppSpacing.m),
+          const SizedBox(height: 14),
           if (filteredAssignments.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xxl),
-              child: AlochiEmptyState(
+              child: const AlochiEmptyState(
                 icon: Icons.assignment_outlined,
-                title: filter == 'Hammasi'
-                    ? "Vazifalar yaratilmagan"
-                    : "Bu bo'limda vazifalar yo'q",
-                subtitle: filter == 'Hammasi'
-                    ? "Birinchi vazifani yaratish uchun + tugmasini bosing"
-                    : "Boshqa filterni tanlang",
+                title: "Vazifalar yo'q",
+                subtitle: "Hali hech qanday vazifa yaratilmagan",
               ),
             )
           else
             ...filteredAssignments.map(
               (hw) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.m),
+                padding: const EdgeInsets.only(bottom: 12),
                 child: _HomeworkCard(hw: hw),
               ),
             ),
@@ -162,10 +152,14 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlochiCard(
-      padding: const EdgeInsets.all(AppSpacing.m),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _StatTile(
             value: stats.submitted,
@@ -176,7 +170,7 @@ class _StatsRow extends StatelessWidget {
           _StatTile(
             value: stats.onTime,
             label: 'O\'z vaqtida',
-            color: const Color(0xFF0F9A6E),
+            color: AppColors.brand,
           ),
           _VerticalDivider(),
           _StatTile(
@@ -203,21 +197,27 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isZero = value == 0;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          isZero ? '—' : value.toString(),
-          style: AppTextStyles.displayM.copyWith(
-            color: isZero ? AppColors.brandMuted : color,
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value.toString(),
+            style: AppTextStyles.titleL.copyWith(
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-        ),
-        Text(
-          label,
-          style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
-        ),
-      ],
+          Text(
+            label,
+            style: AppTextStyles.caption.copyWith(
+              color: const Color(0xFF9CA3AF),
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -225,7 +225,7 @@ class _StatTile extends StatelessWidget {
 class _VerticalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(height: 32, width: 1, color: const Color(0xFFE5E7EB));
+    return Container(height: 24, width: 1, color: const Color(0xFFE5E7EB));
   }
 }
 
@@ -236,94 +236,63 @@ class _HomeworkCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // TODO V1.1.1: implement homework detail when backend /homework/{id}/ is ready
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Vazifa tafsiloti tez orada (V1.1.1)'),
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.fromLTRB(
-                AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-            backgroundColor: AppColors.brand,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadii.m),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      behavior: HitTestBehavior.opaque,
-      child: AlochiCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    hw.title,
-                    style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  hw.title,
+                  style: AppTextStyles.titleM.copyWith(
+                    color: AppColors.ink,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(width: AppSpacing.s),
-                AlochiPill(
-                  label: hw.isActive ? 'Aktiv' : 'Tugagan',
-                  variant: hw.isActive
-                      ? AlochiPillVariant.success
-                      : AlochiPillVariant.neutral,
-                ),
-              ],
-            ),
-            if (hw.description.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.s),
-              Text(
-                hw.description,
-                style:
-                    AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
+              const SizedBox(width: 10),
+              _Badge(isActive: hw.isActive),
             ],
-            const SizedBox(height: AppSpacing.m),
-            Row(
-              children: [
-                _MetaChip(
-                  icon: Icons.group_outlined,
-                  label: hw.subject.isNotEmpty
-                      ? '${hw.groupName} · ${hw.subject}'
-                      : (hw.groupName.isNotEmpty ? hw.groupName : 'Guruh'),
-                ),
-                const Spacer(),
-                if (hw.deadline.isNotEmpty)
-                  _MetaChip(
-                    icon: Icons.schedule_outlined,
-                    label: _formatDate(hw.deadline),
-                    color:
-                        hw.isActive ? AppColors.brandMuted : AppColors.danger,
-                  ),
-              ],
-            ),
-            if (hw.responseCount > 0) ...[
-              const SizedBox(height: AppSpacing.s),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${hw.groupName} · ${hw.subject}',
+            style: AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Row(
                 children: [
-                  const Icon(Icons.assignment_turned_in_outlined,
-                      size: 14, color: AppColors.brand),
+                  const Icon(Icons.calendar_today_rounded, size: 12, color: Color(0xFF9CA3AF)),
                   const SizedBox(width: 4),
                   Text(
-                    '${hw.responseCount} ta javob',
-                    style:
-                        AppTextStyles.caption.copyWith(color: AppColors.brand),
+                    _formatDate(hw.deadline),
+                    style: AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
                   ),
                 ],
               ),
+              Text(
+                '${hw.responseCount}/--',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.brand,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ],
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -338,26 +307,27 @@ class _HomeworkCard extends StatelessWidget {
   }
 }
 
-class _MetaChip extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color? color;
+class _Badge extends StatelessWidget {
+  final bool isActive;
 
-  const _MetaChip({required this.icon, required this.label, this.color});
+  const _Badge({required this.isActive});
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AppColors.brandMuted;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 13, color: c),
-        const SizedBox(width: 3),
-        Text(
-          label,
-          style: AppTextStyles.caption.copyWith(color: c),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: isActive ? const Color(0xFFE8F2EF) : const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Text(
+        isActive ? 'Aktiv' : 'O\'tgan',
+        style: AppTextStyles.caption.copyWith(
+          color: isActive ? AppColors.brand : const Color(0xFF6B7280),
+          fontWeight: FontWeight.w600,
+          fontSize: 10,
         ),
-      ],
+      ),
     );
   }
 }

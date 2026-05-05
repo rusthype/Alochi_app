@@ -4,9 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
-import '../../../theme/radii.dart';
-import '../../../shared/widgets/alochi_card.dart';
-import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/models/teacher_dashboard.dart';
 import '../../../core/models/lesson_model.dart';
@@ -22,7 +19,7 @@ class TeacherDashboardScreen extends ConsumerWidget {
     final summaryAsync = ref.watch(dashboardSummaryProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
+      backgroundColor: AppColors.backgroundLight,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(dashboardSummaryProvider.future),
@@ -30,289 +27,95 @@ class TeacherDashboardScreen extends ConsumerWidget {
           child: summaryAsync.when(
             data: (summary) => SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.l),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _GreetingHeader(
-                    todayLessonsCount: summary.todayLessons.length,
-                  ),
-                  const SizedBox(height: AppSpacing.l),
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-                    child: _QuickStatsRow(
-                      groupsCount: summary.groupsCount,
-                      studentsCount: summary.studentsCount,
-                      activeHomeworkCount: summary.activeHomeworkCount,
-                    ),
-                  ),
-                  if (summary.todayLessons.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.xxl),
-                    _TodayLessonsHorizontalList(lessons: summary.todayLessons),
-                  ] else ...[
-                    const SizedBox(height: AppSpacing.xxl),
-                    const _EmptyLessonsPlaceholder(),
-                  ],
-                  if (summary.concerns.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.xxl),
-                    _ConcernsSection(concerns: summary.concerns),
-                  ],
+                  const _GreetingHeader(),
+                  const SizedBox(height: 6),
+                  _TodayLessonsSection(lessons: summary.todayLessons),
+                  const SizedBox(height: 14),
+                  _ConcernsSection(concerns: summary.concerns),
+                  const SizedBox(height: AppSpacing.xxl),
                 ],
               ),
             ),
             loading: () => const _DashboardLoadingSkeleton(),
-            error: (err, stack) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline,
-                        size: 48, color: AppColors.danger),
-                    const SizedBox(height: 16),
-                    const Text('Yuklab bo\'lmadi', style: AppTextStyles.titleM),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Internet aloqasini tekshiring va qayta urinib ko\'ring',
-                      style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () => ref.invalidate(dashboardSummaryProvider),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.brand,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.m)),
-                      ),
-                      child: const Text('Qayta urinish'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            error: (err, stack) => _ErrorState(onRetry: () => ref.invalidate(dashboardSummaryProvider)),
           ),
         ),
       ),
-    );
-  }
-}
-
-class _QuickStatsRow extends StatelessWidget {
-  final int groupsCount;
-  final int studentsCount;
-  final int activeHomeworkCount;
-
-  const _QuickStatsRow({
-    required this.groupsCount,
-    required this.studentsCount,
-    required this.activeHomeworkCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.group_outlined,
-            label: 'Guruhlar',
-            value: '$groupsCount',
-          ),
-        ),
-        const SizedBox(width: AppSpacing.m),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.person_outline,
-            label: 'O\'quvchilar',
-            value: '$studentsCount',
-          ),
-        ),
-        const SizedBox(width: AppSpacing.m),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.assignment_outlined,
-            label: 'Vazifalar',
-            value: '$activeHomeworkCount',
-            valueColor: activeHomeworkCount > 0 ? AppColors.accent : null,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color? valueColor;
-
-  const _StatCard({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AlochiCard(
-      padding: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.m,
-          vertical: AppSpacing.m,
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: AppColors.brand, size: 24),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              value,
-              style: AppTextStyles.titleL.copyWith(
-                color: valueColor ?? AppColors.ink,
-              ),
-            ),
-            Text(
-              label,
-              style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyLessonsPlaceholder extends StatelessWidget {
-  const _EmptyLessonsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-      child: Center(
-        child: Column(
-          children: [
-            const Icon(Icons.check_circle_outline,
-                color: AppColors.brand, size: 48),
-            const SizedBox(height: AppSpacing.m),
-            const Text(
-              'Bugun darslaringiz yo\'q',
-              style: AppTextStyles.titleM,
-            ),
-            const SizedBox(height: AppSpacing.s),
-            Text(
-              'Yaxshi dam oling!',
-              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DashboardLoadingSkeleton extends StatelessWidget {
-  const _DashboardLoadingSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      children: const [
-        AlochiSkeleton(width: 200, height: 28),
-        SizedBox(height: AppSpacing.s),
-        AlochiSkeleton(width: 280, height: 14),
-        SizedBox(height: AppSpacing.l),
-        Row(
-          children: [
-            Expanded(child: AlochiSkeletonCard(height: 100)),
-            SizedBox(width: AppSpacing.m),
-            Expanded(child: AlochiSkeletonCard(height: 100)),
-            SizedBox(width: AppSpacing.m),
-            Expanded(child: AlochiSkeletonCard(height: 100)),
-          ],
-        ),
-        SizedBox(height: AppSpacing.xl),
-        AlochiSkeleton(width: 160, height: 20),
-        SizedBox(height: AppSpacing.m),
-        AlochiSkeletonCard(height: 180),
-        SizedBox(height: AppSpacing.xl),
-        AlochiSkeleton(width: 160, height: 20),
-        SizedBox(height: AppSpacing.m),
-        AlochiSkeletonCard(height: 80),
-        AlochiSkeletonCard(height: 80),
-      ],
     );
   }
 }
 
 class _GreetingHeader extends ConsumerWidget {
-  final int todayLessonsCount;
-
-  const _GreetingHeader({
-    required this.todayLessonsCount,
-  });
+  const _GreetingHeader();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final unreadCount = ref.watch(unreadNotificationsCountProvider);
     final profileAsync = ref.watch(teacherProfileProvider);
-    final name = profileAsync.valueOrNull?.name ?? '';
-    final greeting = name.isNotEmpty ? 'Salom, $name Ustoz' : 'Salom, Ustoz';
+    final unreadCount = ref.watch(unreadNotificationsCountProvider);
+    final name = profileAsync.valueOrNull?.name.split(' ').first;
+    final displayName = name != null && name.isNotEmpty ? '$name Ustoz' : 'Ustoz';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                greeting,
-                style: AppTextStyles.displayM.copyWith(color: AppColors.ink),
+                'Assalomu alaykum,',
+                style: AppTextStyles.bodyS.copyWith(
+                  color: const Color(0xFF6B7280),
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 2),
               Text(
-                todayLessonsCount == 0
-                    ? "Bugun darslaringiz yo'q"
-                    : 'Bugun sizni $todayLessonsCount ta dars kutmoqda',
-                style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+                displayName,
+                style: AppTextStyles.displayM.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.5,
+                  color: AppColors.ink,
+                ),
               ),
             ],
           ),
           GestureDetector(
             onTap: () => context.push('/teacher/notifications'),
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF4F5F7),
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
-                  child: const Icon(Icons.notifications_none_rounded,
-                      color: AppColors.ink),
+                  child: const Icon(
+                    Icons.notifications_none_rounded,
+                    color: AppColors.ink,
+                    size: 20,
+                  ),
                 ),
                 if (unreadCount > 0)
                   Positioned(
-                    right: 2,
-                    top: 2,
+                    right: -2,
+                    top: -2,
                     child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: const BoxDecoration(
-                        color: AppColors.danger,
+                      width: 14,
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: AppColors.brand,
                         shape: BoxShape.circle,
-                        border: Border.fromBorderSide(
-                            BorderSide(color: Colors.white, width: 2)),
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
                     ),
                   ),
@@ -325,10 +128,10 @@ class _GreetingHeader extends ConsumerWidget {
   }
 }
 
-class _TodayLessonsHorizontalList extends StatelessWidget {
+class _TodayLessonsSection extends StatelessWidget {
   final List<DashboardLessonModel> lessons;
 
-  const _TodayLessonsHorizontalList({required this.lessons});
+  const _TodayLessonsSection({required this.lessons});
 
   @override
   Widget build(BuildContext context) {
@@ -336,211 +139,285 @@ class _TodayLessonsHorizontalList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text('Bugungi darslarim', style: AppTextStyles.titleL),
-              TextButton(
-                onPressed: () => context.go('/teacher/groups'),
-                child: Text('Hammasi',
-                    style:
-                        AppTextStyles.label.copyWith(color: AppColors.brand)),
+              Text(
+                'BUGUNGI DARSLARIM · ${lessons.length}',
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF9CA3AF),
+                  letterSpacing: 0.5,
+                ),
+              ),
+              GestureDetector(
+                onTap: () => context.go('/teacher/groups'),
+                child: Text(
+                  'Hammasi',
+                  style: AppTextStyles.label.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.brand,
+                  ),
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.m),
-        SizedBox(
-          height: 200,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-            scrollDirection: Axis.horizontal,
-            physics: const PageScrollPhysics(),
-            itemCount: lessons.length,
-            separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.m),
-            itemBuilder: (context, index) {
-              final lesson = lessons[index];
-              if (lesson.isActive) {
-                return _LessonCardActive(lesson: lesson);
-              }
-              return _LessonCard(lesson: lesson);
-            },
-          ),
-        ),
-        const SizedBox(height: AppSpacing.s),
-        Center(
-          child: TextButton(
-            onPressed: () => context.push('/teacher/timetable'),
-            child: Text(
-              'Haftalik jadval →',
-              style: AppTextStyles.body.copyWith(color: AppColors.brand),
+        if (lessons.isEmpty)
+          const _EmptyLessonsPlaceholder()
+        else
+          SizedBox(
+            height: 195,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(left: 16, right: 6),
+              itemCount: lessons.length,
+              itemBuilder: (context, index) {
+                final lesson = lessons[index];
+                if (lesson.isActive) {
+                  return _ActiveLessonCard(lesson: lesson);
+                }
+                return _InactiveLessonCard(lesson: lesson);
+              },
             ),
           ),
-        ),
       ],
     );
   }
 }
 
-class _LessonCardActive extends StatelessWidget {
+class _ActiveLessonCard extends StatelessWidget {
   final DashboardLessonModel lesson;
 
-  const _LessonCardActive({required this.lesson});
+  const _ActiveLessonCard({required this.lesson});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Convert to LessonModel for extra
-        final lessonModel = LessonModel(
-          id: lesson.id,
-          groupId: lesson.groupId,
-          groupName: lesson.className,
-          subject: lesson.subject,
-          startTime: lesson.time.split('-').first.trim(),
-          endTime: lesson.time.contains('-') 
-              ? lesson.time.split('-').last.trim() 
-              : '',
-          room: '',
-          isNow: lesson.isActive,
-          studentsCount: lesson.studentCount,
-        );
-        context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
-      },
-      child: Container(
-        width: 230,
-        padding: const EdgeInsets.all(AppSpacing.l),
-        decoration: BoxDecoration(
-          color: const Color(0xFF18181B),
-          borderRadius: BorderRadius.circular(AppRadii.l),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(lesson.time,
-                    style: AppTextStyles.label.copyWith(color: Colors.white)),
-                const AlochiPill(
-                    label: 'HOZIR', variant: AlochiPillVariant.brand),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              lesson.className,
-              style:
-                  AppTextStyles.bodyS.copyWith(color: const Color(0xFFA1A1AA)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              lesson.subject,
-              style: AppTextStyles.titleM.copyWith(color: Colors.white),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: AppSpacing.m),
-            Row(
-              children: [
-                const Icon(Icons.people_outline,
-                    size: 16, color: Color(0xFFA1A1AA)),
-                const SizedBox(width: 4),
-                Text(
-                  '${lesson.studentCount} o\'quvchi',
-                  style: AppTextStyles.label
-                      .copyWith(color: const Color(0xFFA1A1AA)),
+    return Container(
+      width: 230,
+      margin: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 13),
+      decoration: BoxDecoration(
+        color: AppColors.heroDark,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.brand,
+                  borderRadius: BorderRadius.circular(6),
                 ),
-              ],
+                child: const Text(
+                  'HOZIR',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                lesson.time,
+                style: AppTextStyles.caption.copyWith(
+                  color: const Color(0xFF9CA3AF),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0x521F6F65),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  lesson.className,
+                  style: const TextStyle(
+                    color: Color(0xFFA8D5CD),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  lesson.subject,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${lesson.studentCount} o\'quvchi${lesson.topic.isNotEmpty ? ' · ${lesson.topic}' : ''}',
+            style: AppTextStyles.caption.copyWith(
+              color: const Color(0xFF9CA3AF),
+              fontSize: 12,
+              height: 1.5,
             ),
-            const SizedBox(height: AppSpacing.m),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 8),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+
+          GestureDetector(
+            onTap: () {
+              final lessonModel = LessonModel(
+                id: lesson.id,
+                groupId: lesson.groupId,
+                groupName: lesson.className,
+                subject: lesson.subject,
+                startTime: lesson.time.split('-').first.trim(),
+                endTime: lesson.time.contains('-') 
+                    ? lesson.time.split('-').last.trim() 
+                    : '',
+                room: '',
+                isNow: lesson.isActive,
+                studentsCount: lesson.studentCount,
+              );
+              context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppColors.brand,
-                borderRadius: BorderRadius.circular(AppRadii.s),
+                borderRadius: BorderRadius.circular(11),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.brand.withValues(alpha: 0.5),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                    spreadRadius: -4,
+                  ),
+                ],
               ),
-              child: Center(
-                child: Text(
-                  'Darsni ochish',
-                  style: AppTextStyles.label.copyWith(
-                      color: Colors.white, fontWeight: FontWeight.w700),
+              alignment: Alignment.center,
+              child: const Text(
+                'Darsni ochish ›',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _LessonCard extends StatelessWidget {
+class _InactiveLessonCard extends StatelessWidget {
   final DashboardLessonModel lesson;
 
-  const _LessonCard({required this.lesson});
+  const _InactiveLessonCard({required this.lesson});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Convert to LessonModel for extra
-        final lessonModel = LessonModel(
-          id: lesson.id,
-          groupId: lesson.groupId,
-          groupName: lesson.className,
-          subject: lesson.subject,
-          startTime: lesson.time.split('-').first.trim(),
-          endTime: lesson.time.contains('-') 
-              ? lesson.time.split('-').last.trim() 
-              : '',
-          room: '',
-          isNow: lesson.isActive,
-          studentsCount: lesson.studentCount,
-        );
-        context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
-      },
-      child: AlochiCard(
-        padding: const EdgeInsets.all(AppSpacing.l),
-        borderRadius: AppRadii.l,
-        child: SizedBox(
-          width: 198, // 230 - 32 (padding)
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      width: 210,
+      margin: const EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            lesson.time,
+            style: AppTextStyles.caption.copyWith(
+              color: const Color(0xFF9CA3AF),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
             children: [
-              Text(lesson.time,
-                  style: AppTextStyles.label
-                      .copyWith(color: const Color(0xFF6B7280))),
-              const Spacer(),
-              Text(
-                lesson.className,
-                style: AppTextStyles.bodyS
-                    .copyWith(color: const Color(0xFF6B7280)),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                lesson.subject,
-                style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: AppSpacing.m),
-              Row(
-                children: [
-                  const Icon(Icons.people_outline,
-                      size: 16, color: Color(0xFF9CA3AF)),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${lesson.studentCount} o\'quvchi',
-                    style: AppTextStyles.label
-                        .copyWith(color: const Color(0xFF9CA3AF)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE8F2EF),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  lesson.className,
+                  style: const TextStyle(
+                    color: AppColors.brand,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  lesson.subject,
+                  style: const TextStyle(
+                    color: AppColors.ink,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 6),
+          Text(
+            '${lesson.studentCount} o\'quvchi${lesson.timeStatus.isNotEmpty ? ' · ${lesson.timeStatus}' : ''}',
+            style: AppTextStyles.caption.copyWith(
+              color: const Color(0xFF6B7280),
+              fontSize: 12,
+              height: 1.5,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const Spacer(),
+
+          Container(
+            padding: const EdgeInsets.all(9),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF4F5F7),
+              borderRadius: BorderRadius.circular(11),
+            ),
+            alignment: Alignment.center,
+            child: const Text(
+              'Tayyorlanish',
+              style: TextStyle(
+                color: Color(0xFF6B7280),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -553,96 +430,249 @@ class _ConcernsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                'DIQQAT TALAB',
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF9CA3AF),
+                  letterSpacing: 0.5,
+                ),
+              ),
+              GestureDetector(
+                onTap: () {}, // All concerns
+                child: Text(
+                  'Hammasi',
+                  style: AppTextStyles.label.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.brand,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: concerns.map((concern) => _ConcernItem(concern: concern)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ConcernItem extends StatelessWidget {
+  final ConcernModel concern;
+
+  const _ConcernItem({required this.concern});
+
+  @override
+  Widget build(BuildContext context) {
+    Color iconBg;
+    Color iconColor;
+    String iconText;
+    String subtitle;
+
+    switch (concern.type) {
+      case 'homework':
+        iconBg = const Color(0xFFFCEBEB);
+        iconColor = AppColors.danger;
+        iconText = '!';
+        subtitle = 'Vazifa muddati o\'tdi · ${concern.count} ta qoldi';
+        break;
+      case 'messages':
+        iconBg = const Color(0xFFE8F2EF);
+        iconColor = AppColors.brand;
+        iconText = concern.count;
+        subtitle = 'Yangi xabarlar kelgan';
+        break;
+      case 'telegram':
+        iconBg = const Color(0xFFFAEEDA);
+        iconColor = AppColors.warning;
+        iconText = '!';
+        subtitle = 'Telegram ulanmagan ota-onalar';
+        break;
+      default:
+        iconBg = const Color(0xFFF4F5F7);
+        iconColor = const Color(0xFF6B7280);
+        iconText = '?';
+        subtitle = concern.title;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(11).copyWith(right: 13),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
+      child: Row(
         children: [
-          const Text('E\'tibor talab', style: AppTextStyles.titleL),
-          const SizedBox(height: AppSpacing.m),
-          ...concerns.map((concern) => _ConcernRow(concern: concern)),
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              iconText,
+              style: TextStyle(
+                color: iconColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  concern.title,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.ink,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Color(0xFF9CA3AF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Text(
+            '›',
+            style: TextStyle(
+              color: Color(0xFF9CA3AF),
+              fontSize: 18,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _ConcernRow extends StatelessWidget {
-  final ConcernModel concern;
-
-  const _ConcernRow({required this.concern});
+class _EmptyLessonsPlaceholder extends StatelessWidget {
+  const _EmptyLessonsPlaceholder();
 
   @override
   Widget build(BuildContext context) {
-    IconData icon;
-    Color iconBgColor;
-    Color iconColor;
-
-    switch (concern.type) {
-      case 'homework':
-        icon = Icons.assignment_outlined;
-        iconBgColor = const Color(0xFFFEF3C7);
-        iconColor = const Color(0xFFD97706);
-        break;
-      case 'messages':
-        icon = Icons.chat_bubble_outline;
-        iconBgColor = const Color(0xFFE0F2FE);
-        iconColor = const Color(0xFF0EA5E9);
-        break;
-      case 'telegram':
-        icon = Icons.send_rounded;
-        iconBgColor = const Color(0xFFE8F2EF);
-        iconColor = AppColors.brand;
-        break;
-      default:
-        icon = Icons.info_outline;
-        iconBgColor = const Color(0xFFF3F4F6);
-        iconColor = const Color(0xFF6B7280);
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
-      child: GestureDetector(
-        onTap: () => context.push(concern.route),
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.m),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadii.m),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFEFEFEF)),
+      ),
+      child: Center(
+        child: Column(
+          children: [
+            const Icon(Icons.calendar_today_outlined, color: Color(0xFFD1D5DB), size: 32),
+            const SizedBox(height: 12),
+            Text(
+              'Bugun darsingiz yo\'q',
+              style: AppTextStyles.body.copyWith(
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF6B7280),
               ),
-              const SizedBox(width: AppSpacing.m),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(concern.title,
-                        style: AppTextStyles.body
-                            .copyWith(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${concern.count} ta yangi',
-                      style: AppTextStyles.bodyS
-                          .copyWith(color: const Color(0xFF6B7280)),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right, color: Color(0xFFD1D5DB)),
-            ],
-          ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Eski guruhlarni ko\'rish',
+              style: AppTextStyles.label.copyWith(color: AppColors.brand),
+            ),
+          ],
         ),
       ),
     );
   }
 }
+
+class _ErrorState extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _ErrorState({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFFD1D5DB)),
+          const SizedBox(height: 16),
+          const Text('Yuklab bo\'lmadi', style: AppTextStyles.titleM),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: onRetry,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.brand,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Qayta urinish'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardLoadingSkeleton extends StatelessWidget {
+  const _DashboardLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      children: [
+        const AlochiSkeleton(width: 120, height: 16),
+        const SizedBox(height: 8),
+        const AlochiSkeleton(width: 180, height: 28),
+        const SizedBox(height: 32),
+        const AlochiSkeleton(width: 140, height: 14),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 190,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: 2,
+            itemBuilder: (_, __) => const Padding(
+              padding: EdgeInsets.only(right: 12),
+              child: AlochiSkeleton(width: 220, height: 190),
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
+        const AlochiSkeleton(width: 120, height: 14),
+        const SizedBox(height: 12),
+        const AlochiSkeleton(height: 60),
+        const SizedBox(height: 8),
+        const AlochiSkeleton(height: 60),
+      ],
+    );
+  }
+}
+
+
