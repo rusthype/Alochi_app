@@ -7,6 +7,7 @@ import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/api/teacher_api.dart';
 import 'grades_provider.dart';
 
@@ -52,9 +53,7 @@ class GradesScreen extends ConsumerWidget {
           subject: subject,
           today: today,
         ),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.brand),
-        ),
+        loading: () => const _GradesLoadingSkeleton(),
         error: (err, _) => AlochiEmptyState(
           title: 'Yuklab bo\'lmadi',
           subtitle: err.toString(),
@@ -66,6 +65,26 @@ class GradesScreen extends ConsumerWidget {
   String _todayString() {
     final now = DateTime.now();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class _GradesLoadingSkeleton extends StatelessWidget {
+  const _GradesLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        AlochiSkeleton(height: 40, width: double.infinity),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeletonCard(height: 70),
+        AlochiSkeletonCard(height: 70),
+        AlochiSkeletonCard(height: 70),
+        AlochiSkeletonCard(height: 70),
+        AlochiSkeletonCard(height: 70),
+      ],
+    );
   }
 }
 
