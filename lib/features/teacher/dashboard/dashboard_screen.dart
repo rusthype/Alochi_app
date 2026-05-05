@@ -7,6 +7,7 @@ import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_pill.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/models/teacher_dashboard.dart';
 import '../notifications/notifications_provider.dart';
 import 'dashboard_provider.dart';
@@ -35,15 +36,28 @@ class TeacherDashboardScreen extends ConsumerWidget {
                     greeting: summary.greeting,
                     todayLessonsCount: summary.todayLessons.length,
                   ),
-                  const SizedBox(height: AppSpacing.xxl),
-                  _TodayLessonsHorizontalList(lessons: summary.todayLessons),
-                  const SizedBox(height: AppSpacing.xxl),
-                  _ConcernsSection(concerns: summary.concerns),
+                  if (summary.todayLessons.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xxl),
+                    _TodayLessonsHorizontalList(lessons: summary.todayLessons),
+                  ],
+                  if (summary.concerns.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xxl),
+                    _ConcernsSection(concerns: summary.concerns),
+                  ],
+                  if (summary.todayLessons.isEmpty && summary.concerns.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(AppSpacing.xl),
+                      child: Center(
+                        child: Text(
+                          'Hozircha hech qanday ma\'lumot yo\'q',
+                          style: TextStyle(color: Color(0xFF6B7280)),
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
-            loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.brand)),
+            loading: () => const _DashboardLoadingSkeleton(),
             error: (err, stack) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -65,6 +79,28 @@ class TeacherDashboardScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DashboardLoadingSkeleton extends StatelessWidget {
+  const _DashboardLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        AlochiSkeleton(width: 200, height: 28),
+        SizedBox(height: AppSpacing.s),
+        AlochiSkeleton(width: 280, height: 14),
+        SizedBox(height: AppSpacing.xl),
+        AlochiSkeleton(width: 160, height: 20),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 100),
+        AlochiSkeletonCard(height: 100),
+        AlochiSkeletonCard(height: 100),
+      ],
     );
   }
 }
@@ -97,10 +133,9 @@ class _GreetingHeader extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 todayLessonsCount == 0
-                    ? "Bugun darsingiz yo'q"
+                    ? "Bugun darslaringiz yo'q"
                     : 'Bugun sizni $todayLessonsCount ta dars kutmoqda',
-                style: AppTextStyles.body
-                    .copyWith(color: AppColors.brandMuted),
+                style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
               ),
             ],
           ),
