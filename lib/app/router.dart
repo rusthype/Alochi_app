@@ -45,6 +45,7 @@ import '../features/teacher/telegram/unlinked_parents_screen.dart';
 import '../features/teacher/profile/profile_screen.dart' as teacher_profile;
 import '../features/teacher/profile/profile_edit_screen.dart';
 import '../features/teacher/profile/password_change_screen.dart';
+import '../features/teacher/profile/about_screen.dart';
 import '../features/teacher/onboarding/welcome_intro_screen.dart';
 import '../features/teacher/onboarding/welcome_features_screen.dart';
 import '../features/teacher/onboarding/welcome_ready_screen.dart';
@@ -238,6 +239,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/profile/password',
             builder: (context, state) => const PasswordChangeScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/about',
+            builder: (context, state) => const AboutScreen(),
           ),
           GoRoute(
             path: '/teacher/onboarding/intro',
