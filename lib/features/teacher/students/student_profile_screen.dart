@@ -291,9 +291,20 @@ class _ParentRow extends StatelessWidget {
               ),
             ),
           const SizedBox(width: AppSpacing.s),
-          // Message/Telegram button
+          // Message/Telegram button — opens specific conversation
           GestureDetector(
-            onTap: () => context.push('/teacher/messages'),
+            onTap: () {
+              if (parent.id.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Ota-ona kontakt ma'lumotlari yo'q"),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                return;
+              }
+              context.push('/teacher/messages/${parent.id}');
+            },
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
@@ -572,7 +583,7 @@ class _HomeworkSummaryCard extends StatelessWidget {
             label: "Xabar yuborish",
             icon: Icons.chat_outlined,
             onPressed: () => context.push('/teacher/messages'),
-          ),
+          ), // Note: navigates to list — no direct conversation id here
         ],
       ),
     );
