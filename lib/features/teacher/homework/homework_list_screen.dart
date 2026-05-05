@@ -46,13 +46,13 @@ class HomeworkListScreen extends ConsumerWidget {
   }
 }
 
-class _HomeworkListBody extends StatelessWidget {
+class _HomeworkListBody extends ConsumerWidget {
   final HomeworkListData data;
 
   const _HomeworkListBody({required this.data});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (data.assignments.isEmpty) {
       return const AlochiEmptyState(
         title: 'Vazifa yaratmagansiz',
@@ -61,7 +61,7 @@ class _HomeworkListBody extends StatelessWidget {
     }
 
     return RefreshIndicator(
-      onRefresh: () async {},
+      onRefresh: () => ref.refresh(homeworkListProvider.future),
       color: AppColors.brand,
       child: ListView(
         padding: const EdgeInsets.all(AppSpacing.l),

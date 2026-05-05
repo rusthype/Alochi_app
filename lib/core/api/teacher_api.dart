@@ -11,12 +11,14 @@ import '../models/homework_model.dart';
 import '../models/ai_message_model.dart';
 import '../models/teacher_profile_model.dart';
 import '../models/telegram_model.dart';
+import '../models/notification.dart';
 
 export '../models/grades_model.dart';
 export '../models/homework_model.dart';
 export '../models/ai_message_model.dart';
 export '../models/teacher_profile_model.dart';
 export '../models/telegram_model.dart';
+export '../models/notification.dart';
 
 class TeacherApi {
   final _client = ApiClient.instance;
@@ -507,6 +509,49 @@ class TeacherApi {
       });
     } catch (e, st) {
       debugPrint('changePassword error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  // ───── Notifications ─────────────────────────────────────────────────────
+
+  /// GET /teacher/notifications/ → {results: [], unread: 0}
+  Future<List<AppNotification>> getNotifications() async {
+    try {
+      final data = await _client.get('/teacher/notifications/');
+      List<dynamic> list;
+      if (data is Map<String, dynamic>) {
+        list = data['results'] as List? ?? [];
+      } else if (data is List) {
+        list = data;
+      } else {
+        list = [];
+      }
+      return list
+          .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e, st) {
+      debugPrint('getNotifications error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/notifications/:id/mark-read/
+  Future<void> markNotificationAsRead(String id) async {
+    try {
+      await _client.post('/teacher/notifications/$id/mark-read/', data: {});
+    } catch (e, st) {
+      debugPrint('markNotificationAsRead error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/notifications/mark-all-read/
+  Future<void> markAllNotificationsAsRead() async {
+    try {
+      await _client.post('/teacher/notifications/mark-all-read/', data: {});
+    } catch (e, st) {
+      debugPrint('markAllNotificationsAsRead error: $e\n$st');
       rethrow;
     }
   }

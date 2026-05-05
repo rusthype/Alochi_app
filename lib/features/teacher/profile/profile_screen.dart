@@ -35,11 +35,14 @@ class ProfileScreen extends ConsumerWidget {
           child: Divider(height: 1, color: Color(0xFFE5E7EB)),
         ),
       ),
-      body: profileAsync.when(
-        data: (profile) => _ProfileContent(
-          profile: profile,
-          schoolName: authState.user?.school,
-        ),
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(teacherProfileProvider.future),
+        color: AppColors.brand,
+        child: profileAsync.when(
+          data: (profile) => _ProfileContent(
+            profile: profile,
+            schoolName: authState.user?.school,
+          ),
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppColors.brand),
         ),
@@ -93,8 +96,9 @@ class ProfileScreen extends ConsumerWidget {
           );
         },
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 // ─── Profile content ──────────────────────────────────────────────────────────

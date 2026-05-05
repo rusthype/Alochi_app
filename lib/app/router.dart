@@ -46,6 +46,7 @@ import '../features/teacher/profile/profile_screen.dart' as teacher_profile;
 import '../features/teacher/profile/profile_edit_screen.dart';
 import '../features/teacher/profile/password_change_screen.dart';
 import '../features/teacher/onboarding/welcome_intro_screen.dart';
+import '../features/teacher/notifications/notifications_screen.dart';
 import '../core/models/test_model.dart';
 import '../core/utils/date_utils.dart';
 
@@ -215,6 +216,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               final id = state.pathParameters['id'] ?? '';
               return ChatThreadScreen(conversationId: id);
             },
+          ),
+          GoRoute(
+            path: '/teacher/notifications',
+            builder: (context, state) => const NotificationsScreen(),
           ),
           GoRoute(
             path: '/teacher/profile',

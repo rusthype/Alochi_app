@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/teacher_api.dart';
 import '../dashboard/dashboard_provider.dart';
 
-final homeworkListProvider = FutureProvider.autoDispose<HomeworkListData>((ref) async {
+final homeworkListProvider = FutureProvider<HomeworkListData>((ref) async {
   final api = ref.read(teacherApiProvider);
   return api.getHomework();
 });

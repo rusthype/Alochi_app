@@ -6,7 +6,7 @@ import '../dashboard/dashboard_provider.dart';
 // ─── Conversations list ───────────────────────────────────────────────────────
 
 final conversationsProvider =
-    FutureProvider.autoDispose<List<ConversationModel>>((ref) async {
+    FutureProvider<List<ConversationModel>>((ref) async {
   final api = ref.read(teacherApiProvider);
   return api.getConversations();
 });

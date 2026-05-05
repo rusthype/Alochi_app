@@ -8,6 +8,7 @@ import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../core/models/teacher_dashboard.dart';
+import '../notifications/notifications_provider.dart';
 import 'dashboard_provider.dart';
 
 class TeacherDashboardScreen extends ConsumerWidget {
@@ -68,7 +69,7 @@ class TeacherDashboardScreen extends ConsumerWidget {
   }
 }
 
-class _GreetingHeader extends StatelessWidget {
+class _GreetingHeader extends ConsumerWidget {
   final String greeting;
   final int todayLessonsCount;
 
@@ -78,7 +79,9 @@ class _GreetingHeader extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final unreadCount = ref.watch(unreadNotificationsCountProvider);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
       child: Row(
@@ -101,33 +104,37 @@ class _GreetingHeader extends StatelessWidget {
               ),
             ],
           ),
-          Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: const Icon(Icons.notifications_none_rounded,
-                    color: AppColors.ink),
-              ),
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: const BoxDecoration(
-                    color: AppColors.danger,
+          GestureDetector(
+            onTap: () => context.push('/teacher/notifications'),
+            child: Stack(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                     shape: BoxShape.circle,
-                    border: Border.fromBorderSide(
-                        BorderSide(color: Colors.white, width: 2)),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
+                  child: const Icon(Icons.notifications_none_rounded,
+                      color: AppColors.ink),
                 ),
-              ),
-            ],
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 2,
+                    top: 2,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        color: AppColors.danger,
+                        shape: BoxShape.circle,
+                        border: Border.fromBorderSide(
+                            BorderSide(color: Colors.white, width: 2)),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
