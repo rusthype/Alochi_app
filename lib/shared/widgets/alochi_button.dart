@@ -107,7 +107,7 @@ class AlochiButton extends StatelessWidget {
     }
 
     if (isDisabled && variant != AlochiButtonVariant.ghost && variant != AlochiButtonVariant.secondary) {
-      backgroundColor = backgroundColor.withOpacity(0.5);
+      backgroundColor = backgroundColor.withValues(alpha: 0.5);
     }
 
     return SizedBox(
@@ -125,7 +125,7 @@ class AlochiButton extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           disabledBackgroundColor: backgroundColor,
-          disabledForegroundColor: foregroundColor.withOpacity(0.6),
+          disabledForegroundColor: foregroundColor.withValues(alpha: 0.6),
         ),
         child: isLoading
             ? SizedBox(

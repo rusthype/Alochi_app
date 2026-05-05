@@ -18,7 +18,7 @@ class AlochiBottomNav extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
-          top: BorderSide(color: Colors.black.withOpacity(0.05)),
+          top: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
         ),
       ),
       child: BottomNavigationBar(

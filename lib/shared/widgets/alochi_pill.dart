@@ -33,19 +33,19 @@ class AlochiPill extends StatelessWidget {
         foregroundColor = AppColors.brand;
         break;
       case AlochiPillVariant.info:
-        backgroundColor = AppColors.info.withOpacity(0.1);
+        backgroundColor = AppColors.info.withValues(alpha: 0.1);
         foregroundColor = AppColors.info;
         break;
       case AlochiPillVariant.success:
-        backgroundColor = AppColors.success.withOpacity(0.1);
+        backgroundColor = AppColors.success.withValues(alpha: 0.1);
         foregroundColor = AppColors.success;
         break;
       case AlochiPillVariant.warning:
-        backgroundColor = AppColors.warning.withOpacity(0.1);
+        backgroundColor = AppColors.warning.withValues(alpha: 0.1);
         foregroundColor = AppColors.warning;
         break;
       case AlochiPillVariant.danger:
-        backgroundColor = AppColors.danger.withOpacity(0.1);
+        backgroundColor = AppColors.danger.withValues(alpha: 0.1);
         foregroundColor = AppColors.danger;
         break;
       case AlochiPillVariant.neutral:
