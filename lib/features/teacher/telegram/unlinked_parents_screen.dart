@@ -278,7 +278,7 @@ class _ParentRow extends StatelessWidget {
             child: ElevatedButton(
               onPressed: isSending ? null : onSend,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0088CC),
+                backgroundColor: AppColors.brand,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
