@@ -6,9 +6,15 @@ import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
+import '../../../shared/widgets/alochi_attendance_toggle.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/models/lesson_detail_model.dart';
+import '../../../core/models/student_model.dart';
+import '../../../core/models/attendance_model.dart';
+import '../attendance/attendance_provider.dart';
+import '../grades/grades_provider.dart';
 import 'lesson_provider.dart';
 
 class LessonWorkflowScreen extends ConsumerWidget {
@@ -327,19 +333,17 @@ class _StepCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.l),
             _Step1Content(lesson: lesson, lessonId: lessonId, notifier: notifier),
           ],
-          if (isActive && step != WorkflowStep.attendance) ...[
+          if (isActive && step == WorkflowStep.homework) ...[
             const SizedBox(height: AppSpacing.l),
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.m),
-              decoration: BoxDecoration(
-                color: AppColors.brandSoft,
-                borderRadius: BorderRadius.circular(AppRadii.s),
-              ),
-              child: Text(
-                'Bu qadam Day 3 da to\'ldiriladi',
-                style: AppTextStyles.bodyS.copyWith(color: AppColors.brandInk),
-              ),
-            ),
+            _Step2Content(lesson: lesson, lessonId: lessonId, notifier: notifier),
+          ],
+          if (isActive && step == WorkflowStep.grading) ...[
+            const SizedBox(height: AppSpacing.l),
+            _Step3Content(lesson: lesson, lessonId: lessonId, notifier: notifier),
+          ],
+          if (isActive && step == WorkflowStep.finish) ...[
+            const SizedBox(height: AppSpacing.l),
+            _Step4PlaceholderContent(notifier: notifier),
           ],
         ],
       ),
@@ -431,6 +435,444 @@ class _InfoChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── Step 2 — Davomat (attendance inline) ────────────────────────────────────
+
+class _Step2Content extends ConsumerWidget {
+  final LessonDetailModel lesson;
+  final String lessonId;
+  final LessonWorkflowNotifier notifier;
+
+  const _Step2Content({
+    required this.lesson,
+    required this.lessonId,
+    required this.notifier,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final today = _todayString();
+    final key = (classId: lesson.groupId, date: today);
+    final stateAsync = ref.watch(attendanceMarkingProvider(key));
+    final attNotifier = ref.read(attendanceMarkingProvider(key).notifier);
+
+    ref.listen<AsyncValue<AttendanceMarkingState>>(
+      attendanceMarkingProvider(key),
+      (_, next) {
+        final data = next.valueOrNull;
+        if (data != null && data.savedSuccessfully) {
+          notifier.completeStep(WorkflowStep.homework);
+        }
+      },
+    );
+
+    return stateAsync.when(
+      data: (state) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _AttendanceSummaryChips(state: state),
+          const SizedBox(height: AppSpacing.m),
+          if (state.students.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.m),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(AppRadii.s),
+              ),
+              child: Text(
+                "O'quvchilar topilmadi",
+                style: AppTextStyles.bodyS
+                    .copyWith(color: AppColors.brandMuted),
+              ),
+            )
+          else
+            Column(
+              children: state.students
+                  .map((s) => _InlineAttendanceRow(
+                        student: s,
+                        status: state.statuses[s.id] ??
+                            AttendanceStatus.unmarked,
+                        onChanged: (st) =>
+                            attNotifier.setStatus(s.id, st),
+                      ))
+                  .toList(),
+            ),
+          const SizedBox(height: AppSpacing.m),
+          Row(
+            children: [
+              Expanded(
+                child: AlochiButton.secondary(
+                  label: 'Orqaga',
+                  onPressed: () =>
+                      notifier.backStep(WorkflowStep.homework),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(
+                child: AlochiButton.primary(
+                  label: 'Saqlash',
+                  isLoading: state.isSaving,
+                  onPressed: state.canSave
+                      ? () => attNotifier.save()
+                      : state.students.isNotEmpty
+                          ? () => notifier
+                              .completeStep(WorkflowStep.homework)
+                          : null,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: AppColors.brand),
+      ),
+      error: (err, _) => Column(
+        children: [
+          Text(err.toString(),
+              style: AppTextStyles.bodyS
+                  .copyWith(color: AppColors.brandMuted)),
+          const SizedBox(height: AppSpacing.m),
+          AlochiButton.primary(
+            label: 'O\'tkazib yuborish',
+            onPressed: () =>
+                notifier.completeStep(WorkflowStep.homework),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _todayString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class _AttendanceSummaryChips extends StatelessWidget {
+  final AttendanceMarkingState state;
+
+  const _AttendanceSummaryChips({required this.state});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _AttChip(
+          count: state.presentCount,
+          label: 'Keldi',
+          color: const Color(0xFF0F9A6E),
+        ),
+        const SizedBox(width: AppSpacing.s),
+        _AttChip(
+          count: state.lateCount,
+          label: 'Kech',
+          color: const Color(0xFFD97706),
+        ),
+        const SizedBox(width: AppSpacing.s),
+        _AttChip(
+          count: state.absentCount,
+          label: "Yo'q",
+          color: AppColors.danger,
+        ),
+        const SizedBox(width: AppSpacing.s),
+        _AttChip(
+          count: state.unmarkedCount,
+          label: '?',
+          color: AppColors.brandMuted,
+        ),
+      ],
+    );
+  }
+}
+
+class _AttChip extends StatelessWidget {
+  final int count;
+  final String label;
+  final Color color;
+
+  const _AttChip(
+      {required this.count, required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AppRadii.round),
+      ),
+      child: Text(
+        '$count $label',
+        style: AppTextStyles.caption
+            .copyWith(color: color, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+}
+
+class _InlineAttendanceRow extends StatelessWidget {
+  final StudentModel student;
+  final AttendanceStatus status;
+  final ValueChanged<AttendanceStatus> onChanged;
+
+  const _InlineAttendanceRow({
+    required this.student,
+    required this.status,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s),
+      child: Row(
+        children: [
+          AlochiAvatar(name: student.fullName, size: 32),
+          const SizedBox(width: AppSpacing.m),
+          Expanded(
+            child: Text(
+              student.fullName,
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          AlochiAttendanceToggle(value: status, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Step 3 — Baholash (grades inline) ───────────────────────────────────────
+
+class _Step3Content extends ConsumerWidget {
+  final LessonDetailModel lesson;
+  final String lessonId;
+  final LessonWorkflowNotifier notifier;
+
+  const _Step3Content({
+    required this.lesson,
+    required this.lessonId,
+    required this.notifier,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final today = _todayString();
+    final key = (
+      groupId: lesson.groupId,
+      subject: lesson.subjectName,
+      date: today,
+    );
+    final editState = ref.watch(gradeEditProvider(key));
+    final gradeNotifier = ref.read(gradeEditProvider(key).notifier);
+
+    // Also watch attendance to get student list
+    final attKey = (classId: lesson.groupId, date: today);
+    final attAsync = ref.watch(attendanceMarkingProvider(attKey));
+
+    ref.listen<GradeEditState>(gradeEditProvider(key), (prev, next) {
+      if (next.savedSuccessfully && !(prev?.savedSuccessfully ?? false)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Baholar saqlandi'),
+            backgroundColor: Color(0xFF0F9A6E),
+          ),
+        );
+        notifier.completeStep(WorkflowStep.grading);
+      }
+    });
+
+    final students = attAsync.valueOrNull?.students ?? [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (students.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.m),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(AppRadii.s),
+            ),
+            child: Text(
+              "O'quvchilar ro'yxatini olish uchun avval Step 2 ni bajaring",
+              style:
+                  AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+            ),
+          )
+        else
+          Column(
+            children: students
+                .map((s) => _InlineGradeRow(
+                      student: s,
+                      grade: editState.pending[s.id] ?? 0,
+                      onGradeChanged: (g) =>
+                          gradeNotifier.setGrade(s.id, g),
+                    ))
+                .toList(),
+          ),
+        const SizedBox(height: AppSpacing.m),
+        Row(
+          children: [
+            Expanded(
+              child: AlochiButton.secondary(
+                label: 'Orqaga',
+                onPressed: () => notifier.backStep(WorkflowStep.grading),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.m),
+            Expanded(
+              child: AlochiButton.primary(
+                label: editState.hasChanges ? 'Saqlash' : "O'tkazish",
+                isLoading: editState.isSaving,
+                onPressed: editState.isSaving
+                    ? null
+                    : () {
+                        if (editState.hasChanges) {
+                          gradeNotifier.saveAll();
+                        } else {
+                          notifier.completeStep(WorkflowStep.grading);
+                        }
+                      },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _todayString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+}
+
+class _InlineGradeRow extends StatelessWidget {
+  final StudentModel student;
+  final int grade;
+  final ValueChanged<int> onGradeChanged;
+
+  const _InlineGradeRow({
+    required this.student,
+    required this.grade,
+    required this.onGradeChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s),
+      child: Row(
+        children: [
+          AlochiAvatar(name: student.fullName, size: 32),
+          const SizedBox(width: AppSpacing.m),
+          Expanded(
+            child: Text(
+              student.fullName,
+              style: AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          _MiniGradeSegmented(value: grade, onChanged: onGradeChanged),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniGradeSegmented extends StatelessWidget {
+  final int value;
+  final ValueChanged<int> onChanged;
+
+  const _MiniGradeSegmented({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    const grades = [2, 3, 4, 5];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: grades.map((g) {
+        final isSelected = value == g;
+        return GestureDetector(
+          onTap: () => onChanged(isSelected ? 0 : g),
+          child: Container(
+            width: 28,
+            height: 28,
+            margin: const EdgeInsets.only(left: 3),
+            decoration: BoxDecoration(
+              color: isSelected ? _gradeColor(g) : const Color(0xFFF3F4F6),
+              borderRadius: BorderRadius.circular(AppRadii.xs),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '$g',
+              style: AppTextStyles.caption.copyWith(
+                color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Color _gradeColor(int grade) {
+    switch (grade) {
+      case 5:
+        return const Color(0xFF0F9A6E);
+      case 4:
+        return AppColors.brand;
+      case 3:
+        return const Color(0xFFD97706);
+      case 2:
+        return AppColors.danger;
+      default:
+        return AppColors.brandMuted;
+    }
+  }
+}
+
+// ─── Step 4 — Yakun placeholder ──────────────────────────────────────────────
+
+class _Step4PlaceholderContent extends StatelessWidget {
+  final LessonWorkflowNotifier notifier;
+
+  const _Step4PlaceholderContent({required this.notifier});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppSpacing.m),
+          decoration: BoxDecoration(
+            color: AppColors.brandSoft,
+            borderRadius: BorderRadius.circular(AppRadii.s),
+          ),
+          child: Text(
+            'Dars yakunlanmoqda. Uy vazifasi berish Day 4 da qo\'shiladi.',
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.brandInk),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.m),
+        AlochiButton.primary(
+          label: 'Darsni yakunlash',
+          icon: Icons.flag_rounded,
+          onPressed: () {
+            notifier.completeStep(WorkflowStep.finish);
+            if (context.canPop()) context.pop();
+          },
+        ),
+      ],
     );
   }
 }

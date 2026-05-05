@@ -47,6 +47,21 @@ class LessonWorkflowNotifier extends StateNotifier<LessonWorkflowState> {
   void completeStep(WorkflowStep step) {
     state = state.completeStep(step);
   }
+
+  /// Move back to the previous step (uncompletes current if already completed).
+  void backStep(WorkflowStep step) {
+    final order = WorkflowStep.values;
+    final idx = order.indexOf(step);
+    if (idx <= 0) return;
+    final prev = order[idx - 1];
+    // Remove current step from completed if it was there
+    final newCompleted = Set<WorkflowStep>.from(state.completedSteps)
+      ..remove(step);
+    state = LessonWorkflowState(
+      currentStep: prev,
+      completedSteps: newCompleted,
+    );
+  }
 }
 
 final lessonWorkflowProvider = StateNotifierProvider.family<
