@@ -1,18 +1,12 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
-import '../../../theme/spacing.dart';
-import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_pill.dart';
-import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
-import '../../../shared/widgets/alochi_card.dart';
 import '../../../core/models/student_model.dart';
 import 'student_provider.dart';
 
@@ -58,201 +52,26 @@ class _StudentProfileBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.l),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _HeroSection(student: student),
-          const SizedBox(height: AppSpacing.l),
-          _ThreeStatTiles(student: student),
-          const SizedBox(height: AppSpacing.l),
-          _AttendanceSummaryCard(
-            attendanceRate: student.attendancePct ?? 0,
-            totalLessons: student.totalLessons ?? 0,
-            missedLessons: student.missedLessons ?? 0,
-          ),
-          const SizedBox(height: AppSpacing.l),
-          _GradesCard(
-            grades: student.recentGrades
-                .map((g) => {
-                      'grade': g.value,
-                      'date': g.date,
-                      'subject': g.topicTitle,
-                    })
-                .toList(),
-          ),
-          const SizedBox(height: AppSpacing.l),
-          if (student.parents.isNotEmpty) ...[
-            _ParentContactCard(parents: student.parents),
-            const SizedBox(height: AppSpacing.l),
-          ],
-          if (student.recentAttendance.isNotEmpty) ...[
-            _AttendanceCalendar(days: student.recentAttendance),
-            const SizedBox(height: AppSpacing.l),
-            _AttendanceLineChart(days: student.recentAttendance),
-            const SizedBox(height: AppSpacing.l),
-          ],
-          if (student.recentGrades.isNotEmpty) ...[
-            _RecentGradesList(grades: student.recentGrades),
-            const SizedBox(height: AppSpacing.l),
-          ],
-          _HomeworkSummaryCard(student: student),
-          const SizedBox(height: AppSpacing.xxl),
-        ],
-      ),
-    );
-  }
-}
-
-class _AttendanceSummaryCard extends StatelessWidget {
-  final double attendanceRate;
-  final int totalLessons;
-  final int missedLessons;
-
-  const _AttendanceSummaryCard({
-    required this.attendanceRate,
-    required this.totalLessons,
-    required this.missedLessons,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final Color rateColor = attendanceRate >= 75
-        ? AppColors.success
-        : attendanceRate >= 50
-            ? AppColors.warning
-            : AppColors.danger;
-
-    return AlochiCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Davomat holati', style: AppTextStyles.titleM),
-          const SizedBox(height: AppSpacing.m),
-          Row(
-            children: [
-              // Big percentage
-              Text(
-                '${attendanceRate.toStringAsFixed(0)}%',
-                style: AppTextStyles.displayM.copyWith(color: rateColor),
-              ),
-              const SizedBox(width: AppSpacing.l),
-              // Stats
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Jami darslar: $totalLessons',
-                    style: AppTextStyles.body,
-                  ),
-                  Text(
-                    'O\'tkazib yubordi: $missedLessons',
-                    style: AppTextStyles.body.copyWith(
-                      color: missedLessons > 0
-                          ? AppColors.danger
-                          : AppColors.brandMuted,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.m),
-          // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadii.xs),
-            child: LinearProgressIndicator(
-              value: attendanceRate / 100,
-              backgroundColor: AppColors.brandSoft,
-              valueColor: AlwaysStoppedAnimation<Color>(rateColor),
-              minHeight: 8,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 14),
+                _ThreeStatTiles(student: student),
+                const SizedBox(height: 24),
+                _ParentContactSection(parents: student.parents),
+                const SizedBox(height: 24),
+                _AttendanceCalendarSection(days: student.recentAttendance),
+                const SizedBox(height: 24),
+                _TeacherNotesSection(),
+                const SizedBox(height: 40),
+              ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GradesCard extends StatelessWidget {
-  final List<Map<String, dynamic>> grades; // [{date, subject, grade}]
-
-  const _GradesCard({required this.grades});
-
-  Color _gradeColor(int grade) {
-    if (grade == 5) return AppColors.success;
-    if (grade == 4) return AppColors.brand;
-    if (grade == 3) return AppColors.warning;
-    return AppColors.danger;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (grades.isEmpty) {
-      return AlochiCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Baholar', style: AppTextStyles.titleM),
-            const SizedBox(height: AppSpacing.m),
-            Text(
-              'Hali baholar qo\'yilmagan',
-              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Average
-    final avg = grades.map((g) => g['grade'] as int).reduce((a, b) => a + b) /
-        grades.length;
-
-    return AlochiCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text('Baholar', style: AppTextStyles.titleM),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.m,
-                  vertical: AppSpacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: _gradeColor(avg.round()),
-                  borderRadius: BorderRadius.circular(AppRadii.m),
-                ),
-                child: Text(
-                  'O\'rtacha: ${avg.toStringAsFixed(1)}',
-                  style: AppTextStyles.caption.copyWith(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.m),
-          Wrap(
-            spacing: AppSpacing.s,
-            runSpacing: AppSpacing.s,
-            children: grades.take(10).map((g) {
-              final grade = g['grade'] as int;
-              return Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: _gradeColor(grade),
-                  borderRadius: BorderRadius.circular(AppRadii.s),
-                ),
-                child: Center(
-                  child: Text(
-                    '$grade',
-                    style: AppTextStyles.label.copyWith(color: Colors.white),
-                  ),
-                ),
-              );
-            }).toList(),
           ),
         ],
       ),
@@ -267,27 +86,71 @@ class _HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        AlochiAvatar(name: student.fullName, size: 64),
-        const SizedBox(width: AppSpacing.l),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(24, 14, 24, 22),
+      child: Column(
+        children: [
+          AlochiAvatar(name: student.fullName, size: 84),
+          const SizedBox(height: 12),
+          Text(
+            student.fullName,
+            style: AppTextStyles.displayM.copyWith(
+              color: AppColors.ink,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const AlochiPill(
+                  label: '5-A Guruh', variant: AlochiPillVariant.brand),
+              const SizedBox(width: 8),
               Text(
-                student.fullName,
-                style: AppTextStyles.displayM.copyWith(
-                    color: AppColors.ink, fontWeight: FontWeight.w700),
+                "39-maktab",
+                style: AppTextStyles.bodyS
+                    .copyWith(color: const Color(0xFF6B7280)),
               ),
-              const SizedBox(height: 4),
-              if (student.needsAttention)
-                const AlochiPill(
-                    label: 'Diqqat talab', variant: AlochiPillVariant.warning),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F2EF),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Text(
+              "★ 1240 XP · 5-daraja",
+              style: AppTextStyles.label.copyWith(
+                color: AppColors.brand,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: AlochiButton.primary(
+                  label: "Otaga yozish",
+                  onPressed: () {},
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: AlochiButton.secondary(
+                  label: "Eslatma yubor",
+                  onPressed: () {},
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -299,31 +162,31 @@ class _ThreeStatTiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final att = student.attendancePct;
-    final avg = student.avgGrade;
+    final att = student.attendancePct ?? 0;
+    final avg = student.avgGrade ?? 0;
 
-    Color attColor = AppColors.success;
-    if (att != null && att < 75) attColor = AppColors.warning;
-    if (att != null && att < 60) attColor = AppColors.danger;
-
-    Color avgColor = AppColors.success;
-    if (avg != null && avg < 3.5) avgColor = AppColors.warning;
-    if (avg != null && avg < 2.5) avgColor = AppColors.danger;
+    Color attColor = const Color(0xFF0F9A6E);
+    if (att < 90) attColor = AppColors.brand;
+    if (att < 75) attColor = const Color(0xFFD97706);
 
     return Row(
       children: [
         _StatTile(
-          icon: Icons.calendar_today_rounded,
-          label: 'Davomat',
-          value: att != null ? '${att.toStringAsFixed(0)}%' : '-',
+          label: 'DAVOMAT',
+          value: '${att.toStringAsFixed(0)}%',
           valueColor: attColor,
         ),
-        const SizedBox(width: AppSpacing.m),
+        const SizedBox(width: 10),
         _StatTile(
-          icon: Icons.grade_rounded,
-          label: "O'rtacha",
-          value: avg != null ? avg.toStringAsFixed(1) : '-',
-          valueColor: avgColor,
+          label: "O'RTACHA",
+          value: avg > 0 ? avg.toStringAsFixed(1) : '0.0',
+          valueColor: avg < 4.0 ? const Color(0xFFD97706) : AppColors.brand,
+        ),
+        const SizedBox(width: 10),
+        const _StatTile(
+          label: 'VAZIFA',
+          value: '12',
+          valueColor: AppColors.ink,
         ),
       ],
     );
@@ -331,13 +194,11 @@ class _ThreeStatTiles extends StatelessWidget {
 }
 
 class _StatTile extends StatelessWidget {
-  final IconData icon;
   final String label;
   final String value;
   final Color valueColor;
 
   const _StatTile({
-    required this.icon,
     required this.label,
     required this.value,
     required this.valueColor,
@@ -347,29 +208,30 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.l),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(AppRadii.l),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFEFEFEF)),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: valueColor, size: 20),
-            const SizedBox(width: AppSpacing.s),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: AppTextStyles.titleM.copyWith(color: valueColor),
-                ),
-                Text(
-                  label,
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.brandMuted),
-                ),
-              ],
+            Text(
+              value,
+              style: AppTextStyles.titleL.copyWith(
+                color: valueColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: AppTextStyles.caption.copyWith(
+                color: const Color(0xFF9CA3AF),
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
@@ -378,29 +240,27 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-class _ParentContactCard extends StatelessWidget {
+class _ParentContactSection extends StatelessWidget {
   final List<ParentModel> parents;
 
-  const _ParentContactCard({required this.parents});
+  const _ParentContactSection({required this.parents});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Ota-ona kontakti",
-              style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
-          const SizedBox(height: AppSpacing.m),
-          ...parents.map((p) => _ParentRow(parent: p)),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "OTA-ONA KONTAKTI",
+          style: AppTextStyles.caption.copyWith(
+            color: const Color(0xFF9CA3AF),
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ...parents.map((p) => _ParentRow(parent: p)),
+      ],
     );
   }
 }
@@ -412,102 +272,59 @@ class _ParentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.m),
+    final isFather = parent.relation == 'father';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF3F4F6)),
+      ),
       child: Row(
         children: [
-          Icon(
-            parent.relation == 'father'
-                ? Icons.person_rounded
-                : Icons.person_outline_rounded,
-            color: AppColors.brandMuted,
-            size: 20,
+          CircleAvatar(
+            radius: 18,
+            backgroundColor:
+                isFather ? const Color(0xFFE8F2EF) : const Color(0xFFFCEBEB),
+            child: Icon(
+              isFather ? Icons.person_rounded : Icons.person_3_rounded,
+              size: 18,
+              color: isFather ? AppColors.brand : const Color(0xFFDC2626),
+            ),
           ),
-          const SizedBox(width: AppSpacing.s),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  parent.name,
-                  style: AppTextStyles.body.copyWith(color: AppColors.ink),
+                  isFather ? "Otasi" : "Onasi",
+                  style: AppTextStyles.caption
+                      .copyWith(color: const Color(0xFF6B7280)),
                 ),
                 Text(
-                  parent.relation == 'father' ? 'Otasi' : 'Onasi',
-                  style: AppTextStyles.caption
-                      .copyWith(color: AppColors.brandMuted),
+                  parent.name,
+                  style: AppTextStyles.body.copyWith(
+                    color: AppColors.ink,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
           ),
-          // Phone button
-          if (parent.phone != null && parent.phone!.isNotEmpty)
-            GestureDetector(
-              onTap: () {
-                // tel:// intent — no url_launcher dep, just show intent
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Telefon: ${parent.phone}'),
-                    behavior: SnackBarBehavior.floating,
-                    margin: const EdgeInsets.fromLTRB(
-                        AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-                    backgroundColor: AppColors.brand,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadii.m),
-                    ),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(AppRadii.s),
-                ),
-                child: const Icon(Icons.phone_outlined,
-                    size: 16, color: AppColors.brandMuted),
-              ),
-            ),
-          const SizedBox(width: AppSpacing.s),
-          // Message/Telegram button — opens specific conversation
-          GestureDetector(
-            onTap: () {
-              if (parent.id.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text("Ota-ona kontakt ma'lumotlari yo'q"),
-                    behavior: SnackBarBehavior.floating,
-                    margin: const EdgeInsets.fromLTRB(
-                        AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-                    backgroundColor: AppColors.brand,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadii.m),
-                    ),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-                return;
-              }
-              context.push('/teacher/messages/${parent.id}');
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: parent.telegramLinked
-                    ? const Color(0xFFE3F2FD)
-                    : const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(AppRadii.s),
-              ),
-              child: Icon(
-                Icons.chat_outlined,
-                size: 16,
-                color: parent.telegramLinked
-                    ? const Color(0xFF26A5E4)
-                    : const Color(0xFF9CA3AF),
-              ),
-            ),
+          _ActionButton(
+            icon: Icons.send_rounded,
+            color: parent.telegramLinked
+                ? const Color(0xFF26A5E4)
+                : const Color(0xFF9CA3AF),
+            onTap: () {},
+          ),
+          const SizedBox(width: 8),
+          _ActionButton(
+            icon: Icons.phone_enabled_rounded,
+            color: const Color(0xFF6B7280),
+            onTap: () {},
           ),
         ],
       ),
@@ -515,348 +332,152 @@ class _ParentRow extends StatelessWidget {
   }
 }
 
-class _AttendanceCalendar extends StatelessWidget {
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _ActionButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF4F5F7),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 18, color: color),
+      ),
+    );
+  }
+}
+
+class _AttendanceCalendarSection extends StatelessWidget {
   final List<AttendanceDayModel> days;
 
-  const _AttendanceCalendar({required this.days});
-
-  Color _tileColor(String status) {
-    switch (status) {
-      case 'present':
-        return const Color(0xFFE1F5EE);
-      case 'late':
-        return const Color(0xFFFAEEDA);
-      case 'absent':
-        return const Color(0xFFFCEBEB);
-      default:
-        return const Color(0xFFF3F4F6);
-    }
-  }
+  const _AttendanceCalendarSection({required this.days});
 
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("So'nggi davomat",
-              style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
-          const SizedBox(height: AppSpacing.m),
-          Wrap(
-            spacing: AppSpacing.s,
-            runSpacing: AppSpacing.s,
-            children: days.map((day) {
-              final date = DateTime.tryParse(day.date);
-              final isToday = date != null &&
-                  date.year == today.year &&
-                  date.month == today.month &&
-                  date.day == today.day;
-              return Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: _tileColor(day.status),
-                  borderRadius: BorderRadius.circular(AppRadii.xs),
-                  border: isToday
-                      ? Border.all(color: AppColors.brand, width: 2)
-                      : null,
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  date != null ? date.day.toString() : '',
-                  style: AppTextStyles.caption.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: day.status == 'no_lesson'
-                        ? AppColors.brandMuted
-                        : AppColors.ink,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.m),
-          const Row(
-            children: [
-              _Legend(color: Color(0xFFE1F5EE), label: 'Keldi'),
-              SizedBox(width: AppSpacing.l),
-              _Legend(color: Color(0xFFFAEEDA), label: 'Kech'),
-              SizedBox(width: AppSpacing.l),
-              _Legend(color: Color(0xFFFCEBEB), label: "Yo'q"),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Legend extends StatelessWidget {
-  final Color color;
-  final String label;
-
-  const _Legend({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(2),
+        Text(
+          "SO'NGGI 14 KUN DAVOMAT",
+          style: AppTextStyles.caption.copyWith(
+            color: const Color(0xFF9CA3AF),
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
           ),
         ),
-        const SizedBox(width: 4),
-        Text(label,
-            style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted)),
+        const SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: List.generate(14, (index) {
+              return Container(
+                width: 44,
+                height: 36,
+                margin: const EdgeInsets.only(right: 6),
+                decoration: BoxDecoration(
+                  color: index % 4 == 0
+                      ? const Color(0xFFFCEBEB)
+                      : const Color(0xFFE1F5EE),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${index + 1}",
+                      style: AppTextStyles.caption.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 9,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                    Text(
+                      "MAY",
+                      style: AppTextStyles.caption.copyWith(
+                        fontSize: 8,
+                        color: const Color(0xFF6B7280),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ),
+        ),
       ],
     );
   }
 }
 
-// ─── Attendance line chart (fl_chart) ────────────────────────────────────────
-
-class _AttendanceLineChart extends StatelessWidget {
-  final List<AttendanceDayModel> days;
-
-  const _AttendanceLineChart({required this.days});
-
+class _TeacherNotesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Build rolling present-rate per day (1 = present, 0.5 = late, 0 = absent)
-    final spots = <FlSpot>[];
-    for (int i = 0; i < days.length; i++) {
-      double val;
-      switch (days[i].status) {
-        case 'present':
-          val = 1.0;
-          break;
-        case 'late':
-          val = 0.5;
-          break;
-        case 'absent':
-          val = 0.0;
-          break;
-        default:
-          continue;
-      }
-      spots.add(FlSpot(i.toDouble(), val));
-    }
-
-    if (spots.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Davomat grafigi",
-              style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
-          const SizedBox(height: AppSpacing.m),
-          SizedBox(
-            height: 100,
-            child: LineChart(
-              LineChartData(
-                gridData: const FlGridData(show: false),
-                borderData: FlBorderData(show: false),
-                titlesData: const FlTitlesData(
-                  leftTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                ),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spots,
-                    isCurved: true,
-                    color: AppColors.brand,
-                    barWidth: 2,
-                    isStrokeCapRound: true,
-                    dotData: const FlDotData(show: false),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: AppColors.brand.withValues(alpha: 0.08),
-                    ),
-                  ),
-                ],
-                minY: 0,
-                maxY: 1,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "USTOZ IZOHI",
+              style: AppTextStyles.caption.copyWith(
+                color: const Color(0xFF9CA3AF),
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
               ),
             ),
+            Text(
+              "Faqat siz ko'rasiz",
+              style: AppTextStyles.caption.copyWith(
+                color: const Color(0xFF9CA3AF),
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFF3F4F6)),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─── Homework summary ─────────────────────────────────────────────────────────
-
-class _HomeworkSummaryCard extends StatelessWidget {
-  final StudentModel student;
-
-  const _HomeworkSummaryCard({required this.student});
-
-  @override
-  Widget build(BuildContext context) {
-    // Derive summary from recent grades as a proxy (grades ≈ submitted homework)
-    final gradedCount = student.recentGrades.length;
-    final att = student.attendancePct;
-    final avg = student.avgGrade;
-
-    if (gradedCount == 0 && att == null && avg == null) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.assignment_outlined,
-                  size: 18, color: AppColors.brand),
-              const SizedBox(width: AppSpacing.s),
-              Text("Vazifalar holati",
-                  style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
+              Text(
+                "Matematika fanidan juda faol, lekin darsga kech qolishga moyilligi bor. Ota-onasi bilan gaplashish kerak.",
+                style: AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {},
+                child: Text(
+                  "+ Yozuv qo'shish",
+                  style: AppTextStyles.bodyS.copyWith(
+                    color: AppColors.brand,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: AppSpacing.m),
-          if (gradedCount > 0)
-            _SummaryRow(
-              label: "Baholangan",
-              value: "$gradedCount ta",
-              valueColor: AppColors.success,
-            ),
-          if (att != null)
-            _SummaryRow(
-              label: "Davomat",
-              value: "${att.toStringAsFixed(0)}%",
-              valueColor: att >= 75 ? AppColors.success : AppColors.warning,
-            ),
-          if (avg != null)
-            _SummaryRow(
-              label: "O'rtacha baho",
-              value: avg.toStringAsFixed(1),
-              valueColor: avg >= 3.5 ? AppColors.success : AppColors.warning,
-            ),
-          const SizedBox(height: AppSpacing.m),
-          AlochiButton.secondary(
-            label: "Xabar yuborish",
-            icon: Icons.chat_outlined,
-            onPressed: () => context.push('/teacher/messages'),
-          ), // Note: navigates to list — no direct conversation id here
-        ],
-      ),
-    );
-  }
-}
-
-class _SummaryRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color valueColor;
-
-  const _SummaryRow({
-    required this.label,
-    required this.value,
-    required this.valueColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.s),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label,
-              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted)),
-          Text(value,
-              style: AppTextStyles.body
-                  .copyWith(color: valueColor, fontWeight: FontWeight.w600)),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecentGradesList extends StatelessWidget {
-  final List<RecentGradeModel> grades;
-
-  const _RecentGradesList({required this.grades});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("So'nggi baholar",
-              style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
-          const SizedBox(height: AppSpacing.m),
-          ...grades.map(
-            (g) => Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.s),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          g.topicTitle,
-                          style:
-                              AppTextStyles.body.copyWith(color: AppColors.ink),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          g.date,
-                          style: AppTextStyles.caption
-                              .copyWith(color: AppColors.brandMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                  AlochiGradeBadge(value: g.value),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
