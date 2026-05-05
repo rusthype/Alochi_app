@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
+import '../../../shared/widgets/alochi_card.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/models/attendance_model.dart';
 import 'attendance_provider.dart';
 
@@ -21,39 +25,35 @@ class AttendanceHistoryScreen extends ConsumerStatefulWidget {
 
 class _AttendanceHistoryScreenState
     extends ConsumerState<AttendanceHistoryScreen> {
-  String _selectedPeriod = 'month';
+  AttendancePeriod _period = AttendancePeriod.week;
 
   @override
   Widget build(BuildContext context) {
-    final key = (classId: widget.groupId, period: _selectedPeriod);
-    final historyAsync = ref.watch(attendanceHistoryProvider(key));
+    final historyAsync = ref.watch(attendanceHistoryProvider((
+      classId: widget.groupId,
+      period: _period.name,
+    )));
 
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: const AlochiAppBar(title: 'Davomat tarixi'),
       body: Column(
         children: [
-          _PeriodChips(
-            selected: _selectedPeriod,
-            onSelected: (p) => setState(() => _selectedPeriod = p),
+          _PeriodSelector(
+            selected: _period,
+            onChanged: (p) => setState(() => _period = p),
           ),
           Expanded(
             child: historyAsync.when(
-              data: (history) => _HistoryBody(
-                history: history,
-                groupId: widget.groupId,
-                period: _selectedPeriod,
-              ),
-              loading: () => const Center(
-                child: CircularProgressIndicator(color: AppColors.brand),
-              ),
+              data: (data) => _HistoryBody(data: data),
+              loading: () => const _HistoryLoadingSkeleton(),
               error: (err, _) => AlochiEmptyState(
-                icon: Icons.calendar_today_outlined,
-                title: "Davomat tarixi yo'q",
-                subtitle: "Bu hafta davomat belgilanmagan",
-                actionLabel: "Qayta urinish",
-                onAction: () => ref.refresh(
-                    attendanceHistoryProvider((classId: widget.groupId, period: _selectedPeriod))),
+                icon: Icons.error_outline_rounded,
+                iconColor: AppColors.danger,
+                title: 'Yuklab bo\'lmadi',
+                subtitle: 'Internetni tekshirib qayta urinib ko\'ring',
+                actionLabel: 'Yangilash',
+                onAction: () => ref.invalidate(attendanceHistoryProvider),
               ),
             ),
           ),
@@ -63,332 +63,341 @@ class _AttendanceHistoryScreenState
   }
 }
 
-class _PeriodChips extends StatelessWidget {
-  final String selected;
-  final ValueChanged<String> onSelected;
+class _PeriodSelector extends StatelessWidget {
+  final AttendancePeriod selected;
+  final ValueChanged<AttendancePeriod> onChanged;
 
-  const _PeriodChips({required this.selected, required this.onSelected});
+  const _PeriodSelector({required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    final options = [
-      ('week', 'Hafta'),
-      ('month', 'Oy'),
-      ('quarter', 'Chorak'),
-    ];
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.l, vertical: AppSpacing.s),
-      child: Row(
-        children: options.map((opt) {
-          final isSelected = opt.$1 == selected;
-          return Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.s),
-            child: GestureDetector(
-              onTap: () => onSelected(opt.$1),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.l, vertical: AppSpacing.s),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.brandSoft : const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(AppRadii.round),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+        child: Row(
+          children: AttendancePeriod.values.map((p) {
+            final isSelected = selected == p;
+            return Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.s),
+              child: ChoiceChip(
+                label: Text(_label(p)),
+                selected: isSelected,
+                onSelected: (v) {
+                  if (v) onChanged(p);
+                },
+                backgroundColor: Colors.white,
+                selectedColor: AppColors.brandSoft,
+                labelStyle: AppTextStyles.label.copyWith(
+                  color: isSelected ? AppColors.brand : AppColors.ink,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                 ),
-                child: Text(
-                  opt.$2,
-                  style: AppTextStyles.label.copyWith(
-                    color: isSelected ? AppColors.brand : AppColors.brandMuted,
-                    fontWeight:
-                        isSelected ? FontWeight.w600 : FontWeight.w500,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.round),
+                  side: BorderSide(
+                    color: isSelected ? AppColors.brand : const Color(0xFFE5E7EB),
                   ),
                 ),
+                showCheckmark: false,
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
+
+  String _label(AttendancePeriod p) {
+    switch (p) {
+      case AttendancePeriod.week:
+        return 'Hafta';
+      case AttendancePeriod.month:
+        return 'Oy';
+      case AttendancePeriod.quarter:
+        return 'Chorak';
+    }
+  }
 }
 
-class _HistoryBody extends ConsumerWidget {
-  final AttendanceHistoryModel history;
-  final String groupId;
-  final String period;
+class _HistoryBody extends StatelessWidget {
+  final AttendanceHistoryModel data;
 
-  const _HistoryBody({
-    required this.history,
-    required this.groupId,
-    required this.period,
-  });
+  const _HistoryBody({required this.data});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return RefreshIndicator(
-      color: AppColors.brand,
-      onRefresh: () async {
-        final key = (classId: groupId, period: period);
-        ref.invalidate(attendanceHistoryProvider(key));
-        await ref.read(attendanceHistoryProvider(key).future);
-      },
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.l),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _SummaryCard(history: history),
-            const SizedBox(height: AppSpacing.l),
-            if (history.lowAttendanceStudents.isNotEmpty) ...[
-              _LowAttendanceCard(students: history.lowAttendanceStudents),
-              const SizedBox(height: AppSpacing.l),
-            ],
-          ],
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: [
+        _SummaryCard(
+          percent: data.summaryPercent,
+          deltaPct: data.deltaPct,
+          trend: data.trend,
         ),
-      ),
+        const SizedBox(height: AppSpacing.xl),
+        _AttendanceChart(daily: data.daily),
+        const SizedBox(height: AppSpacing.xl),
+        if (data.lowAttendanceStudents.isNotEmpty)
+          _LowAttendanceSection(students: data.lowAttendanceStudents),
+      ],
     );
   }
 }
 
 class _SummaryCard extends StatelessWidget {
-  final AttendanceHistoryModel history;
+  final double percent;
+  final double deltaPct;
+  final String trend;
 
-  const _SummaryCard({required this.history});
-
-  Color _pctColor(double pct) {
-    if (pct >= 90) return const Color(0xFF0F9A6E);
-    if (pct >= 75) return AppColors.brand;
-    return AppColors.warning;
-  }
+  const _SummaryCard({
+    required this.percent,
+    required this.deltaPct,
+    required this.trend,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final color = _pctColor(history.summaryPercent);
-    final trendIcon = history.trend == 'up'
-        ? Icons.trending_up_rounded
-        : history.trend == 'down'
-            ? Icons.trending_down_rounded
-            : Icons.trending_flat_rounded;
-    final trendColor = history.trend == 'up'
-        ? const Color(0xFF0F9A6E)
-        : history.trend == 'down'
-            ? AppColors.danger
-            : AppColors.brandMuted;
+    final isUp = trend == 'up';
+    final isDown = trend == 'down';
 
-    return Container(
+    return AlochiCard(
       padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${history.summaryPercent.toStringAsFixed(1)}%',
-                    style: AppTextStyles.displayM.copyWith(
-                        color: color),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${percent.toStringAsFixed(0)}%',
+                  style: AppTextStyles.displayL.copyWith(
+                    color: percent >= 90
+                        ? const Color(0xFF0F9A6E)
+                        : percent >= 75
+                            ? AppColors.brand
+                            : AppColors.warning,
                   ),
-                  Text(
-                    'Umumiy davomat',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.brandMuted),
-                  ),
-                ],
+                ),
+                Text(
+                  'O\'rtacha davomat',
+                  style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+                ),
+              ],
+            ),
+          ),
+          if (deltaPct != 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isUp
+                    ? const Color(0xFFE1F5EE)
+                    : isDown
+                        ? const Color(0xFFFEE2E2)
+                        : const Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.circular(AppRadii.round),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Row(
                 children: [
-                  Icon(trendIcon, color: trendColor, size: 18),
+                  Icon(
+                    isUp
+                        ? Icons.trending_up_rounded
+                        : isDown
+                            ? Icons.trending_down_rounded
+                            : Icons.trending_flat_rounded,
+                    size: 14,
+                    color: isUp
+                        ? const Color(0xFF0F9A6E)
+                        : isDown
+                            ? AppColors.danger
+                            : AppColors.brandMuted,
+                  ),
                   const SizedBox(width: 4),
                   Text(
-                    '${history.deltaPct.abs().toStringAsFixed(1)}%',
-                    style: AppTextStyles.label.copyWith(color: trendColor),
+                    '${deltaPct.toStringAsFixed(1)}%',
+                    style: AppTextStyles.caption.copyWith(
+                      color: isUp
+                          ? const Color(0xFF0F9A6E)
+                          : isDown
+                              ? AppColors.danger
+                              : AppColors.brandMuted,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
-            ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttendanceChart extends StatelessWidget {
+  final List<DayAggregateModel> daily;
+
+  const _AttendanceChart({required this.daily});
+
+  @override
+  Widget build(BuildContext context) {
+    if (daily.isEmpty) return const SizedBox.shrink();
+
+    // Take last 7 days for the chart
+    final displayDays = daily.length > 7 ? daily.sublist(daily.length - 7) : daily;
+
+    final bars = displayDays.asMap().entries.map((entry) {
+      final data = entry.value;
+      final total = data.total;
+      final rate = total > 0 ? (data.present + data.late) / total * 100 : 0.0;
+
+      return BarChartGroupData(
+        x: entry.key,
+        barRods: [
+          const BarChartRodData(
+            toY: rate,
+            color: rate >= 75
+                ? AppColors.brand
+                : rate >= 50
+                    ? AppColors.warning
+                    : AppColors.danger,
+            width: 16,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.xs)),
           ),
-          if (history.daily.isNotEmpty) ...[
+        ],
+      );
+    }).toList();
+
+    return AlochiCard(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.l),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Kunlik davomat (%)', style: AppTextStyles.titleM),
             const SizedBox(height: AppSpacing.l),
-            _MiniBarChart(days: history.daily),
-            const SizedBox(height: AppSpacing.m),
-            const Row(
-              children: [
-                _Legend(color: Color(0xFF0F9A6E), label: 'Keldi'),
-                SizedBox(width: AppSpacing.l),
-                _Legend(color: Color(0xFFD97706), label: 'Kech'),
-                SizedBox(width: AppSpacing.l),
-                _Legend(color: AppColors.danger, label: "Yo'q"),
-              ],
+            SizedBox(
+              height: 160,
+              child: BarChart(
+                BarChartData(
+                  barGroups: bars,
+                  maxY: 100,
+                  gridData: FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          final idx = value.toInt();
+                          if (idx < 0 || idx >= displayDays.length) {
+                            return const SizedBox.shrink();
+                          }
+                          final dateStr = displayDays[idx].date;
+                          // Extract day from YYYY-MM-DD
+                          final parts = dateStr.split('-');
+                          final day = parts.length > 2 ? parts[2] : '';
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              day,
+                              style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
 }
 
-class _MiniBarChart extends StatelessWidget {
-  final List<DayAggregateModel> days;
-
-  const _MiniBarChart({required this.days});
-
-  @override
-  Widget build(BuildContext context) {
-    final today = DateTime.now();
-    return SizedBox(
-      height: 60,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: days.map((day) {
-          if (!day.isLessonDay || day.total == 0) {
-            return Expanded(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 1),
-              ),
-            );
-          }
-          final date = DateTime.tryParse(day.date);
-          final isToday = date != null &&
-              date.year == today.year &&
-              date.month == today.month &&
-              date.day == today.day;
-
-          final presentH = (day.present / day.total * 50).clamp(0.0, 50.0);
-          final lateH = (day.late / day.total * 50).clamp(0.0, 50.0);
-          final absentH = (day.absent / day.total * 50).clamp(0.0, 50.0);
-
-          return Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (isToday)
-                  Text(
-                    'Bugun',
-                    style: AppTextStyles.caption.copyWith(
-                        color: AppColors.brand,
-                        fontSize: 8),
-                    overflow: TextOverflow.visible,
-                  ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (absentH > 0)
-                      Container(
-                        height: absentH,
-                        color: AppColors.danger,
-                      ),
-                    if (lateH > 0)
-                      Container(
-                        height: lateH,
-                        color: const Color(0xFFD97706),
-                      ),
-                    if (presentH > 0)
-                      Container(
-                        height: presentH,
-                        color: const Color(0xFF0F9A6E),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class _LowAttendanceCard extends StatelessWidget {
+class _LowAttendanceSection extends StatelessWidget {
   final List<LowAttendanceStudentModel> students;
 
-  const _LowAttendanceCard({required this.students});
+  const _LowAttendanceSection({required this.students});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: const Color(0xFFFCEBEB)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFCEBEB),
-                  borderRadius: BorderRadius.circular(AppRadii.xs),
-                ),
-                child: const Icon(Icons.warning_amber_rounded,
-                    color: AppColors.danger, size: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Past davomatli o\'quvchilar', style: AppTextStyles.titleM),
+        const SizedBox(height: AppSpacing.m),
+        ...students.map((s) => _LowAttendanceRow(student: s)),
+      ],
+    );
+  }
+}
+
+class _LowAttendanceRow extends StatelessWidget {
+  final LowAttendanceStudentModel student;
+
+  const _LowAttendanceRow({required this.student});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s),
+      child: AlochiCard(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m, vertical: 10),
+        child: Row(
+          children: [
+            AlochiAvatar(name: student.name, size: 32),
+            const SizedBox(width: AppSpacing.m),
+            Expanded(
+              child: Text(
+                student.name,
+                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
               ),
-              const SizedBox(width: AppSpacing.s),
-              Text(
-                'Past davomatli o\'quvchilar',
-                style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEE2E2),
+                borderRadius: BorderRadius.circular(AppRadii.xs),
               ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.m),
-          ...students.take(5).map(
-                (s) => Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.s),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(s.name,
-                            style: AppTextStyles.body
-                                .copyWith(color: AppColors.ink)),
-                      ),
-                      Text(
-                        '${s.attendancePct.toStringAsFixed(0)}%',
-                        style: AppTextStyles.body.copyWith(
-                            color: AppColors.danger,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
+              child: Text(
+                '${student.attendancePct.toStringAsFixed(0)}%',
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.danger,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _Legend extends StatelessWidget {
-  final Color color;
-  final String label;
-
-  const _Legend({required this.color, required this.label});
+class _HistoryLoadingSkeleton extends StatelessWidget {
+  const _HistoryLoadingSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          color: color,
-        ),
-        const SizedBox(width: 4),
-        Text(label,
-            style:
-                AppTextStyles.caption.copyWith(color: AppColors.brandMuted)),
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        AlochiSkeletonCard(height: 100),
+        SizedBox(height: AppSpacing.xl),
+        AlochiSkeletonCard(height: 200),
+        SizedBox(height: AppSpacing.xl),
+        AlochiSkeletonCard(height: 60),
+        AlochiSkeletonCard(height: 60),
       ],
     );
   }
