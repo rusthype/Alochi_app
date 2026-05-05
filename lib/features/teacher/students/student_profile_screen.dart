@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
-import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
@@ -122,7 +120,8 @@ class _HeroSection extends StatelessWidget {
                       .copyWith(color: const Color(0xFF6B7280)),
                 ),
               ],
-              ],          ),
+            ],
+          ),
           const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -193,7 +192,9 @@ class _ThreeStatTiles extends StatelessWidget {
         _StatTile(
           label: 'VAZIFA',
           value: '${student.missedLessons ?? 0}',
-          valueColor: (student.missedLessons ?? 0) > 2 ? AppColors.danger : AppColors.ink,
+          valueColor: (student.missedLessons ?? 0) > 2
+              ? AppColors.danger
+              : AppColors.ink,
         ),
       ],
     );
@@ -454,8 +455,18 @@ class _AttendanceCalendarSection extends StatelessWidget {
   String _monthFromDate(String date) {
     try {
       final months = [
-        'YAN', 'FEV', 'MAR', 'APR', 'MAY', 'IYUN',
-        'IYUL', 'AVG', 'SEN', 'OKT', 'NOV', 'DEK'
+        'YAN',
+        'FEV',
+        'MAR',
+        'APR',
+        'MAY',
+        'IYUN',
+        'IYUL',
+        'AVG',
+        'SEN',
+        'OKT',
+        'NOV',
+        'DEK'
       ];
       return months[DateTime.parse(date).month - 1];
     } catch (_) {
@@ -504,7 +515,8 @@ class _TeacherNotesSection extends StatelessWidget {
             children: [
               Text(
                 "O'quvchi haqida izoh yozilmagan.",
-                style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+                style:
+                    AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
               ),
               const SizedBox(height: 10),
               GestureDetector(

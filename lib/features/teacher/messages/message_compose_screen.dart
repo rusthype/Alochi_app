@@ -6,8 +6,6 @@ import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
-import '../../../shared/widgets/alochi_button.dart';
-import '../../../shared/widgets/alochi_avatar.dart';
 import 'message_compose_provider.dart';
 
 class MessageComposeScreen extends ConsumerWidget {
@@ -256,7 +254,8 @@ class _RecipientChip extends StatelessWidget {
           const SizedBox(width: 4),
           GestureDetector(
             onTap: onDelete,
-            child: const Icon(Icons.close_rounded, size: 14, color: Color(0xFF9CA3AF)),
+            child: const Icon(Icons.close_rounded,
+                size: 14, color: Color(0xFF9CA3AF)),
           ),
         ],
       ),
@@ -268,8 +267,8 @@ class _ComposerToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-          AppSpacing.l, AppSpacing.s, AppSpacing.l, MediaQuery.of(context).padding.bottom + AppSpacing.s),
+      padding: EdgeInsets.fromLTRB(AppSpacing.l, AppSpacing.s, AppSpacing.l,
+          MediaQuery.of(context).padding.bottom + AppSpacing.s),
       decoration: const BoxDecoration(
         color: Color(0xFFFAFAFA),
         border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
@@ -277,7 +276,8 @@ class _ComposerToolbar extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.attach_file_rounded, color: AppColors.brandMuted),
+            icon: const Icon(Icons.attach_file_rounded,
+                color: AppColors.brandMuted),
             onPressed: () {},
           ),
           IconButton(
@@ -293,7 +293,8 @@ class _ComposerToolbar extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.send_rounded, color: Color(0xFF0EA5E9), size: 14),
+                const Icon(Icons.send_rounded,
+                    color: Color(0xFF0EA5E9), size: 14),
                 const SizedBox(width: 4),
                 Text(
                   'Telegram orqali',

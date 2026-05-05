@@ -38,7 +38,10 @@ class _HomeworkListScreenState extends ConsumerState<HomeworkListScreen> {
         ),
       ),
       body: hwAsync.when(
-        data: (data) => _HomeworkListBody(data: data, filter: _filter, onFilterChanged: (f) => setState(() => _filter = f)),
+        data: (data) => _HomeworkListBody(
+            data: data,
+            filter: _filter,
+            onFilterChanged: (f) => setState(() => _filter = f)),
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppColors.brand),
         ),
@@ -106,13 +109,17 @@ class _HomeworkListBody extends ConsumerWidget {
                     backgroundColor: const Color(0xFFF4F5F7),
                     selectedColor: const Color(0xFF111827),
                     labelStyle: AppTextStyles.label.copyWith(
-                      color: isSelected ? Colors.white : const Color(0xFF6B7280),
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      color:
+                          isSelected ? Colors.white : const Color(0xFF6B7280),
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(100),
                       side: BorderSide(
-                        color: isSelected ? const Color(0xFF111827) : const Color(0xFFE5E7EB),
+                        color: isSelected
+                            ? const Color(0xFF111827)
+                            : const Color(0xFFE5E7EB),
                       ),
                     ),
                     showCheckmark: false,
@@ -123,9 +130,9 @@ class _HomeworkListBody extends ConsumerWidget {
           ),
           const SizedBox(height: 14),
           if (filteredAssignments.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: AppSpacing.xxl),
-              child: const AlochiEmptyState(
+            const Padding(
+              padding: EdgeInsets.only(top: AppSpacing.xxl),
+              child: AlochiEmptyState(
                 icon: Icons.assignment_outlined,
                 title: "Vazifalar yo'q",
                 subtitle: "Hali hech qanday vazifa yaratilmagan",
@@ -267,7 +274,8 @@ class _HomeworkCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '${hw.groupName} · ${hw.subject}',
-            style: AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
+            style:
+                AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
           ),
           const SizedBox(height: 14),
           Row(
@@ -275,11 +283,13 @@ class _HomeworkCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.calendar_today_rounded, size: 12, color: Color(0xFF9CA3AF)),
+                  const Icon(Icons.calendar_today_rounded,
+                      size: 12, color: Color(0xFF9CA3AF)),
                   const SizedBox(width: 4),
                   Text(
                     _formatDate(hw.deadline),
-                    style: AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
+                    style: AppTextStyles.caption
+                        .copyWith(color: const Color(0xFF6B7280)),
                   ),
                 ],
               ),

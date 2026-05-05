@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/teacher_api.dart';
-import '../../../core/models/student_model.dart';
 import '../dashboard/dashboard_provider.dart';
 
 enum ComposeMode { single, group, multiple }
@@ -94,7 +93,7 @@ class MessageComposeNotifier extends StateNotifier<MessageComposeState> {
   }
 }
 
-final messageComposeProvider =
-    StateNotifierProvider.autoDispose<MessageComposeNotifier, MessageComposeState>(
+final messageComposeProvider = StateNotifierProvider.autoDispose<
+    MessageComposeNotifier, MessageComposeState>(
   (ref) => MessageComposeNotifier(ref.read(teacherApiProvider)),
 );
