@@ -33,6 +33,10 @@ import '../features/teacher/students/student_profile_screen.dart';
 import '../features/teacher/lesson/lesson_workflow_screen.dart';
 import '../features/teacher/attendance/attendance_mark_screen.dart';
 import '../features/teacher/attendance/attendance_history_screen.dart';
+import '../features/teacher/grades/grades_screen.dart';
+import '../features/teacher/homework/homework_list_screen.dart';
+import '../features/teacher/homework/homework_create_screen.dart';
+import '../features/teacher/homework/homework_detail_screen.dart';
 import '../core/models/test_model.dart';
 
 String _todayString() {
@@ -162,9 +166,33 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
+            path: '/teacher/groups/:id/grades',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              final subject = extra['subject']?.toString() ?? '';
+              final groupName = extra['groupName']?.toString() ?? '';
+              return GradesScreen(
+                groupId: id,
+                groupName: groupName,
+                subject: subject,
+              );
+            },
+          ),
+          GoRoute(
             path: '/teacher/homework',
-            builder: (context, state) =>
-                const Scaffold(body: Center(child: Text('Vazifalar — Day 3'))),
+            builder: (context, state) => const HomeworkListScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/homework/create',
+            builder: (context, state) => const HomeworkCreateScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/homework/:id',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return HomeworkDetailScreen(hwId: id);
+            },
           ),
           GoRoute(
             path: '/teacher/messages',
