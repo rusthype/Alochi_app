@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
@@ -209,6 +208,18 @@ class _ProfileContent extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.m),
 
+          // Help section
+          AlochiCard(
+            padding: EdgeInsets.zero,
+            child: _SettingsRow(
+              icon: Icons.info_outline_rounded,
+              iconBg: AppColors.info,
+              label: 'Ilova haqida',
+              onTap: () => context.push('/teacher/about'),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.m),
+
           // Logout card
           AlochiCard(
             padding: EdgeInsets.zero,
@@ -221,113 +232,10 @@ class _ProfileContent extends ConsumerWidget {
               onTap: () => _showLogoutDialog(context, ref),
             ),
           ),
-
-          // Account info section
-          const _SectionHeader(title: "Hisob ma'lumotlari"),
-          AlochiCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                _InfoRow(
-                  icon: Icons.person_outline,
-                  label: "Foydalanuvchi nomi",
-                  value: profile.username.isEmpty ? "-" : profile.username,
-                ),
-                const _Divider(),
-                const _InfoRow(
-                  icon: Icons.badge_outlined,
-                  label: "Roli",
-                  value: "Ustoz",
-                ),
-                const _Divider(),
-                _InfoRow(
-                  icon: Icons.school_outlined,
-                  label: "Maktab",
-                  value: schoolName ?? "-",
-                ),
-                const _Divider(),
-                const _InfoRow(
-                  icon: Icons.history,
-                  label: "Oxirgi kirish",
-                  value: "Bugun",
-                ),
-              ],
-            ),
-          ),
-
-          // App info section
-          const _SectionHeader(title: "Ilova haqida"),
-          const AlochiCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                _InfoRow(
-                  icon: Icons.info_outline,
-                  label: "Versiya",
-                  value: "1.1.0",
-                ),
-                _Divider(),
-                _InfoRow(
-                  icon: Icons.update,
-                  label: "Yangilanish",
-                  value: "Avtomatik",
-                ),
-              ],
-            ),
-          ),
-
-          // Help section
-          const _SectionHeader(title: "Yordam"),
-          AlochiCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                _LinkRow(
-                  icon: Icons.shield_outlined,
-                  label: "Maxfiylik siyosati",
-                  onTap: () => _launchUrl(
-                      context, 'https://alochi.org/static/legal/privacy.html'),
-                ),
-                const _Divider(),
-                _LinkRow(
-                  icon: Icons.description_outlined,
-                  label: "Xizmat shartlari",
-                  onTap: () => _launchUrl(
-                      context, 'https://alochi.org/static/legal/terms.html'),
-                ),
-                const _Divider(),
-                _LinkRow(
-                  icon: Icons.email_outlined,
-                  label: "Bog'lanish",
-                  onTap: () => _launchUrl(context, 'mailto:support@alochi.org'),
-                ),
-              ],
-            ),
-          ),
-
           const SizedBox(height: AppSpacing.xxl),
         ],
       ),
     );
-  }
-
-  Future<void> _launchUrl(BuildContext context, String urlString) async {
-    try {
-      final Uri url = Uri.parse(urlString);
-      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Manzilni ochib bo'lmadi: $urlString")),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Xatolik yuz berdi: $e")),
-        );
-      }
-    }
   }
 
   Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
@@ -370,102 +278,6 @@ class _ProfileContent extends ConsumerWidget {
         context.go('/teacher/auth/login');
       }
     }
-  }
-}
-
-// ─── Private Widgets ──────────────────────────────────────────────────────────
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          AppSpacing.s, AppSpacing.l, AppSpacing.s, AppSpacing.s),
-      child: Text(
-        title.toUpperCase(),
-        style: AppTextStyles.label.copyWith(
-          color: AppColors.brandMuted,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  const _InfoRow(
-      {required this.icon, required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.l, vertical: AppSpacing.m),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: AppColors.brandMuted),
-          const SizedBox(width: AppSpacing.m),
-          Expanded(child: Text(label, style: AppTextStyles.body)),
-          Text(
-            value,
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.brandMuted,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LinkRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  const _LinkRow(
-      {required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadii.l),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.l, vertical: AppSpacing.m),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: AppColors.brand),
-            const SizedBox(width: AppSpacing.m),
-            Expanded(child: Text(label, style: AppTextStyles.body)),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.brandMuted, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Divider extends StatelessWidget {
-  const _Divider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-      child: Container(
-        height: 1,
-        color: const Color(0xFFF3F4F6),
-      ),
-    );
   }
 }
 
