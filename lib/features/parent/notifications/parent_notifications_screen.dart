@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/parent_api.dart';
 import '../../../core/models/notification.dart';
 
@@ -39,9 +39,8 @@ class ParentNotificationsScreen extends ConsumerWidget {
                 style: const TextStyle(color: kRed))),
         data: (notifications) {
           if (notifications.isEmpty) {
-            return const EmptyState(
-                message: "Yangi bildirishnomalar yo'q",
-                icon: Icons.notifications_none_rounded);
+            return const AlochiEmptyState(
+                title: "Yangi bildirishnomalar yo'q");
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16),

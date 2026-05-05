@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/avatar_widget.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/achievement.dart';
 import '../../auth/auth_provider.dart';
@@ -47,7 +47,7 @@ class ProfileScreen extends ConsumerWidget {
             Center(
               child: Column(
                 children: [
-                  AvatarWidget(name: user.fullName, size: 80),
+                  AlochiAvatar(name: user.fullName, size: 80),
                   const SizedBox(height: 12),
                   Text(user.fullName,
                       style: const TextStyle(

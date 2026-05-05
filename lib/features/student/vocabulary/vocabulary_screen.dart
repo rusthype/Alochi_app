@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/vocabulary.dart';
 
@@ -28,9 +28,8 @@ class VocabularyScreen extends ConsumerWidget {
                 style: const TextStyle(color: kRed))),
         data: (topics) {
           if (topics.isEmpty) {
-            return const EmptyState(
-                message: "So'z mavzulari topilmadi",
-                icon: Icons.menu_book_outlined);
+            return const AlochiEmptyState(
+                title: "So'z mavzulari topilmadi");
           }
           return LayoutBuilder(builder: (ctx, constraints) {
             final cols = constraints.maxWidth > 600 ? 3 : 2;

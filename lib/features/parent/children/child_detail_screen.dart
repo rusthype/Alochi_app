@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/avatar_widget.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/api/parent_api.dart';
 
 final _childDetailProvider =
@@ -66,7 +66,7 @@ class _ChildDetail extends StatelessWidget {
           Center(
             child: Column(
               children: [
-                AvatarWidget(name: name, size: 80),
+                AlochiAvatar(name: name, size: 80),
                 const SizedBox(height: 12),
                 Text(name,
                     style: const TextStyle(

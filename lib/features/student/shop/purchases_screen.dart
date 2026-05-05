@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/shop_item.dart';
 
@@ -28,9 +28,8 @@ class PurchasesScreen extends ConsumerWidget {
                 style: const TextStyle(color: kRed))),
         data: (purchases) {
           if (purchases.isEmpty) {
-            return const EmptyState(
-                message: 'Hali hech narsa xarid qilmadingiz',
-                icon: Icons.shopping_bag_outlined);
+            return const AlochiEmptyState(
+                title: 'Hali hech narsa xarid qilmadingiz');
           }
           return ListView.builder(
             padding: const EdgeInsets.all(16),

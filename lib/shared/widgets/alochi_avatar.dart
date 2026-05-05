@@ -91,7 +91,7 @@ class AlochiAvatar extends StatelessWidget {
   }
 
   Color _getBackgroundColor(String name) {
-    final int hash = name.hashCode;
+    final int hash = name.codeUnits.fold(0, (prev, e) => prev + e);
     final List<Color> colors = [
       AppColors.brand,
       const Color(0xFF0F9A6E),
@@ -101,7 +101,7 @@ class AlochiAvatar extends StatelessWidget {
       const Color(0xFF8B5CF6),
       const Color(0xFFEC4899),
     ];
-    return colors[hash.abs() % colors.length];
+    return colors[hash % colors.length];
   }
 
   Color _getForegroundColor(Color backgroundColor) {

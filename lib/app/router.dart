@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/auth_provider.dart';
@@ -16,7 +15,7 @@ import '../features/student/vocabulary/quiz_screen.dart';
 import '../features/student/shop/shop_screen.dart';
 import '../features/student/shop/purchases_screen.dart';
 import '../features/student/homework/homework_screen.dart';
-import '../features/student/profile/profile_screen.dart';
+import '../features/student/profile/profile_screen.dart' as student_profile;
 import '../features/student/profile/edit_profile_screen.dart';
 import '../features/student/journey/journey_screen.dart';
 import '../features/student/challenge/challenge_screen.dart';
@@ -39,6 +38,11 @@ import '../features/teacher/homework/homework_create_screen.dart';
 import '../features/teacher/homework/homework_detail_screen.dart';
 import '../features/teacher/messages/messages_list_screen.dart';
 import '../features/teacher/messages/chat_thread_screen.dart';
+import '../features/teacher/ai/ai_welcome_screen.dart';
+import '../features/teacher/ai/ai_chat_screen.dart';
+import '../features/teacher/telegram/telegram_parents_screen.dart';
+import '../features/teacher/telegram/unlinked_parents_screen.dart';
+import '../features/teacher/profile/profile_screen.dart' as teacher_profile;
 import '../core/models/test_model.dart';
 
 String _todayString() {
@@ -210,7 +214,26 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/profile',
             builder: (context, state) =>
-                const Scaffold(body: Center(child: Text('Profil — Day 6'))),
+                const teacher_profile.ProfileScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/profile/telegram',
+            builder: (context, state) => const TelegramParentsScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/ai',
+            builder: (context, state) => const AiWelcomeScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/ai/chat',
+            builder: (context, state) => const AiChatScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/telegram/groups/:id/unlinked',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return UnlinkedParentsScreen(groupId: id);
+            },
           ),
         ],
       ),
@@ -278,7 +301,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/student/profile',
-            builder: (context, state) => const ProfileScreen(),
+            builder: (context, state) => const student_profile.ProfileScreen(),
           ),
           GoRoute(
             path: '/student/profile/edit',

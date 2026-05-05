@@ -20,6 +20,10 @@ class TeacherShell extends StatelessWidget {
       currentIndex = 2;
     } else if (location.startsWith('/teacher/messages')) {
       currentIndex = 3;
+    } else if (location.startsWith('/teacher/ai')) {
+      currentIndex = 0;
+    } else if (location.startsWith('/teacher/telegram')) {
+      currentIndex = 4;
     } else if (location.startsWith('/teacher/profile')) {
       currentIndex = 4;
     }

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/avatar_widget.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/api/parent_api.dart';
 import '../../auth/auth_provider.dart';
 
@@ -149,7 +149,7 @@ class _ChildCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                AvatarWidget(name: name, size: 52),
+                AlochiAvatar(name: name, size: 52),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(

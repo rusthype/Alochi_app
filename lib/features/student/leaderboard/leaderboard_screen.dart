@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/empty_state.dart';
-import '../../../shared/widgets/avatar_widget.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/leaderboard.dart';
 import '../../auth/auth_provider.dart';
@@ -65,9 +65,8 @@ class LeaderboardScreen extends ConsumerWidget {
                       style: const TextStyle(color: kRed))),
               data: (entries) {
                 if (entries.isEmpty) {
-                  return const EmptyState(
-                      message: "Ma'lumot topilmadi",
-                      icon: Icons.leaderboard_outlined);
+                  return const AlochiEmptyState(
+                      title: "Ma'lumot topilmadi");
                 }
                 final top3 = entries.take(3).toList();
                 final rest = entries.skip(3).toList();
@@ -245,8 +244,7 @@ class _PodiumSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AvatarWidget(
-            name: entry.name, size: avatarSize, color: color),
+        AlochiAvatar(name: entry.name, size: avatarSize),
         const SizedBox(height: 8),
         Text(entry.name.split(' ').first,
             style: const TextStyle(
@@ -316,7 +314,7 @@ class _RankRow extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     fontSize: 14)),
           ),
-          AvatarWidget(name: entry.name, size: 36),
+          AlochiAvatar(name: entry.name, size: 36),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

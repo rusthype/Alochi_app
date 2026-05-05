@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:confetti/confetti.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/shop_item.dart';
 
@@ -216,9 +216,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                           style: const TextStyle(color: kRed))),
                   data: (items) {
                     if (items.isEmpty) {
-                      return const EmptyState(
-                          message: 'Mahsulotlar topilmadi',
-                          icon: Icons.storefront_outlined);
+                      return const AlochiEmptyState(
+                          title: 'Mahsulotlar topilmadi');
                     }
                     final balance =
                         (walletAsync.value?['coins'] ??
