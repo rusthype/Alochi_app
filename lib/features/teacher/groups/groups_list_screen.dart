@@ -6,7 +6,6 @@ import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
-import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_search_bar.dart';
@@ -30,9 +29,21 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: const AlochiAppBar(
-        title: 'Guruhlarim',
+      appBar: AlochiAppBar(
+        titleWidget: Text(
+          'Guruhlar',
+          style: AppTextStyles.displayM.copyWith(
+            fontSize: 28,
+            color: AppColors.ink,
+          ),
+        ),
         showBackButton: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search_rounded, color: AppColors.ink),
+            onPressed: () {}, // Handled by inline search bar below
+          ),
+        ],
       ),
       body: groupsAsync.when(
         data: (groups) {
@@ -94,17 +105,17 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(right: AppSpacing.s),
                             child: ChoiceChip(
-                              label: Text(f),
+                              label: Text(f == 'Hammasi' ? '$f (${groups.length})' : f),
                               selected: isSelected,
                               onSelected: (v) {
                                 if (v) setState(() => _filter = f);
                               },
                               backgroundColor: Colors.white,
-                              selectedColor: AppColors.brandSoft,
+                              selectedColor: const Color(0xFF111827),
                               labelStyle: AppTextStyles.label.copyWith(
                                 color: isSelected
-                                    ? AppColors.brand
-                                    : AppColors.ink,
+                                    ? Colors.white
+                                    : const Color(0xFF6B7280),
                                 fontWeight: isSelected
                                     ? FontWeight.w600
                                     : FontWeight.w400,
@@ -114,7 +125,7 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
                                     BorderRadius.circular(AppRadii.round),
                                 side: BorderSide(
                                   color: isSelected
-                                      ? AppColors.brand
+                                      ? const Color(0xFF111827)
                                       : const Color(0xFFE5E7EB),
                                 ),
                               ),
@@ -174,8 +185,8 @@ class _GroupCard extends StatelessWidget {
 
   Color _attendanceColor(double pct) {
     if (pct >= 90) return const Color(0xFF0F9A6E);
-    if (pct >= 75) return AppColors.brand;
-    return AppColors.warning;
+    if (pct >= 75) return const Color(0xFF1F6F65);
+    return const Color(0xFFD97706);
   }
 
   @override
@@ -184,8 +195,13 @@ class _GroupCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => context.push('/teacher/groups/${group.id}'),
-      child: AlochiCard(
-        padding: const EdgeInsets.all(AppSpacing.l),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFEFEFEF)),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -199,16 +215,18 @@ class _GroupCard extends StatelessWidget {
                     children: [
                       Text(
                         group.subjectName,
-                        style:
-                            AppTextStyles.titleM.copyWith(color: AppColors.ink),
+                        style: AppTextStyles.titleM.copyWith(
+                          color: AppColors.ink,
+                          fontSize: 14,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         "${group.studentsCount} o'quvchi"
                         "${group.nextLessonAt != null ? ' · ${group.nextLessonAt}' : ''}",
-                        style: AppTextStyles.bodyS
-                            .copyWith(color: AppColors.brandMuted),
+                        style: AppTextStyles.caption
+                            .copyWith(color: const Color(0xFF6B7280)),
                       ),
                     ],
                   ),
@@ -217,7 +235,7 @@ class _GroupCard extends StatelessWidget {
                     color: Color(0xFFD1D5DB)),
               ],
             ),
-            const SizedBox(height: AppSpacing.m),
+            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
@@ -229,7 +247,7 @@ class _GroupCard extends StatelessWidget {
                         children: [
                           Text('Davomat',
                               style: AppTextStyles.caption
-                                  .copyWith(color: AppColors.brandMuted)),
+                                  .copyWith(color: const Color(0xFF6B7280))),
                           Text(
                             '${group.attendancePct.toStringAsFixed(0)}%',
                             style: AppTextStyles.caption.copyWith(
@@ -237,23 +255,25 @@ class _GroupCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       _ProgressBar(
                           value: group.attendancePct / 100, color: attColor),
                     ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.l),
+                const SizedBox(width: 24),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text("O'rtacha",
                         style: AppTextStyles.caption
-                            .copyWith(color: AppColors.brandMuted)),
+                            .copyWith(color: const Color(0xFF6B7280))),
                     Text(
                       group.avgGrade.toStringAsFixed(1),
-                      style:
-                          AppTextStyles.titleM.copyWith(color: AppColors.brand),
+                      style: AppTextStyles.titleM.copyWith(
+                        color: AppColors.brand,
+                        fontSize: 15,
+                      ),
                     ),
                   ],
                 ),
