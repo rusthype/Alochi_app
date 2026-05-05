@@ -8,13 +8,27 @@ class AuthState {
   final bool isLoading;
   final String? error;
 
-  const AuthState({this.user, this.isLoading = false, this.error});
+  /// True when user is authenticated but has not yet seen onboarding.
+  final bool needsOnboarding;
 
-  AuthState copyWith({UserModel? user, bool? isLoading, String? error}) {
+  const AuthState({
+    this.user,
+    this.isLoading = false,
+    this.error,
+    this.needsOnboarding = false,
+  });
+
+  AuthState copyWith({
+    UserModel? user,
+    bool? isLoading,
+    String? error,
+    bool? needsOnboarding,
+  }) {
     return AuthState(
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       error: error,
+      needsOnboarding: needsOnboarding ?? this.needsOnboarding,
     );
   }
 }
@@ -44,12 +58,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final user = await _api.login(username, password);
-      state = AuthState(user: user);
+      // Check first-login flag for teacher role
+      bool needsOnboarding = false;
+      if (user.role == 'teacher') {
+        final done = await AppStorage.readKey('first_login_complete');
+        needsOnboarding = done != 'true';
+      }
+      state = AuthState(user: user, needsOnboarding: needsOnboarding);
     } catch (_) {
       state = state.copyWith(
-          isLoading: false,
-          error: 'Login failed. Check your credentials.');
+          isLoading: false, error: 'Login failed. Check your credentials.');
     }
+  }
+
+  /// Clear the needsOnboarding flag after user completes/skips onboarding.
+  void clearOnboardingFlag() {
+    state = state.copyWith(needsOnboarding: false);
   }
 
   Future<void> logout() async {

@@ -3,10 +3,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppStorage {
   static const _storage = FlutterSecureStorage();
-  
-  static const _accessKey  = 'access_token';
+
+  static const _accessKey = 'access_token';
   static const _refreshKey = 'refresh_token';
-  static const _userKey    = 'user_data';
+  static const _userKey = 'user_data';
 
   static Future<void> saveTokens(String access, String refresh) async {
     await _storage.write(key: _accessKey, value: access);
@@ -36,5 +36,14 @@ class AppStorage {
     await _storage.delete(key: _refreshKey);
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userKey);
+  }
+
+  /// General-purpose key-value helpers (for feature flags, onboarding state, etc.)
+  static Future<String?> readKey(String key) async {
+    return await _storage.read(key: key);
+  }
+
+  static Future<void> writeKey(String key, String value) async {
+    await _storage.write(key: key, value: value);
   }
 }
