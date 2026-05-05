@@ -39,7 +39,11 @@ class _AttendanceHistoryScreenState
           ),
           Expanded(
             child: historyAsync.when(
-              data: (history) => _HistoryBody(history: history),
+              data: (history) => _HistoryBody(
+                history: history,
+                groupId: widget.groupId,
+                period: _selectedPeriod,
+              ),
               loading: () => const Center(
                 child: CircularProgressIndicator(color: AppColors.brand),
               ),
@@ -103,25 +107,40 @@ class _PeriodChips extends StatelessWidget {
   }
 }
 
-class _HistoryBody extends StatelessWidget {
+class _HistoryBody extends ConsumerWidget {
   final AttendanceHistoryModel history;
+  final String groupId;
+  final String period;
 
-  const _HistoryBody({required this.history});
+  const _HistoryBody({
+    required this.history,
+    required this.groupId,
+    required this.period,
+  });
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SummaryCard(history: history),
-          const SizedBox(height: AppSpacing.l),
-          if (history.lowAttendanceStudents.isNotEmpty) ...[
-            _LowAttendanceCard(students: history.lowAttendanceStudents),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return RefreshIndicator(
+      color: AppColors.brand,
+      onRefresh: () async {
+        final key = (classId: groupId, period: period);
+        ref.invalidate(attendanceHistoryProvider(key));
+        await ref.read(attendanceHistoryProvider(key).future);
+      },
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.l),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SummaryCard(history: history),
             const SizedBox(height: AppSpacing.l),
+            if (history.lowAttendanceStudents.isNotEmpty) ...[
+              _LowAttendanceCard(students: history.lowAttendanceStudents),
+              const SizedBox(height: AppSpacing.l),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
