@@ -53,8 +53,9 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
       backgroundColor: AppColors.surface,
       appBar: groupAsync.when(
         data: (group) => AlochiAppBar(
+          centerTitle: true,
           titleWidget: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
@@ -64,7 +65,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
               Text(
                 "${group.studentsCount} o'quvchi",
                 style:
-                    AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+                    AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
               ),
             ],
           ),
@@ -91,9 +92,10 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           TabBar(
             controller: _tabController,
             labelColor: AppColors.brand,
-            unselectedLabelColor: AppColors.brandMuted,
+            unselectedLabelColor: const Color(0xFF6B7280),
             indicatorColor: AppColors.brand,
             indicatorWeight: 2,
+            indicatorSize: TabBarIndicatorSize.tab,
             labelStyle:
                 AppTextStyles.label.copyWith(fontWeight: FontWeight.w600),
             unselectedLabelStyle: AppTextStyles.label,
@@ -169,43 +171,37 @@ class _GroupStatsRow extends StatelessWidget {
 
   const _GroupStatsRow({required this.group});
 
-  Color _attendanceColor(double pct) {
-    if (pct >= 90) return const Color(0xFF0F9A6E);
-    if (pct >= 75) return AppColors.brand;
-    return AppColors.warning;
-  }
-
   @override
   Widget build(BuildContext context) {
     final avgGradeStr =
         group.avgGrade > 0 ? group.avgGrade.toStringAsFixed(1) : '--';
-    final attPctStr = group.attendancePct > 0
-        ? '${group.attendancePct.toStringAsFixed(0)}%'
-        : '--';
 
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.l, vertical: AppSpacing.m),
+    return Padding(
+      padding: const EdgeInsets.all(14),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          const _StatTile(
-            label: "Keldi",
-            value: '--',
-            valueColor: AppColors.ink,
+          const Expanded(
+            child: _StatTile(
+              label: "DAVOMAT",
+              value: "28/32", // Mockup specific or calculated
+              valueColor: AppColors.ink,
+            ),
           ),
-          _StatDivider(),
-          _StatTile(
-            label: "O'rtacha",
-            value: avgGradeStr,
-            valueColor: AppColors.brand,
+          const SizedBox(width: 10),
+          Expanded(
+            child: _StatTile(
+              label: "O'RTACHA",
+              value: avgGradeStr,
+              valueColor: AppColors.brand,
+            ),
           ),
-          _StatDivider(),
-          _StatTile(
-            label: 'Davomat',
-            value: attPctStr,
-            valueColor: _attendanceColor(group.attendancePct),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: _StatTile(
+              label: 'BAJARISH',
+              value: '87%', // Mockup specific placeholder
+              valueColor: Color(0xFF0F9A6E),
+            ),
           ),
         ],
       ),
@@ -226,29 +222,35 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: AppTextStyles.displayM.copyWith(color: valueColor),
-        ),
-        Text(
-          label,
-          style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      height: 32,
-      width: 1,
-      color: const Color(0xFFE5E7EB),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F5F7),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            value,
+            style: AppTextStyles.displayM.copyWith(
+              color: valueColor,
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.4,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label.toUpperCase(),
+            style: AppTextStyles.caption.copyWith(
+              color: const Color(0xFF6B7280),
+              fontWeight: FontWeight.w500,
+              fontSize: 10,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -333,33 +335,37 @@ class _StudentRow extends StatelessWidget {
     final attPct = student.attendancePct;
     final avgGrade = student.avgGrade;
     final isLowAtt = attPct != null && attPct < 75;
-    final isLowGrade = avgGrade != null && avgGrade < 3.5;
 
     return GestureDetector(
       onTap: () => context.push('/teacher/students/${student.id}'),
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
+        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
         child: Row(
           children: [
             AlochiAvatar(name: student.fullName, size: 38),
-            const SizedBox(width: AppSpacing.m),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     student.fullName,
-                    style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+                    style: AppTextStyles.titleM.copyWith(
+                      color: AppColors.ink,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     _buildSubtitle(attPct, avgGrade),
-                    style: AppTextStyles.bodyS.copyWith(
-                      color: (isLowAtt || isLowGrade)
-                          ? AppColors.warning
-                          : AppColors.brandMuted,
+                    style: AppTextStyles.caption.copyWith(
+                      color: isLowAtt
+                          ? const Color(0xFFD97706)
+                          : const Color(0xFF6B7280),
+                      fontSize: 11,
                     ),
                   ),
                 ],

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../theme/typography.dart';
-import '../../theme/radii.dart';
 
 class AlochiGradeBadge extends StatelessWidget {
   final int value;
@@ -9,7 +8,7 @@ class AlochiGradeBadge extends StatelessWidget {
   const AlochiGradeBadge({
     super.key,
     required this.value,
-    this.size = 26,
+    this.size = 22,
   });
 
   Color _bgColor() {
@@ -17,7 +16,7 @@ class AlochiGradeBadge extends StatelessWidget {
       case 5:
         return const Color(0xFFE1F5EE);
       case 4:
-        return const Color(0xFFFFF3E9);
+        return const Color(0xFFE8F2EF);
       case 3:
         return const Color(0xFFFAEEDA);
       default:
@@ -30,7 +29,7 @@ class AlochiGradeBadge extends StatelessWidget {
       case 5:
         return const Color(0xFF0F9A6E);
       case 4:
-        return const Color(0xFFF97316);
+        return const Color(0xFF1F6F65);
       case 3:
         return const Color(0xFFD97706);
       default:
@@ -45,7 +44,7 @@ class AlochiGradeBadge extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         color: _bgColor(),
-        borderRadius: BorderRadius.circular(AppRadii.xs),
+        borderRadius: BorderRadius.circular(6),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -53,7 +52,7 @@ class AlochiGradeBadge extends StatelessWidget {
         style: AppTextStyles.label.copyWith(
           color: _fgColor(),
           fontWeight: FontWeight.w700,
-          fontSize: size * 0.5,
+          fontSize: 12,
         ),
       ),
     );
