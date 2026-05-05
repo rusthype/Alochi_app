@@ -37,6 +37,8 @@ import '../features/teacher/grades/grades_screen.dart';
 import '../features/teacher/homework/homework_list_screen.dart';
 import '../features/teacher/homework/homework_create_screen.dart';
 import '../features/teacher/homework/homework_detail_screen.dart';
+import '../features/teacher/messages/messages_list_screen.dart';
+import '../features/teacher/messages/chat_thread_screen.dart';
 import '../core/models/test_model.dart';
 
 String _todayString() {
@@ -196,8 +198,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/teacher/messages',
-            builder: (context, state) =>
-                const Scaffold(body: Center(child: Text('Xabarlar — Day 4'))),
+            builder: (context, state) => const MessagesListScreen(),
+          ),
+          GoRoute(
+            path: '/teacher/messages/:id',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return ChatThreadScreen(conversationId: id);
+            },
           ),
           GoRoute(
             path: '/teacher/profile',

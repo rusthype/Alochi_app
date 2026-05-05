@@ -5,6 +5,7 @@ import '../models/group_model.dart';
 import '../models/student_model.dart';
 import '../models/attendance_model.dart';
 import '../models/lesson_detail_model.dart';
+import '../models/message_model.dart';
 
 class TeacherApi {
   final _client = ApiClient.instance;
@@ -43,7 +44,9 @@ class TeacherApi {
         list = [];
       }
       if (list.isEmpty) return [];
-      return list.map((e) => GroupModel.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => GroupModel.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (e, st) {
       debugPrint('getGroups error: $e\n$st');
       rethrow;
@@ -79,8 +82,8 @@ class TeacherApi {
   /// which reliably returns the student list.
   Future<List<StudentModel>> getGroupStudents(String groupId) async {
     try {
-      final data = await _client
-          .get('/teacher/panel/groups/$groupId/attendance/');
+      final data =
+          await _client.get('/teacher/panel/groups/$groupId/attendance/');
       if (data is Map<String, dynamic>) {
         final rawStudents = data['students'] as List? ?? [];
         if (rawStudents.isEmpty) return [];
@@ -91,7 +94,8 @@ class TeacherApi {
           return StudentModel(
             id: m['id']?.toString() ?? '',
             firstName: nameParts.isNotEmpty ? nameParts[0] : '',
-            lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
+            lastName:
+                nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
             classId: groupId,
           );
         }).toList();
@@ -105,7 +109,8 @@ class TeacherApi {
 
   Future<StudentModel> getStudentProfile(String studentId) async {
     try {
-      final data = await _client.get('/teacher/students/$studentId/') as Map<String, dynamic>;
+      final data = await _client.get('/teacher/students/$studentId/')
+          as Map<String, dynamic>;
       return StudentModel.fromJson(data);
     } catch (e, st) {
       debugPrint('getStudentProfile error: $e\n$st');
@@ -233,7 +238,8 @@ class TeacherApi {
   /// Returns {stats: {}, assignments: []}
   Future<HomeworkListData> getHomework() async {
     try {
-      final data = await _client.get('/teacher/homework/') as Map<String, dynamic>;
+      final data =
+          await _client.get('/teacher/homework/') as Map<String, dynamic>;
       return HomeworkListData.fromJson(data);
     } catch (e, st) {
       debugPrint('getHomework error: $e\n$st');
@@ -267,10 +273,68 @@ class TeacherApi {
 
   Future<LessonDetailModel> getLessonDetail(String lessonId) async {
     try {
-      final data = await _client.get('/teacher/lessons/$lessonId/') as Map<String, dynamic>;
+      final data = await _client.get('/teacher/lessons/$lessonId/')
+          as Map<String, dynamic>;
       return LessonDetailModel.fromJson(data);
     } catch (e, st) {
       debugPrint('getLessonDetail error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  // ───── Messages ──────────────────────────────────────────────────────────
+
+  /// GET /teacher/messages/ → {conversations: []}
+  Future<List<ConversationModel>> getConversations() async {
+    try {
+      final data = await _client.get('/teacher/messages/');
+      List<dynamic> list;
+      if (data is Map<String, dynamic>) {
+        list = data['conversations'] as List? ?? [];
+      } else if (data is List) {
+        list = data;
+      } else {
+        list = [];
+      }
+      if (list.isEmpty) return [];
+      return list
+          .map((e) => ConversationModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e, st) {
+      debugPrint('getConversations error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// GET /teacher/messages/:id/  → conversation detail + messages
+  Future<ConversationDetailModel> getConversationDetail(String id) async {
+    try {
+      final data =
+          await _client.get('/teacher/messages/$id/') as Map<String, dynamic>;
+      final conv = ConversationModel.fromJson(data);
+      final rawMsgs = data['messages'] as List? ?? [];
+      final msgs = rawMsgs.isEmpty
+          ? <MessageModel>[]
+          : rawMsgs
+              .map((e) => MessageModel.fromJson(e as Map<String, dynamic>))
+              .toList();
+      return ConversationDetailModel(conversation: conv, messages: msgs);
+    } catch (e, st) {
+      debugPrint('getConversationDetail error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  /// POST /teacher/messages/:id/send/
+  Future<MessageModel> sendMessage(String conversationId, String text) async {
+    try {
+      final data = await _client.post(
+        '/teacher/messages/$conversationId/send/',
+        data: {'text': text},
+      ) as Map<String, dynamic>;
+      return MessageModel.fromJson(data);
+    } catch (e, st) {
+      debugPrint('sendMessage error: $e\n$st');
       rethrow;
     }
   }
@@ -377,9 +441,7 @@ class HomeworkStats {
   final int pending;
 
   const HomeworkStats(
-      {required this.submitted,
-      required this.onTime,
-      required this.pending});
+      {required this.submitted, required this.onTime, required this.pending});
 
   factory HomeworkStats.fromJson(Map<String, dynamic> json) {
     return HomeworkStats(
@@ -430,7 +492,8 @@ class HomeworkModel {
       description: json['description']?.toString() ?? '',
       subject: json['subject']?.toString() ?? '',
       groupName: json['group_name']?.toString() ??
-          json['class_name']?.toString() ?? '',
+          json['class_name']?.toString() ??
+          '',
       deadline: dl,
       responseCount: (json['response_count'] as num?)?.toInt() ?? 0,
       isActive: active,
