@@ -1,7 +1,7 @@
 name: alochi_app
 description: A'lochi — Gamified Education Platform
 publish_to: none
-version: 1.3.0+13
+version: 1.4.0+14
 
 environment:
   sdk: '>=3.3.0 <4.0.0'

@@ -8,7 +8,7 @@ import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/models/message_model.dart';
-import '../students/students_provider.dart';
+import '../students/student_provider.dart';
 import 'messages_provider.dart';
 
 class ChatThreadScreen extends ConsumerStatefulWidget {
