@@ -313,7 +313,7 @@ class _GroupDropdown extends StatelessWidget {
             border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
           child: DropdownButtonFormField<String>(
-            value: selectedId,
+            initialValue: selectedId,
             isExpanded: true,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.symmetric(
@@ -403,9 +403,9 @@ class _DeadlinePicker extends StatelessWidget {
                     size: 18, color: AppColors.brandMuted),
                 const SizedBox(width: AppSpacing.s),
                 Text(
-                  value != null
-                      ? '${value!.day.toString().padLeft(2, '0')}.${value!.month.toString().padLeft(2, '0')}.${value!.year}'
-                      : 'Sanani tanlang',
+                  value == null
+                      ? 'Sanani tanlang'
+                      : '${value!.day.toString().padLeft(2, '0')}.${value!.month.toString().padLeft(2, '0')}.${value!.year}',
                   style: AppTextStyles.body.copyWith(
                     color: value != null ? AppColors.ink : AppColors.brandMuted,
                   ),

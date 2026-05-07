@@ -43,29 +43,33 @@ class LessonDetailScreen extends ConsumerWidget {
             ],
           ),
         ),
-        loading: () => AlochiAppBar(
-          titleWidget: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(lesson?.subject ?? 'Dars', style: AppTextStyles.titleL),
-              if (lesson?.groupName != null)
-                Text(lesson!.groupName,
-                    style: AppTextStyles.bodyS
-                        .copyWith(color: AppColors.brandMuted)),
-            ],
-          ),
-        ),
+        loading: () {
+          final l = lesson; // shadow nullable field for type narrowing
+          return AlochiAppBar(
+            titleWidget: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l?.subject ?? 'Dars', style: AppTextStyles.titleL),
+                if (l != null && l.groupName != null && l.groupName!.isNotEmpty)
+                  Text(l.groupName,
+                      style: AppTextStyles.bodyS
+                          .copyWith(color: AppColors.brandMuted)),
+              ],
+            ),
+          );
+        },
         error: (_, __) => const AlochiAppBar(title: 'Dars'),
       ),
       body: lessonAsync.when(
         data: (lessonDetail) => _LessonDetailBody(lesson: lessonDetail),
         loading: () => lesson != null
-            ? _LessonDetailBodyFromModel(lesson: lesson!)
+            ? _LessonDetailBodyFromModel(lesson: lesson!) // null checked above
             : const _LessonDetailLoadingSkeleton(),
         error: (err, __) {
           // /lessons/:id/ not available in backend — use passed LessonModel
-          if (lesson != null) {
-            return _LessonDetailBodyFromModel(lesson: lesson!);
+          final fallback = lesson;
+          if (fallback != null) {
+            return _LessonDetailBodyFromModel(lesson: fallback);
           }
           return AlochiEmptyState(
             icon: Icons.error_outline_rounded,

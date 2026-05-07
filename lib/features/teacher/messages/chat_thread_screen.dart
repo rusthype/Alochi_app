@@ -277,8 +277,8 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                       color: theme.colorScheme.onSurface, fontSize: 14),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
-              if (conversation?.classCode != null)
-                Text(conversation!.classCode!,
+              if (conversation?.classCode?.isNotEmpty == true)
+                Text(conversation?.classCode ?? '',
                     style: AppTextStyles.caption
                         .copyWith(color: AppColors.brandMuted)),
             ],
