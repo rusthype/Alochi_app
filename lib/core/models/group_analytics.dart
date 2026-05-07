@@ -21,10 +21,19 @@ class GroupAnalyticsModel {
     final lowAtt = json['low_attendance_students'] as List? ?? [];
 
     return GroupAnalyticsModel(
-      attendanceTrend: attTrend.map((e) => ChartPointModel.fromJson(e as Map<String, dynamic>)).toList(),
-      gradeTrend: grdTrend.map((e) => ChartPointModel.fromJson(e as Map<String, dynamic>)).toList(),
-      topStudents: topStud.map((e) => TopStudentModel.fromJson(e as Map<String, dynamic>)).toList(),
-      lowAttendanceStudents: lowAtt.map((e) => LowAttendanceStudentModel.fromJson(e as Map<String, dynamic>)).toList(),
+      attendanceTrend: attTrend
+          .map((e) => ChartPointModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      gradeTrend: grdTrend
+          .map((e) => ChartPointModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      topStudents: topStud
+          .map((e) => TopStudentModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      lowAttendanceStudents: lowAtt
+          .map((e) =>
+              LowAttendanceStudentModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }

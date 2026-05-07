@@ -47,7 +47,7 @@ class TeacherApi {
       ]);
       final dashData = (results[0] as Map?)?.cast<String, dynamic>() ?? {};
       final ttData = (results[1] as Map?)?.cast<String, dynamic>() ?? {};
-      
+
       List<dynamic> groupsList = [];
       final groupsResponse = results[2];
       if (groupsResponse is Map<String, dynamic>) {

@@ -105,7 +105,8 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
                           return Padding(
                             padding: const EdgeInsets.only(right: AppSpacing.s),
                             child: ChoiceChip(
-                              label: Text(f == 'Hammasi' ? '$f (${groups.length})' : f),
+                              label: Text(
+                                  f == 'Hammasi' ? '$f (${groups.length})' : f),
                               selected: isSelected,
                               onSelected: (v) {
                                 if (v) setState(() => _filter = f);
@@ -211,7 +212,8 @@ class _GroupCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  AlochiPill(label: group.code, variant: AlochiPillVariant.brand),
+                  AlochiPill(
+                      label: group.code, variant: AlochiPillVariant.brand),
                   const SizedBox(width: AppSpacing.m),
                   Expanded(
                     child: Column(

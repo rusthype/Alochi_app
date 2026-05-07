@@ -54,7 +54,7 @@ class LandingScreen extends StatelessWidget {
                 style: AppTextStyles.titleL,
               ),
               const SizedBox(height: 32),
-              
+
               // Role buttons
               _RoleCard(
                 title: 'Ustoz',
@@ -79,7 +79,7 @@ class LandingScreen extends StatelessWidget {
                 color: AppColors.info,
                 onTap: () => context.push('/teacher/auth/login?role=student'),
               ),
-              
+
               const Spacer(),
               const Text(
                 '© 2026 A\'lochi',
@@ -142,7 +142,7 @@ class _RoleCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded, 
+            const Icon(Icons.arrow_forward_ios_rounded,
                 size: 16, color: AppColors.gray2),
           ],
         ),

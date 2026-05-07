@@ -50,8 +50,7 @@ class TeacherDashboardSummary {
         final m = l as Map<String, dynamic>;
         return DashboardLessonModel(
           id: m['id']?.toString() ?? '',
-          groupId:
-              m['group_id']?.toString() ?? m['class_id']?.toString() ?? '',
+          groupId: m['group_id']?.toString() ?? m['class_id']?.toString() ?? '',
           time: m['time']?.toString() ?? '',
           className:
               m['group_name']?.toString() ?? m['class_name']?.toString() ?? '',
@@ -73,8 +72,7 @@ class TeacherDashboardSummary {
         final m = l as Map<String, dynamic>;
         return DashboardLessonModel(
           id: m['id']?.toString() ?? '',
-          groupId:
-              m['group_id']?.toString() ?? m['class_id']?.toString() ?? '',
+          groupId: m['group_id']?.toString() ?? m['class_id']?.toString() ?? '',
           time: m['time']?.toString() ?? '',
           className:
               m['group_name']?.toString() ?? m['class_name']?.toString() ?? '',
@@ -84,7 +82,6 @@ class TeacherDashboardSummary {
           isActive: isLessonNow(m['time']?.toString() ?? ''),
         );
       }).toList();
-
     }
 
     final concerns = <ConcernModel>[];
@@ -200,9 +197,9 @@ class DashboardLessonModel {
 
       final now = DateTime.now();
       final lessonStart = DateTime(now.year, now.month, now.day, h, m);
-      
+
       if (now.isAfter(lessonStart)) return 'Tugagan';
-      
+
       final diff = lessonStart.difference(now);
       if (diff.inHours > 0) {
         return '${diff.inHours} soat keyin';
@@ -214,7 +211,6 @@ class DashboardLessonModel {
     }
   }
 }
-
 
 class ConcernModel {
   final String type;

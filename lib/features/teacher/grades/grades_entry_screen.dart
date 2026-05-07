@@ -66,12 +66,14 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
               data: (state) {
                 final students = state.students.where((s) {
                   final status = state.statuses[s.id];
-                  return status == AttendanceStatus.present || status == AttendanceStatus.late;
+                  return status == AttendanceStatus.present ||
+                      status == AttendanceStatus.late;
                 }).toList();
 
                 if (students.isEmpty) {
                   return const Center(
-                    child: Text('Darsda o\'quvchilar yo\'q', style: AppTextStyles.body),
+                    child: Text('Darsda o\'quvchilar yo\'q',
+                        style: AppTextStyles.body),
                   );
                 }
 
@@ -88,7 +90,8 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
                   },
                 );
               },
-              loading: () => const Center(child: CircularProgressIndicator(color: AppColors.brand)),
+              loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppColors.brand)),
               error: (err, _) => Center(child: Text(err.toString())),
             ),
           ),
@@ -109,7 +112,9 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
   Future<void> _save() async {
     // Implement bulk save API call here
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Baholar saqlandi'), backgroundColor: Color(0xFF0F9A6E)),
+      const SnackBar(
+          content: Text('Baholar saqlandi'),
+          backgroundColor: Color(0xFF0F9A6E)),
     );
     context.pop();
   }
@@ -207,7 +212,8 @@ class _GradeEntryRow extends StatelessWidget {
             AlochiAvatar(name: student.fullName, size: 40),
             const SizedBox(width: AppSpacing.m),
             Expanded(
-              child: Text(student.fullName, style: AppTextStyles.titleM.copyWith(fontSize: 14)),
+              child: Text(student.fullName,
+                  style: AppTextStyles.titleM.copyWith(fontSize: 14)),
             ),
             _GradeButtonsRow(value: grade, onChanged: onChanged),
           ],
@@ -257,11 +263,16 @@ class _GradeButtonsRow extends StatelessWidget {
 
   Color _gradeColor(int grade) {
     switch (grade) {
-      case 5: return const Color(0xFF0F9A6E);
-      case 4: return AppColors.brand;
-      case 3: return const Color(0xFFD97706);
-      case 2: return AppColors.danger;
-      default: return AppColors.brandMuted;
+      case 5:
+        return const Color(0xFF0F9A6E);
+      case 4:
+        return AppColors.brand;
+      case 3:
+        return const Color(0xFFD97706);
+      case 2:
+        return AppColors.danger;
+      default:
+        return AppColors.brandMuted;
     }
   }
 }

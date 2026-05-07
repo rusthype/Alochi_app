@@ -278,10 +278,11 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                     final idx = entry.key;
                     final opt = entry.value;
                     final isSelected = _answers[q.id] == idx;
-                    
+
                     Color itemColor = isSelected ? kOrange : kBgBorder;
                     if (_showFeedback && isSelected) {
-                      itemColor = kGreen; // For prototype we show green on selection
+                      itemColor =
+                          kGreen; // For prototype we show green on selection
                     }
 
                     return GestureDetector(
@@ -328,7 +329,8 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                                       fontSize: 15)),
                             ),
                             if (_showFeedback && isSelected)
-                              const Icon(Icons.check_circle_rounded, color: kGreen),
+                              const Icon(Icons.check_circle_rounded,
+                                  color: kGreen),
                           ],
                         ),
                       ),

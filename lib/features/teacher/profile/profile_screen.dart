@@ -345,8 +345,8 @@ class _SettingsRow extends StatelessWidget {
               child: Text(
                 label,
                 style: AppTextStyles.body.copyWith(
-                    color: labelColor ??
-                        Theme.of(context).colorScheme.onSurface),
+                    color:
+                        labelColor ?? Theme.of(context).colorScheme.onSurface),
               ),
             ),
             if (showChevron)

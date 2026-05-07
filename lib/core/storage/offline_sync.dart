@@ -69,19 +69,20 @@ class OfflineSyncService {
   /// Attempts to send all pending operations to the server.
   static Future<void> flushQueue(ApiClient client) async {
     if (!await Hive.boxExists(_boxName)) return;
-    
+
     final box = await Hive.openBox(_boxName);
     if (box.isEmpty) return;
 
-    debugPrint('OfflineSync: ${box.length} ta kutilayotgan amal yuborilmoqda...');
-    
+    debugPrint(
+        'OfflineSync: ${box.length} ta kutilayotgan amal yuborilmoqda...');
+
     // Convert keys to list to avoid concurrent modification issues
     final keys = box.keys.toList();
 
     for (final key in keys) {
       final map = box.get(key);
       if (map == null) continue;
-      
+
       final op = PendingOperation.fromMap(map as Map);
 
       try {
@@ -92,13 +93,15 @@ class OfflineSyncService {
         op.retryCount++;
         if (op.retryCount >= 3) {
           await box.delete(key);
-          debugPrint('OfflineSync: 3 marta xatolikdan so\'ng o\'chirildi: ${op.type}');
+          debugPrint(
+              'OfflineSync: 3 marta xatolikdan so\'ng o\'chirildi: ${op.type}');
         } else {
           await box.put(key, op.toMap());
-          debugPrint('OfflineSync: Xatolik ${op.type} (urinish: ${op.retryCount})');
+          debugPrint(
+              'OfflineSync: Xatolik ${op.type} (urinish: ${op.retryCount})');
         }
         // Order is important for many operations, so we stop on first error
-        break; 
+        break;
       }
     }
   }

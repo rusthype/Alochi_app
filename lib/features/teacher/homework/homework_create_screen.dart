@@ -28,7 +28,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
 
   String? _selectedGroupId;
   DateTime? _deadline;
-  
+
   // Toggles
   bool _telegramPoll = true;
   bool _reminder = true;
@@ -89,13 +89,13 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                 error: (_, __) => const _FieldSkeleton(label: 'Guruh'),
               ),
               const SizedBox(height: AppSpacing.m),
-              
+
               _DeadlinePicker(
                 value: _deadline,
                 onChanged: (dt) => setState(() => _deadline = dt),
               ),
               const SizedBox(height: AppSpacing.m),
-              
+
               _QuickDeadlineChips(
                 onSelected: (days) {
                   setState(() {
@@ -104,7 +104,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                 },
               ),
               const SizedBox(height: AppSpacing.xl),
-              
+
               Text(
                 'Sozlamalar',
                 style: AppTextStyles.label.copyWith(
@@ -151,25 +151,26 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    
+
     if (_selectedGroupId == null) {
       _showError('Guruh tanlang');
       return;
     }
-    
+
     if (_deadline == null) {
       _showError('Muddat tanlang');
       return;
     }
 
-    final dueDateStr = '${_deadline!.year}-${_deadline!.month.toString().padLeft(2, '0')}-${_deadline!.day.toString().padLeft(2, '0')}';
+    final dueDateStr =
+        '${_deadline!.year}-${_deadline!.month.toString().padLeft(2, '0')}-${_deadline!.day.toString().padLeft(2, '0')}';
 
     await ref.read(homeworkCreateProvider.notifier).create(
-      groupId: _selectedGroupId!,
-      title: _titleController.text,
-      description: _descController.text,
-      dueDate: dueDateStr,
-    );
+          groupId: _selectedGroupId!,
+          title: _titleController.text,
+          description: _descController.text,
+          dueDate: dueDateStr,
+        );
 
     final result = ref.read(homeworkCreateProvider);
     if (result.hasError) {
@@ -222,7 +223,8 @@ class _QuickDeadlineChips extends StatelessWidget {
           labelStyle: AppTextStyles.caption.copyWith(color: AppColors.ink),
           backgroundColor: const Color(0xFFF3F4F6),
           side: BorderSide.none,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.s)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadii.s)),
           onPressed: () => onSelected(opt.days),
         );
       }).toList(),

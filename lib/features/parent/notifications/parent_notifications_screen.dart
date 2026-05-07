@@ -74,7 +74,6 @@ class ParentNotificationsScreen extends ConsumerWidget {
   }
 }
 
-
 class _NotificationCard extends StatelessWidget {
   final AppNotification n;
   const _NotificationCard({required this.n});

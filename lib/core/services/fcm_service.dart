@@ -19,7 +19,7 @@ class FCMService {
     try {
       // Check if Firebase is initialized
       if (Firebase.apps.isEmpty) {
-        // We don't initialize here to keep main.dart clean, 
+        // We don't initialize here to keep main.dart clean,
         // but we check availability.
         debugPrint('FCM: Firebase not initialized in main.dart');
         return;
@@ -34,7 +34,7 @@ class FCMService {
         badge: true,
         sound: true,
       );
-      
+
       debugPrint('FCM: Initialized successfully');
     } catch (e) {
       debugPrint('FCM: Initialization error: $e');

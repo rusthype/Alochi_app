@@ -21,7 +21,8 @@ class TelegramParentsScreen extends ConsumerStatefulWidget {
   const TelegramParentsScreen({super.key});
 
   @override
-  ConsumerState<TelegramParentsScreen> createState() => _TelegramParentsScreenState();
+  ConsumerState<TelegramParentsScreen> createState() =>
+      _TelegramParentsScreenState();
 }
 
 class _TelegramParentsScreenState extends ConsumerState<TelegramParentsScreen> {
@@ -550,7 +551,8 @@ class _ActionButton extends StatelessWidget {
               child: Icon(icon, color: AppColors.brand, size: 24),
             ),
             const SizedBox(height: AppSpacing.s),
-            Text(label, style: AppTextStyles.label.copyWith(color: AppColors.ink)),
+            Text(label,
+                style: AppTextStyles.label.copyWith(color: AppColors.ink)),
           ],
         ),
       ),

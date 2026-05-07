@@ -352,8 +352,7 @@ class _BarItem extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           data.date.split('-').last,
-          style: AppTextStyles.caption
-              .copyWith(color: const Color(0xFF9CA3AF)),
+          style: AppTextStyles.caption.copyWith(color: const Color(0xFF9CA3AF)),
         ),
       ],
     );

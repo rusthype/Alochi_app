@@ -155,7 +155,8 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                                     fontWeight: FontWeight.w900)),
                             Text('tanga',
                                 style: AppTextStyles.caption.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.8))),
+                                    color:
+                                        Colors.white.withValues(alpha: 0.8))),
                           ],
                         ),
                       ],
@@ -173,29 +174,33 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                       label: 'Hammasi',
                       value: null,
                       selected: selectedCat == null,
-                      onSelected: (v) =>
-                          ref.read(_selectedCategoryProvider.notifier).state = v,
+                      onSelected: (v) => ref
+                          .read(_selectedCategoryProvider.notifier)
+                          .state = v,
                     ),
                     _CategoryChip(
                       label: 'Avatarlar',
                       value: 'avatar',
                       selected: selectedCat == 'avatar',
-                      onSelected: (v) =>
-                          ref.read(_selectedCategoryProvider.notifier).state = v,
+                      onSelected: (v) => ref
+                          .read(_selectedCategoryProvider.notifier)
+                          .state = v,
                     ),
                     _CategoryChip(
                       label: 'Ramkalar',
                       value: 'frame',
                       selected: selectedCat == 'frame',
-                      onSelected: (v) =>
-                          ref.read(_selectedCategoryProvider.notifier).state = v,
+                      onSelected: (v) => ref
+                          .read(_selectedCategoryProvider.notifier)
+                          .state = v,
                     ),
                     _CategoryChip(
                       label: 'Badgelar',
                       value: 'badge',
                       selected: selectedCat == 'badge',
-                      onSelected: (v) =>
-                          ref.read(_selectedCategoryProvider.notifier).state = v,
+                      onSelected: (v) => ref
+                          .read(_selectedCategoryProvider.notifier)
+                          .state = v,
                     ),
                   ],
                 ),
@@ -433,9 +438,8 @@ class _ShopItemCard extends StatelessWidget {
                       : ElevatedButton(
                           onPressed: canAfford ? onPurchase : null,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: canAfford
-                                ? AppColors.brand
-                                : AppColors.gray3,
+                            backgroundColor:
+                                canAfford ? AppColors.brand : AppColors.gray3,
                             foregroundColor:
                                 canAfford ? Colors.white : AppColors.gray,
                             padding: const EdgeInsets.symmetric(vertical: 8),

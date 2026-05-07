@@ -37,8 +37,8 @@ class ParentDashboardScreen extends ConsumerWidget {
                     color: AppColors.darkInk)),
             if (user != null)
               Text(user.fullName,
-                  style:
-                      const TextStyle(fontSize: 12, color: AppColors.darkMuted)),
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.darkMuted)),
           ],
         ),
         actions: [
@@ -139,7 +139,8 @@ class _ChildCard extends StatelessWidget {
     final level = child['level'] ?? 1;
     final streak = child['streak'] ?? 0;
     final avgScore = child['avg_score'] ?? 0;
-    final attendance = child['attendance_rate'] ?? 95; // Placeholder/Safe default
+    final attendance =
+        child['attendance_rate'] ?? 95; // Placeholder/Safe default
     final school = child['school'] as String?;
     final grade = child['grade'];
 
@@ -185,7 +186,8 @@ class _ChildCard extends StatelessWidget {
                   onPressed: () {
                     // Chat to teacher logic
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Ustoz bilan chat ochilmoqda...")),
+                      const SnackBar(
+                          content: Text("Ustoz bilan chat ochilmoqda...")),
                     );
                   },
                 ),
@@ -204,12 +206,13 @@ class _ChildCard extends StatelessWidget {
                       ],
                     ),
                     Text('Daraja $level',
-                        style:
-                            const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
+                        style: const TextStyle(
+                            color: AppColors.darkMuted, fontSize: 11)),
                   ],
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.darkMuted),
+                const Icon(Icons.chevron_right_rounded,
+                    color: AppColors.darkMuted),
               ],
             ),
             const SizedBox(height: 12),
@@ -267,7 +270,8 @@ class _Mini extends StatelessWidget {
         Text(value,
             style: TextStyle(
                 color: color, fontWeight: FontWeight.w700, fontSize: 14)),
-        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 10)),
+        Text(label,
+            style: const TextStyle(color: AppColors.darkMuted, fontSize: 10)),
       ],
     );
   }
@@ -309,13 +313,16 @@ class _SummarySection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _SumStat(label: 'Jami XP', value: '$totalXp', color: AppColors.accent),
+              _SumStat(
+                  label: 'Jami XP', value: '$totalXp', color: AppColors.accent),
               _SumStat(
                   label: "O'rtacha ball",
                   value: '${avgScore.toStringAsFixed(0)}%',
                   color: AppColors.info),
               _SumStat(
-                  label: 'Jami seriya', value: '$totalStreak', color: AppColors.success),
+                  label: 'Jami seriya',
+                  value: '$totalStreak',
+                  color: AppColors.success),
             ],
           ),
         ],
@@ -339,7 +346,8 @@ class _SumStat extends StatelessWidget {
             style: TextStyle(
                 color: color, fontSize: 22, fontWeight: FontWeight.w800)),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
+        Text(label,
+            style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
       ],
     );
   }

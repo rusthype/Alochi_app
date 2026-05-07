@@ -46,11 +46,11 @@ class ApiClient {
             }
           }
         }
-        
+
         // Log error with descriptive message
         final message = _getErrorMessage(error);
         _logger.e('API Error [${error.requestOptions.path}]: $message');
-        
+
         handler.next(error);
       },
     ));
@@ -66,11 +66,11 @@ class ApiClient {
     } else {
       final status = e.response?.statusCode;
       final data = e.response?.data;
-      
+
       switch (status) {
         case 400:
-          return (data is Map && data.containsKey('detail')) 
-              ? data['detail'].toString() 
+          return (data is Map && data.containsKey('detail'))
+              ? data['detail'].toString()
               : 'Noto\'g\'ri so\'rov.';
         case 401:
           return 'Kirish huquqi yo\'q. Qayta kiring.';
@@ -92,16 +92,16 @@ class ApiClient {
     try {
       final oldRefresh = await AppStorage.getRefreshToken();
       if (oldRefresh == null) return false;
-      
+
       // Use a separate Dio instance for refresh to avoid interceptor loops
       final response = await Dio().post(
         '$_baseUrl/api/v1/auth/token/refresh/',
         data: {'refresh': oldRefresh},
       );
-      
+
       final newAccess = response.data['access'] as String?;
       if (newAccess == null) return false;
-      
+
       final newRefresh = response.data['refresh'] as String? ?? oldRefresh;
       await AppStorage.saveTokens(newAccess, newRefresh);
       return true;

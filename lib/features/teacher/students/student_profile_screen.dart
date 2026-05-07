@@ -67,7 +67,11 @@ class _StudentProfileSkeleton extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.l),
       children: const [
-        Center(child: AlochiSkeleton(height: 84, width: 84, borderRadius: BorderRadius.all(Radius.circular(100)))),
+        Center(
+            child: AlochiSkeleton(
+                height: 84,
+                width: 84,
+                borderRadius: BorderRadius.all(Radius.circular(100)))),
         SizedBox(height: AppSpacing.m),
         Center(child: AlochiSkeleton(width: 200, height: 24)),
         SizedBox(height: AppSpacing.s),
@@ -296,8 +300,7 @@ class _HeroSection extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   student.schoolName!,
-                  style: AppTextStyles.bodyS
-                      .copyWith(color: AppColors.gray),
+                  style: AppTextStyles.bodyS.copyWith(color: AppColors.gray),
                 ),
               ],
             ],
@@ -325,8 +328,10 @@ class _HeroSection extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 8,
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.brand),
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(AppColors.brand),
                 ),
               ),
             ],
@@ -409,7 +414,8 @@ class _TodayActivityCard extends StatelessWidget {
 
     final todayGrade = student.recentGrades.firstWhere(
       (g) => g.date == dateStr,
-      orElse: () => const RecentGradeModel(id: '', value: 0, topicTitle: '', date: ''),
+      orElse: () =>
+          const RecentGradeModel(id: '', value: 0, topicTitle: '', date: ''),
     );
 
     final hasActivity = todayAtt.status != 'no_lesson' || todayGrade.value > 0;

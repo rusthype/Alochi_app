@@ -96,9 +96,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
               ),
               if (state.errorMessage != null)
                 _ErrorBanner(message: state.errorMessage!),
-              
               _AiSuggestionsRow(onSelected: _sendMessage),
-              
               _ChatComposer(
                 controller: _controller,
                 isSending: state.isSending,
@@ -113,7 +111,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
         error: (err, _) => AlochiEmptyState(
           title: "Xabarlarni yuklashda xato",
           subtitle: err.toString(),
-          onAction: () => ref.read(chatThreadProvider(widget.conversationId).notifier).refresh(),
+          onAction: () => ref
+              .read(chatThreadProvider(widget.conversationId).notifier)
+              .refresh(),
         ),
       ),
     );
@@ -135,7 +135,8 @@ class _ChildContextCard extends ConsumerWidget {
     return studentAsync.when(
       data: (student) => Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m, vertical: AppSpacing.s),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.m, vertical: AppSpacing.s),
         decoration: BoxDecoration(
           color: theme.cardColor,
           border: Border(bottom: BorderSide(color: theme.dividerColor)),
@@ -145,20 +146,25 @@ class _ChildContextCard extends ConsumerWidget {
             _StatItem(
               label: 'Davomat',
               value: '${(student.attendancePct ?? 0).toStringAsFixed(0)}%',
-              color: (student.attendancePct ?? 100) < 75 ? AppColors.danger : const Color(0xFF0F9A6E),
+              color: (student.attendancePct ?? 100) < 75
+                  ? AppColors.danger
+                  : const Color(0xFF0F9A6E),
             ),
             const SizedBox(width: AppSpacing.l),
             _StatItem(
               label: 'O\'rtacha',
               value: (student.avgGrade ?? 0).toStringAsFixed(1),
-              color: (student.avgGrade ?? 5) < 3.5 ? AppColors.danger : AppColors.brand,
+              color: (student.avgGrade ?? 5) < 3.5
+                  ? AppColors.danger
+                  : AppColors.brand,
             ),
             const Spacer(),
             TextButton.icon(
               onPressed: () => context.push('/teacher/students/$studentId'),
               icon: const Icon(Icons.person_outline_rounded, size: 16),
               label: const Text('Profil', style: TextStyle(fontSize: 12)),
-              style: TextButton.styleFrom(foregroundColor: AppColors.brandMuted),
+              style:
+                  TextButton.styleFrom(foregroundColor: AppColors.brandMuted),
             ),
           ],
         ),
@@ -174,15 +180,20 @@ class _StatItem extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _StatItem({required this.label, required this.value, required this.color});
+  const _StatItem(
+      {required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted, fontSize: 10)),
-        Text(value, style: AppTextStyles.label.copyWith(color: color, fontWeight: FontWeight.w700)),
+        Text(label,
+            style: AppTextStyles.caption
+                .copyWith(color: AppColors.brandMuted, fontSize: 10)),
+        Text(value,
+            style: AppTextStyles.label
+                .copyWith(color: color, fontWeight: FontWeight.w700)),
       ],
     );
   }
@@ -216,10 +227,12 @@ class _AiSuggestionsRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: ActionChip(
               label: Text(suggestions[index]),
-              labelStyle: AppTextStyles.caption.copyWith(color: AppColors.brand, fontSize: 11),
+              labelStyle: AppTextStyles.caption
+                  .copyWith(color: AppColors.brand, fontSize: 11),
               backgroundColor: theme.colorScheme.surfaceContainerHighest,
               side: BorderSide.none,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.round)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.round)),
               onPressed: () => onSelected(suggestions[index]),
             ),
           );
@@ -241,9 +254,12 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     final theme = Theme.of(context);
     final name = conversation?.participantName ?? '';
     return AppBar(
-      backgroundColor: theme.cardColor, elevation: 0, surfaceTintColor: theme.cardColor,
+      backgroundColor: theme.cardColor,
+      elevation: 0,
+      surfaceTintColor: theme.cardColor,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.onSurface, size: 20),
+        icon: Icon(Icons.arrow_back_ios_new_rounded,
+            color: theme.colorScheme.onSurface, size: 20),
         onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 0,
@@ -251,11 +267,20 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           AlochiAvatar(name: name, size: 36),
           const SizedBox(width: AppSpacing.s),
-          Expanded(child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min,
+          Expanded(
+              child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(name.isEmpty ? 'Xabar' : name, style: AppTextStyles.titleM.copyWith(color: theme.colorScheme.onSurface, fontSize: 14), maxLines: 1, overflow: TextOverflow.ellipsis),
-              if (conversation?.classCode != null) Text(conversation!.classCode!, style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted)),
+              Text(name.isEmpty ? 'Xabar' : name,
+                  style: AppTextStyles.titleM.copyWith(
+                      color: theme.colorScheme.onSurface, fontSize: 14),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              if (conversation?.classCode != null)
+                Text(conversation!.classCode!,
+                    style: AppTextStyles.caption
+                        .copyWith(color: AppColors.brandMuted)),
             ],
           )),
         ],
@@ -292,11 +317,15 @@ class _MessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isOut ? AppColors.brand : theme.colorScheme.surfaceContainerHighest,
+          color: isOut
+              ? AppColors.brand
+              : theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
           border: isOut ? null : Border.all(color: theme.dividerColor),
         ),
-        child: Text(message.text, style: TextStyle(color: isOut ? Colors.white : theme.colorScheme.onSurface)),
+        child: Text(message.text,
+            style: TextStyle(
+                color: isOut ? Colors.white : theme.colorScheme.onSurface)),
       ),
     );
   }
@@ -306,7 +335,10 @@ class _ChatComposer extends StatelessWidget {
   final TextEditingController controller;
   final bool isSending;
   final VoidCallback onSend;
-  const _ChatComposer({required this.controller, required this.isSending, required this.onSend});
+  const _ChatComposer(
+      {required this.controller,
+      required this.isSending,
+      required this.onSend});
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -317,11 +349,19 @@ class _ChatComposer extends StatelessWidget {
         top: AppSpacing.m,
         bottom: MediaQuery.of(context).padding.bottom + AppSpacing.m,
       ),
-      decoration: BoxDecoration(color: theme.cardColor, border: Border(top: BorderSide(color: theme.dividerColor))),
+      decoration: BoxDecoration(
+          color: theme.cardColor,
+          border: Border(top: BorderSide(color: theme.dividerColor))),
       child: Row(
         children: [
-          Expanded(child: TextField(controller: controller, style: TextStyle(color: theme.colorScheme.onSurface), decoration: const InputDecoration(hintText: 'Xabar...'))),
-          IconButton(icon: const Icon(Icons.send_rounded, color: AppColors.brand), onPressed: isSending ? null : onSend),
+          Expanded(
+              child: TextField(
+                  controller: controller,
+                  style: TextStyle(color: theme.colorScheme.onSurface),
+                  decoration: const InputDecoration(hintText: 'Xabar...'))),
+          IconButton(
+              icon: const Icon(Icons.send_rounded, color: AppColors.brand),
+              onPressed: isSending ? null : onSend),
         ],
       ),
     );
@@ -332,7 +372,9 @@ class _EmptyThreadState extends StatelessWidget {
   const _EmptyThreadState();
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Xabarlar yo\'q', style: TextStyle(color: AppColors.brandMuted)));
+    return const Center(
+        child: Text('Xabarlar yo\'q',
+            style: TextStyle(color: AppColors.brandMuted)));
   }
 }
 
@@ -342,6 +384,10 @@ class _ErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(color: AppColors.danger.withValues(alpha: 0.1), padding: const EdgeInsets.all(8), child: Text(message, style: TextStyle(color: theme.colorScheme.error, fontSize: 12)));
+    return Container(
+        color: AppColors.danger.withValues(alpha: 0.1),
+        padding: const EdgeInsets.all(8),
+        child: Text(message,
+            style: TextStyle(color: theme.colorScheme.error, fontSize: 12)));
   }
 }

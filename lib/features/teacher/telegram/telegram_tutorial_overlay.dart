@@ -9,7 +9,8 @@ class TelegramTutorialOverlay extends StatefulWidget {
   const TelegramTutorialOverlay({super.key});
 
   @override
-  State<TelegramTutorialOverlay> createState() => _TelegramTutorialOverlayState();
+  State<TelegramTutorialOverlay> createState() =>
+      _TelegramTutorialOverlayState();
 }
 
 class _TelegramTutorialOverlayState extends State<TelegramTutorialOverlay> {
@@ -77,7 +78,8 @@ class _TelegramTutorialOverlayState extends State<TelegramTutorialOverlay> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: (step['iconColor'] as Color).withValues(alpha: 0.1),
+                        color:
+                            (step['iconColor'] as Color).withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -89,15 +91,18 @@ class _TelegramTutorialOverlayState extends State<TelegramTutorialOverlay> {
                     const SizedBox(height: AppSpacing.l),
                     Text(
                       step['title'] as String,
-                      style: AppTextStyles.titleL.copyWith(color: AppColors.ink),
+                      style:
+                          AppTextStyles.titleL.copyWith(color: AppColors.ink),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.m),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: AppSpacing.l),
                       child: Text(
                         step['description'] as String,
-                        style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+                        style: AppTextStyles.body
+                            .copyWith(color: AppColors.brandMuted),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -117,7 +122,9 @@ class _TelegramTutorialOverlayState extends State<TelegramTutorialOverlay> {
                 height: 8,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _currentPage == index ? AppColors.brand : const Color(0xFFE5E7EB),
+                  color: _currentPage == index
+                      ? AppColors.brand
+                      : const Color(0xFFE5E7EB),
                 ),
               ),
             ),

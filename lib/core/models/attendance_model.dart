@@ -71,7 +71,8 @@ class AttendanceHistoryModel {
     final dailyList = (json['daily'] ?? json['by_day']) as List? ?? [];
     final lowList = json['low_attendance_students'] as List? ?? [];
     return AttendanceHistoryModel(
-      summaryPercent: (json['attendance_rate'] ?? summary['percent'] ?? 0).toDouble(),
+      summaryPercent:
+          (json['attendance_rate'] ?? summary['percent'] ?? 0).toDouble(),
       deltaPct: (summary['delta_pct'] as num?)?.toDouble() ?? 0,
       trend: summary['trend']?.toString() ?? 'flat',
       totalDays: (json['total_days'] as num?)?.toInt() ?? 0,
@@ -136,7 +137,8 @@ class LowAttendanceStudentModel {
     return LowAttendanceStudentModel(
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
-      attendancePct: (json['attendance_rate'] ?? json['attendance_pct'] ?? 0).toDouble(),
+      attendancePct:
+          (json['attendance_rate'] ?? json['attendance_pct'] ?? 0).toDouble(),
       missedLessons: (json['missed_lessons'] as num?)?.toInt() ?? 0,
     );
   }

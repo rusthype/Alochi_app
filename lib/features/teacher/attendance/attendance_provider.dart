@@ -127,10 +127,10 @@ class AttendanceMarkingNotifier
   Future<void> save() async {
     final current = state.valueOrNull;
     if (current == null || !current.canSave) return;
-    
+
     final isOnline = ref.read(isOnlineProvider);
     state = AsyncValue.data(current.copyWith(isSaving: true, error: null));
-    
+
     try {
       if (isOnline) {
         await _api.markAttendance(
@@ -141,9 +141,10 @@ class AttendanceMarkingNotifier
       } else {
         // Offline sinxronizatsiya uchun payload tayyorlash
         final statusStrings = current.statuses.map(
-          (key, value) => MapEntry(key, AttendanceRecordModel.statusToString(value)),
+          (key, value) =>
+              MapEntry(key, AttendanceRecordModel.statusToString(value)),
         );
-        
+
         await OfflineSyncService.enqueue(
           type: 'attendance',
           endpoint: '/teacher/attendance/mark/',
@@ -153,7 +154,7 @@ class AttendanceMarkingNotifier
             'statuses': statusStrings,
           },
         );
-        
+
         // Simulyatsiya uchun biroz kutamiz
         await Future.delayed(const Duration(milliseconds: 500));
       }

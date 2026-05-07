@@ -139,8 +139,7 @@ class _TelegramBroadcastScreenState
             const SizedBox(height: AppSpacing.s),
             groupsAsync.when(
               data: (groups) => Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.m),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(AppRadii.m),
@@ -179,8 +178,7 @@ class _TelegramBroadcastScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("Xabar turi",
-                    style:
-                        AppTextStyles.label.copyWith(color: AppColors.gray)),
+                    style: AppTextStyles.label.copyWith(color: AppColors.gray)),
                 if (_messageType == 'attendance' || _messageType == 'grades')
                   TextButton.icon(
                     onPressed: _isGenerating ? null : _generateAiMessage,

@@ -77,7 +77,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         '/forgot-password',
         '/login',
       ];
-      final isPublic = publicRoutes.any((r) => loc == r || loc.startsWith('$r?'));
+      final isPublic =
+          publicRoutes.any((r) => loc == r || loc.startsWith('$r?'));
 
       if (!isAuth && !isPublic) return '/';
 

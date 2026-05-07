@@ -17,10 +17,12 @@ import '../homework/homework_provider.dart';
 import 'lesson_provider.dart';
 
 // Local provider for homework check (did they do it?)
-final homeworkCheckProvider = StateProvider.autoDispose.family<Set<String>, String>((ref, lessonId) => {});
+final homeworkCheckProvider = StateProvider.autoDispose
+    .family<Set<String>, String>((ref, lessonId) => {});
 
 // Local provider for activity rating (1=Zaif, 2=O'rta, 3=Yaxshi)
-final activityRatingProvider = StateProvider.autoDispose.family<Map<String, int>, String>((ref, lessonId) => {});
+final activityRatingProvider = StateProvider.autoDispose
+    .family<Map<String, int>, String>((ref, lessonId) => {});
 
 class LessonWorkflowScreen extends ConsumerWidget {
   final String lessonId;
@@ -516,11 +518,12 @@ class _Step2HomeworkCheck extends ConsumerWidget {
         if (students.isEmpty) {
           return const Text("O'quvchilar yo'q");
         }
-        
+
         // Filter: only present/late students should be checked for homework in person
         final attendingStudents = students.where((s) {
           final status = state.statuses[s.id];
-          return status == AttendanceStatus.present || status == AttendanceStatus.late;
+          return status == AttendanceStatus.present ||
+              status == AttendanceStatus.late;
         }).toList();
 
         return Column(
@@ -560,7 +563,8 @@ class _Step2HomeworkCheck extends ConsumerWidget {
             if (attendingStudents.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.m),
-                child: Text('Bugun darsda hech kim yo\'q', style: AppTextStyles.bodyS),
+                child: Text('Bugun darsda hech kim yo\'q',
+                    style: AppTextStyles.bodyS),
               ),
             const SizedBox(height: AppSpacing.m),
             Row(
@@ -624,8 +628,10 @@ class _Step3ActivityContent extends ConsumerWidget {
 
     final students = attAsync.valueOrNull?.students.where((s) {
           final status = attAsync.valueOrNull?.statuses[s.id];
-          return status == AttendanceStatus.present || status == AttendanceStatus.late;
-        }).toList() ?? [];
+          return status == AttendanceStatus.present ||
+              status == AttendanceStatus.late;
+        }).toList() ??
+        [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -719,11 +725,26 @@ class _RatingSegmented extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _RateBtn(val: 1, label: 'Zaif', color: AppColors.danger, active: value == 1, onTap: () => onChanged(1)),
+        _RateBtn(
+            val: 1,
+            label: 'Zaif',
+            color: AppColors.danger,
+            active: value == 1,
+            onTap: () => onChanged(1)),
         const SizedBox(width: 4),
-        _RateBtn(val: 2, label: 'O\'rta', color: const Color(0xFFD97706), active: value == 2, onTap: () => onChanged(2)),
+        _RateBtn(
+            val: 2,
+            label: 'O\'rta',
+            color: const Color(0xFFD97706),
+            active: value == 2,
+            onTap: () => onChanged(2)),
         const SizedBox(width: 4),
-        _RateBtn(val: 3, label: 'Yaxshi', color: const Color(0xFF0F9A6E), active: value == 3, onTap: () => onChanged(3)),
+        _RateBtn(
+            val: 3,
+            label: 'Yaxshi',
+            color: const Color(0xFF0F9A6E),
+            active: value == 3,
+            onTap: () => onChanged(3)),
       ],
     );
   }
@@ -736,7 +757,12 @@ class _RateBtn extends StatelessWidget {
   final bool active;
   final VoidCallback onTap;
 
-  const _RateBtn({required this.val, required this.label, required this.color, required this.active, required this.onTap});
+  const _RateBtn(
+      {required this.val,
+      required this.label,
+      required this.color,
+      required this.active,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -840,7 +866,8 @@ class _Step4ContentState extends ConsumerState<_Step4FinishContent> {
             return ChoiceChip(
               label: Text(opt.label),
               selected: isSelected,
-              onSelected: (v) => setState(() => _deadlineDays = v ? opt.days : null),
+              onSelected: (v) =>
+                  setState(() => _deadlineDays = v ? opt.days : null),
               selectedColor: AppColors.brandSoft,
               labelStyle: AppTextStyles.label.copyWith(
                 color: isSelected ? AppColors.brand : AppColors.ink,
@@ -851,9 +878,12 @@ class _Step4ContentState extends ConsumerState<_Step4FinishContent> {
         const SizedBox(height: AppSpacing.m),
         Row(
           children: [
-            const Icon(Icons.telegram_rounded, color: Color(0xFF0088CC), size: 20),
+            const Icon(Icons.telegram_rounded,
+                color: Color(0xFF0088CC), size: 20),
             const SizedBox(width: 8),
-            const Expanded(child: Text('Telegram so\'rovnoma', style: AppTextStyles.bodyS)),
+            const Expanded(
+                child:
+                    Text('Telegram so\'rovnoma', style: AppTextStyles.bodyS)),
             Switch.adaptive(
               value: _telegramPoll,
               onChanged: (v) => setState(() => _telegramPoll = v),
@@ -874,23 +904,24 @@ class _Step4ContentState extends ConsumerState<_Step4FinishContent> {
 
   Future<void> _finish() async {
     setState(() => _isFinishing = true);
-    
+
     // Create homework if title is provided
     if (_titleController.text.trim().isNotEmpty) {
       final days = _deadlineDays ?? 7;
       final deadline = DateTime.now().add(Duration(days: days));
-      final dueDateStr = '${deadline.year}-${deadline.month.toString().padLeft(2, '0')}-${deadline.day.toString().padLeft(2, '0')}';
-      
+      final dueDateStr =
+          '${deadline.year}-${deadline.month.toString().padLeft(2, '0')}-${deadline.day.toString().padLeft(2, '0')}';
+
       await ref.read(homeworkCreateProvider.notifier).create(
-        groupId: widget.lesson.groupId,
-        title: _titleController.text.trim(),
-        description: _descController.text.trim(),
-        dueDate: dueDateStr,
-      );
+            groupId: widget.lesson.groupId,
+            title: _titleController.text.trim(),
+            description: _descController.text.trim(),
+            dueDate: dueDateStr,
+          );
     }
 
     widget.notifier.completeStep(WorkflowStep.finish);
-    
+
     if (mounted) {
       context.pop();
       ScaffoldMessenger.of(context).showSnackBar(

@@ -50,4 +50,3 @@ final unreadCountProvider = FutureProvider<int>((ref) async {
   final notifications = await ref.watch(notificationsProvider.future);
   return notifications.where((n) => !n.isRead).length;
 });
-

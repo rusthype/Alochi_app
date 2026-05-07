@@ -209,7 +209,8 @@ class _SummaryStatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final latestGrade = analytics.gradeTrend.isNotEmpty ? analytics.gradeTrend.last.value : 0.0;
+    final latestGrade =
+        analytics.gradeTrend.isNotEmpty ? analytics.gradeTrend.last.value : 0.0;
     final gradeColor = latestGrade >= 4.5
         ? AppColors.success
         : (latestGrade >= 4.0 ? AppColors.brand : AppColors.warning);
@@ -265,7 +266,8 @@ class _MetricCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.gray)),
+          Text(label,
+              style: AppTextStyles.caption.copyWith(color: AppColors.gray)),
           const SizedBox(height: 4),
           Text(
             value,
@@ -275,7 +277,8 @@ class _MetricCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(subtitle, style: AppTextStyles.caption.copyWith(color: AppColors.gray2)),
+          Text(subtitle,
+              style: AppTextStyles.caption.copyWith(color: AppColors.gray2)),
         ],
       ),
     );
@@ -323,15 +326,18 @@ class _AttendanceBarChart extends StatelessWidget {
               BarChartData(
                 gridData: const FlGridData(show: false),
                 titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 28,
                       getTitlesWidget: (value, meta) => Text(
                         '${value.toInt()}%',
-                        style: const TextStyle(fontSize: 9, color: AppColors.gray2),
+                        style: const TextStyle(
+                            fontSize: 9, color: AppColors.gray2),
                       ),
                     ),
                   ),
@@ -341,10 +347,12 @@ class _AttendanceBarChart extends StatelessWidget {
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < 0 || index >= points.length) return const SizedBox.shrink();
+                        if (index < 0 || index >= points.length)
+                          return const SizedBox.shrink();
                         return Text(
                           points[index].label.split('-').last,
-                          style: const TextStyle(fontSize: 9, color: AppColors.gray2),
+                          style: const TextStyle(
+                              fontSize: 9, color: AppColors.gray2),
                         );
                       },
                     ),
@@ -359,9 +367,12 @@ class _AttendanceBarChart extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: e.value.value,
-                        color: e.value.value < 75 ? AppColors.warning : AppColors.success,
+                        color: e.value.value < 75
+                            ? AppColors.warning
+                            : AppColors.success,
                         width: 16,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4)),
                       ),
                     ],
                   );
@@ -410,15 +421,18 @@ class _GradeLineChart extends StatelessWidget {
               LineChartData(
                 gridData: const FlGridData(show: false),
                 titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) => Text(
                         '${value.toInt()}',
-                        style: const TextStyle(fontSize: 10, color: AppColors.gray2),
+                        style: const TextStyle(
+                            fontSize: 10, color: AppColors.gray2),
                       ),
                     ),
                   ),
@@ -428,10 +442,12 @@ class _GradeLineChart extends StatelessWidget {
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < 0 || index >= points.length) return const SizedBox.shrink();
+                        if (index < 0 || index >= points.length)
+                          return const SizedBox.shrink();
                         return Text(
                           points[index].label.split('-').last,
-                          style: const TextStyle(fontSize: 9, color: AppColors.gray2),
+                          style: const TextStyle(
+                              fontSize: 9, color: AppColors.gray2),
                         );
                       },
                     ),
@@ -453,7 +469,8 @@ class _GradeLineChart extends StatelessWidget {
                     isStrokeCapRound: true,
                     dotData: FlDotData(
                       show: true,
-                      getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                      getDotPainter: (spot, percent, barData, index) =>
+                          FlDotCirclePainter(
                         radius: 4,
                         color: Colors.white,
                         strokeWidth: 2,
@@ -532,12 +549,15 @@ class _RankingsSection extends StatelessWidget {
             title: 'ENG FAOL 3 O\'QUVCHI',
             icon: Icons.emoji_events_rounded,
             iconColor: AppColors.warning,
-            items: topStudents.take(3).map((s) => _RankingItem(
-              name: s.name,
-              value: '${s.xp} XP',
-              subValue: '${s.level}-daraja',
-              level: s.level,
-            )).toList(),
+            items: topStudents
+                .take(3)
+                .map((s) => _RankingItem(
+                      name: s.name,
+                      value: '${s.xp} XP',
+                      subValue: '${s.level}-daraja',
+                      level: s.level,
+                    ))
+                .toList(),
           ),
           const SizedBox(height: AppSpacing.l),
         ],
@@ -546,16 +566,18 @@ class _RankingsSection extends StatelessWidget {
             title: 'DIQQAT TALAB (PAST DAVOMAT)',
             icon: Icons.warning_amber_rounded,
             iconColor: AppColors.danger,
-            items: lowAttendanceStudents.map((s) => _RankingItem(
-              name: s.name,
-              value: '${s.attendancePct.toStringAsFixed(0)}%',
-              subValue: '${s.missedLessons} kun qoldirgan',
-              valueColor: AppColors.danger,
-              showAction: true,
-              onAction: () {
-                // messages compose screen logic would go here
-              },
-            )).toList(),
+            items: lowAttendanceStudents
+                .map((s) => _RankingItem(
+                      name: s.name,
+                      value: '${s.attendancePct.toStringAsFixed(0)}%',
+                      subValue: '${s.missedLessons} kun qoldirgan',
+                      valueColor: AppColors.danger,
+                      showAction: true,
+                      onAction: () {
+                        // messages compose screen logic would go here
+                      },
+                    ))
+                .toList(),
           ),
       ],
     );
@@ -665,12 +687,15 @@ class _RankingItem extends StatelessWidget {
               style: TextButton.styleFrom(
                 backgroundColor: AppColors.brand.withValues(alpha: 0.1),
                 foregroundColor: AppColors.brand,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6)),
               ),
-              child: const Text('Yozish', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+              child: const Text('Yozish',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
             )
           else
             Text(
@@ -695,13 +720,17 @@ class _AnalyticsLoadingSkeleton extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.l),
       children: const [
-        AlochiSkeleton(height: 100, borderRadius: BorderRadius.all(Radius.circular(16))),
+        AlochiSkeleton(
+            height: 100, borderRadius: BorderRadius.all(Radius.circular(16))),
         SizedBox(height: AppSpacing.l),
-        AlochiSkeleton(height: 180, borderRadius: BorderRadius.all(Radius.circular(16))),
+        AlochiSkeleton(
+            height: 180, borderRadius: BorderRadius.all(Radius.circular(16))),
         SizedBox(height: AppSpacing.l),
-        AlochiSkeleton(height: 180, borderRadius: BorderRadius.all(Radius.circular(16))),
+        AlochiSkeleton(
+            height: 180, borderRadius: BorderRadius.all(Radius.circular(16))),
         SizedBox(height: AppSpacing.l),
-        AlochiSkeleton(height: 240, borderRadius: BorderRadius.all(Radius.circular(16))),
+        AlochiSkeleton(
+            height: 240, borderRadius: BorderRadius.all(Radius.circular(16))),
       ],
     );
   }
@@ -724,7 +753,7 @@ class _GroupStatsRow extends StatelessWidget {
           const Expanded(
             child: _StatTile(
               label: "DAVOMAT",
-              value: "28/32", 
+              value: "28/32",
               valueColor: AppColors.ink,
             ),
           ),
@@ -740,7 +769,7 @@ class _GroupStatsRow extends StatelessWidget {
           const Expanded(
             child: _StatTile(
               label: 'BAJARISH',
-              value: '87%', 
+              value: '87%',
               valueColor: AppColors.success,
             ),
           ),
@@ -903,9 +932,7 @@ class _StudentRow extends StatelessWidget {
                   Text(
                     _buildSubtitle(attPct, avgGrade),
                     style: AppTextStyles.caption.copyWith(
-                      color: isLowAtt
-                          ? AppColors.warning
-                          : AppColors.gray,
+                      color: isLowAtt ? AppColors.warning : AppColors.gray,
                       fontSize: 11,
                     ),
                   ),
@@ -1209,11 +1236,9 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                      height: 14, width: 140, color: AppColors.lineSoft),
+                  Container(height: 14, width: 140, color: AppColors.lineSoft),
                   const SizedBox(height: 6),
-                  Container(
-                      height: 11, width: 100, color: AppColors.lineSoft),
+                  Container(height: 11, width: 100, color: AppColors.lineSoft),
                 ],
               ),
             ),

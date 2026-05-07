@@ -81,9 +81,10 @@ class _ChildDetail extends StatelessWidget {
         ((data['recent_tests'] ?? []) as List).cast<Map<String, dynamic>>();
     final achievements =
         ((data['achievements'] ?? []) as List).cast<Map<String, dynamic>>();
-    
+
     // Placeholder for 14-day attendance
-    final attendanceData = List.generate(14, (i) => i % 5 != 0); // true = present, false = absent
+    final attendanceData =
+        List.generate(14, (i) => i % 5 != 0); // true = present, false = absent
 
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -103,10 +104,12 @@ class _ChildDetail extends StatelessWidget {
                         fontSize: 24,
                         fontWeight: FontWeight.w700)),
                 if (school != null)
-                  Text(school, style: const TextStyle(color: AppColors.darkMuted)),
+                  Text(school,
+                      style: const TextStyle(color: AppColors.darkMuted)),
                 if (grade != null)
                   Text('$grade-sinf',
-                      style: const TextStyle(color: AppColors.darkMuted, fontSize: 12)),
+                      style: const TextStyle(
+                          color: AppColors.darkMuted, fontSize: 12)),
               ],
             ),
           ),
@@ -164,7 +167,8 @@ class _ChildDetail extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text('Keyingi darajaga: ${xpToNext - (xp % xpToNext)} XP',
-                    style: const TextStyle(color: AppColors.darkMuted, fontSize: 12)),
+                    style: const TextStyle(
+                        color: AppColors.darkMuted, fontSize: 12)),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -210,7 +214,9 @@ class _ChildDetail extends StatelessWidget {
                             : AppColors.danger.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                            color: isPresent ? AppColors.success : AppColors.danger,
+                            color: isPresent
+                                ? AppColors.success
+                                : AppColors.danger,
                             width: 1),
                       ),
                       child: Icon(
@@ -221,7 +227,8 @@ class _ChildDetail extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text('${i + 1}',
-                        style: const TextStyle(color: AppColors.darkMuted, fontSize: 10)),
+                        style: const TextStyle(
+                            color: AppColors.darkMuted, fontSize: 10)),
                   ],
                 );
               }),
@@ -390,12 +397,16 @@ class _ChildDetail extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(Icons.emoji_events_rounded,
-                          color: unlocked ? AppColors.accent : AppColors.darkMuted, size: 20),
+                          color:
+                              unlocked ? AppColors.accent : AppColors.darkMuted,
+                          size: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(a['name'] as String? ?? '',
                             style: TextStyle(
-                                color: unlocked ? AppColors.darkInk : AppColors.darkMuted,
+                                color: unlocked
+                                    ? AppColors.darkInk
+                                    : AppColors.darkMuted,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600),
                             maxLines: 1,
@@ -428,7 +439,8 @@ class _Stat extends StatelessWidget {
                 color: AppColors.darkInk,
                 fontWeight: FontWeight.w700,
                 fontSize: 18)),
-        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
+        Text(label,
+            style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
       ],
     );
   }

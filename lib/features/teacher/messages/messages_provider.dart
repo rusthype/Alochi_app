@@ -93,7 +93,7 @@ class ChatThreadNotifier extends StateNotifier<AsyncValue<ChatThreadState>> {
   void _onNewWsMessage(MessageModel msg) {
     final current = state.valueOrNull;
     if (current == null) return;
-    
+
     // Avoid duplicates if we already added it optimistically
     if (current.messages.any((m) => m.id == msg.id)) return;
 

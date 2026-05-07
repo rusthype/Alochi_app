@@ -20,8 +20,7 @@ final homeworkCreateProvider =
   return HomeworkCreateNotifier(api, ref);
 });
 
-class HomeworkCreateNotifier
-    extends StateNotifier<AsyncValue<HomeworkModel?>> {
+class HomeworkCreateNotifier extends StateNotifier<AsyncValue<HomeworkModel?>> {
   final TeacherApi _api;
   final Ref _ref;
 

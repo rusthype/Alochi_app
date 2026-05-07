@@ -36,13 +36,18 @@ class TeacherDashboardScreen extends ConsumerWidget {
                   _TodayLessonsSection(lessons: summary.todayLessons),
                   const SizedBox(height: 14),
                   Consumer(builder: (context, ref, child) {
-                    final telegramGroupsAsync = ref.watch(telegramGroupsProvider);
+                    final telegramGroupsAsync =
+                        ref.watch(telegramGroupsProvider);
                     return telegramGroupsAsync.when(
                       data: (groups) {
                         if (groups.isEmpty) return const SizedBox.shrink();
-                        final totalParents = groups.fold(0, (s, g) => s + g.totalParents);
-                        final linkedParents = groups.fold(0, (s, g) => s + g.linkedCount);
-                        final percent = totalParents > 0 ? linkedParents / totalParents : 0.0;
+                        final totalParents =
+                            groups.fold(0, (s, g) => s + g.totalParents);
+                        final linkedParents =
+                            groups.fold(0, (s, g) => s + g.linkedCount);
+                        final percent = totalParents > 0
+                            ? linkedParents / totalParents
+                            : 0.0;
                         return Column(
                           children: [
                             _TelegramStatusMini(linkedPercent: percent),
@@ -60,7 +65,8 @@ class TeacherDashboardScreen extends ConsumerWidget {
               ),
             ),
             loading: () => const _DashboardLoadingSkeleton(),
-            error: (err, stack) => _ErrorState(onRetry: () => ref.invalidate(dashboardSummaryProvider)),
+            error: (err, stack) => _ErrorState(
+                onRetry: () => ref.invalidate(dashboardSummaryProvider)),
           ),
         ),
       ),
@@ -75,7 +81,8 @@ class _GreetingHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(teacherProfileProvider);
     final name = profileAsync.valueOrNull?.name.split(' ').first;
-    final displayName = name != null && name.isNotEmpty ? '$name Ustoz' : 'Ustoz';
+    final displayName =
+        name != null && name.isNotEmpty ? '$name Ustoz' : 'Ustoz';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -128,7 +135,8 @@ class _GreetingHeader extends ConsumerWidget {
                       ),
                     ),
                     Consumer(builder: (ctx, ref, _) {
-                      final count = ref.watch(unreadCountProvider).valueOrNull ?? 0;
+                      final count =
+                          ref.watch(unreadCountProvider).valueOrNull ?? 0;
                       if (count == 0) return const SizedBox.shrink();
                       return Positioned(
                         right: -2,
@@ -194,7 +202,8 @@ class _TodayLessonsSection extends StatelessWidget {
                 onTap: () => context.go('/teacher/groups'),
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Text(
                     'Hammasi',
                     style: AppTextStyles.label.copyWith(
@@ -317,7 +326,6 @@ class _ActiveLessonCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const Spacer(),
-
           Material(
             color: AppColors.brand,
             borderRadius: BorderRadius.circular(11),
@@ -329,14 +337,15 @@ class _ActiveLessonCard extends StatelessWidget {
                   groupName: lesson.className,
                   subject: lesson.subject,
                   startTime: lesson.time.split('-').first.trim(),
-                  endTime: lesson.time.contains('-') 
-                      ? lesson.time.split('-').last.trim() 
+                  endTime: lesson.time.contains('-')
+                      ? lesson.time.split('-').last.trim()
                       : '',
                   room: '',
                   isNow: lesson.isActive,
                   studentsCount: lesson.studentCount,
                 );
-                context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
+                context.push('/teacher/lessons/${lesson.id}',
+                    extra: lessonModel);
               },
               borderRadius: BorderRadius.circular(11),
               child: Container(
@@ -437,7 +446,6 @@ class _InactiveLessonCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const Spacer(),
-
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
@@ -488,7 +496,8 @@ class _ConcernsSection extends StatelessWidget {
                 onTap: () {}, // All concerns
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: Text(
                     'Hammasi',
                     style: AppTextStyles.label.copyWith(
@@ -504,7 +513,9 @@ class _ConcernsSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
-            children: concerns.map((concern) => _ConcernItem(concern: concern)).toList(),
+            children: concerns
+                .map((concern) => _ConcernItem(concern: concern))
+                .toList(),
           ),
         ),
       ],
@@ -560,7 +571,8 @@ class _TelegramStatusMini extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF), size: 18),
+                    const Icon(Icons.chevron_right_rounded,
+                        color: Color(0xFF9CA3AF), size: 18),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -570,7 +582,8 @@ class _TelegramStatusMini extends StatelessWidget {
                     value: linkedPercent,
                     minHeight: 4,
                     backgroundColor: const Color(0xFFE5E7EB),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0088CC)),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Color(0xFF0088CC)),
                   ),
                 ),
               ],
@@ -717,7 +730,8 @@ class _EmptyLessonsPlaceholder extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.calendar_today_outlined, color: Color(0xFFD1D5DB), size: 32),
+            const Icon(Icons.calendar_today_outlined,
+                color: Color(0xFFD1D5DB), size: 32),
             const SizedBox(height: 12),
             Text(
               'Bugun darsingiz yo\'q',
@@ -749,7 +763,8 @@ class _ErrorState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFFD1D5DB)),
+          const Icon(Icons.wifi_off_rounded,
+              size: 48, color: Color(0xFFD1D5DB)),
           const SizedBox(height: 16),
           const Text('Yuklab bo\'lmadi', style: AppTextStyles.titleM),
           const SizedBox(height: 24),
@@ -802,5 +817,3 @@ class _DashboardLoadingSkeleton extends StatelessWidget {
     );
   }
 }
-
-

@@ -81,7 +81,7 @@ class LeaderboardScreen extends ConsumerWidget {
                     (currentEntry != null && currentEntry.rank > 3)
                         ? currentEntry
                         : null;
-                
+
                 final int podiumCount = hasPodium ? 1 : 0;
                 final int stickyCount =
                     stickyEntry != null ? 3 : 0; // divider + row + space
@@ -363,10 +363,14 @@ class _RankRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isCurrentUser ? AppColors.brand.withValues(alpha: 0.05) : Colors.white,
+        color: isCurrentUser
+            ? AppColors.brand.withValues(alpha: 0.05)
+            : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isCurrentUser ? AppColors.brand.withValues(alpha: 0.3) : AppColors.line,
+          color: isCurrentUser
+              ? AppColors.brand.withValues(alpha: 0.3)
+              : AppColors.line,
           width: isCurrentUser ? 2 : 1,
         ),
       ),
@@ -392,13 +396,15 @@ class _RankRow extends StatelessWidget {
                   entry.name,
                   style: AppTextStyles.body.copyWith(
                     color: AppColors.ink,
-                    fontWeight: isCurrentUser ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight:
+                        isCurrentUser ? FontWeight.w700 : FontWeight.w500,
                   ),
                 ),
                 if (entry.school != null)
                   Text(
                     entry.school!,
-                    style: AppTextStyles.caption.copyWith(color: AppColors.gray),
+                    style:
+                        AppTextStyles.caption.copyWith(color: AppColors.gray),
                     overflow: TextOverflow.ellipsis,
                   ),
               ],

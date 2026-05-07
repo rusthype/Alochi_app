@@ -9,7 +9,7 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   // Keep splash screen until app is ready
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  
+
   try {
     // Initialize Firebase (safely)
     await Firebase.initializeApp();

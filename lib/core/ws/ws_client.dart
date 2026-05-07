@@ -15,21 +15,23 @@ class WsClient {
 
   Stream<Map<String, dynamic>> get stream => _controller.stream;
 
-  bool get isConnected => _socket != null && _socket!.readyState == WebSocket.open;
+  bool get isConnected =>
+      _socket != null && _socket!.readyState == WebSocket.open;
 
   Future<void> connect(String url) async {
     if (_socket != null && _socket!.readyState == WebSocket.open) return;
-    
+
     try {
       final token = await AppStorage.getAccessToken();
       // Most Django Channels setups expect token in query params or headers
       // Since WebSocket.connect in dart:io doesn't easily support headers for all platforms,
       // we'll try query param first.
       final wsUrl = '$url?token=$token';
-      
+
       debugPrint('Connecting to WS: $wsUrl');
-      _socket = await WebSocket.connect(wsUrl).timeout(const Duration(seconds: 10));
-      
+      _socket =
+          await WebSocket.connect(wsUrl).timeout(const Duration(seconds: 10));
+
       _socket!.listen(
         (data) {
           try {

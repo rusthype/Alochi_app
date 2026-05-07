@@ -37,7 +37,9 @@ class LessonDetailScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l.subjectName, style: AppTextStyles.titleL),
-              Text(l.groupCode, style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted)),
+              Text(l.groupCode,
+                  style: AppTextStyles.bodyS
+                      .copyWith(color: AppColors.brandMuted)),
             ],
           ),
         ),
@@ -47,7 +49,9 @@ class LessonDetailScreen extends ConsumerWidget {
             children: [
               Text(lesson?.subject ?? 'Dars', style: AppTextStyles.titleL),
               if (lesson?.groupName != null)
-                Text(lesson!.groupName, style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted)),
+                Text(lesson!.groupName,
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.brandMuted)),
             ],
           ),
         ),
@@ -72,19 +76,26 @@ class LessonDetailScreen extends ConsumerWidget {
 }
 
 class _LessonDetailBody extends StatelessWidget {
-  final dynamic lesson; // Can be LessonDetailModel or LessonModel (with groupId)
+  final dynamic
+      lesson; // Can be LessonDetailModel or LessonModel (with groupId)
 
   const _LessonDetailBody({required this.lesson});
 
   @override
   Widget build(BuildContext context) {
-    final String subject = lesson is LessonModel ? lesson.subject : lesson.subjectName;
-    final String groupName = lesson is LessonModel ? lesson.groupName : lesson.groupCode;
-    final String startTime = lesson is LessonModel ? lesson.startTime : lesson.startTime;
-    final String endTime = lesson is LessonModel ? lesson.endTime : lesson.endTime;
+    final String subject =
+        lesson is LessonModel ? lesson.subject : lesson.subjectName;
+    final String groupName =
+        lesson is LessonModel ? lesson.groupName : lesson.groupCode;
+    final String startTime =
+        lesson is LessonModel ? lesson.startTime : lesson.startTime;
+    final String endTime =
+        lesson is LessonModel ? lesson.endTime : lesson.endTime;
     final String room = lesson is LessonModel ? lesson.room : '';
-    final int studentCount = lesson is LessonModel ? lesson.studentsCount : lesson.studentCount;
-    final String groupId = lesson is LessonModel ? (lesson.groupId ?? '') : lesson.groupId;
+    final int studentCount =
+        lesson is LessonModel ? lesson.studentsCount : lesson.studentCount;
+    final String groupId =
+        lesson is LessonModel ? (lesson.groupId ?? '') : lesson.groupId;
     final bool isNow = lesson is LessonModel ? lesson.isNow : lesson.isActive;
 
     return SingleChildScrollView(
@@ -231,7 +242,8 @@ class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  const _InfoRow({required this.icon, required this.label, required this.value});
+  const _InfoRow(
+      {required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -239,11 +251,12 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 20, color: AppColors.brand),
         const SizedBox(width: AppSpacing.m),
-        Text(label, style: AppTextStyles.body.copyWith(color: AppColors.brandMuted)),
+        Text(label,
+            style: AppTextStyles.body.copyWith(color: AppColors.brandMuted)),
         const Spacer(),
         Expanded(
           child: Text(
-            value, 
+            value,
             style: AppTextStyles.label,
             textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,

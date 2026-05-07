@@ -38,7 +38,8 @@ class AlochiAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: leading ??
           (showBackButton && Navigator.of(context).canPop()
               ? IconButton(
-                  icon: Icon(Icons.arrow_back_ios_new, size: 20, color: onSurface),
+                  icon: Icon(Icons.arrow_back_ios_new,
+                      size: 20, color: onSurface),
                   onPressed: onBack ?? () => Navigator.of(context).pop(),
                 )
               : null),

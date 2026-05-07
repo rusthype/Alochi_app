@@ -102,8 +102,8 @@ class WeekTimetableScreen extends ConsumerWidget {
                   // Lessons list
                   ...lessons.map((lesson) => Padding(
                         padding: const EdgeInsets.only(bottom: AppSpacing.s),
-                        child:
-                            _TimetableLessonCard(lesson: lesson, isToday: isToday),
+                        child: _TimetableLessonCard(
+                            lesson: lesson, isToday: isToday),
                       )),
                 ],
               );
@@ -149,68 +149,68 @@ class _TimetableLessonCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.m),
           child: Row(
-          children: [
-            // Time
-            SizedBox(
-              width: 50,
-              child: Column(
-                children: [
-                  Text(
-                    lesson.startTime,
-                    style: AppTextStyles.label.copyWith(
-                      color: lesson.isNow ? AppColors.brand : AppColors.ink,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  Text(
-                    lesson.endTime,
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.brandMuted),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.s),
-            Container(
-                width: 2,
-                height: 40,
-                color: isToday ? AppColors.brand : AppColors.brandSoft),
-            const SizedBox(width: AppSpacing.m),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(lesson.subject, style: AppTextStyles.label),
-                  Text(
-                    '\${lesson.groupName} · \${lesson.studentsCount} o\'quvchi',
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.brandMuted),
-                  ),
-                  if (lesson.room.isNotEmpty)
+            children: [
+              // Time
+              SizedBox(
+                width: 50,
+                child: Column(
+                  children: [
                     Text(
-                      lesson.room,
+                      lesson.startTime,
+                      style: AppTextStyles.label.copyWith(
+                        color: lesson.isNow ? AppColors.brand : AppColors.ink,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      lesson.endTime,
                       style: AppTextStyles.caption
                           .copyWith(color: AppColors.brandMuted),
                     ),
-                ],
-              ),
-            ),
-            if (lesson.isNow)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.s, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.brand,
-                  borderRadius: BorderRadius.circular(AppRadii.xs),
+                  ],
                 ),
-                child: Text('Hozir',
-                    style:
-                        AppTextStyles.caption.copyWith(color: Colors.white)),
               ),
-          ],
+              const SizedBox(width: AppSpacing.s),
+              Container(
+                  width: 2,
+                  height: 40,
+                  color: isToday ? AppColors.brand : AppColors.brandSoft),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(lesson.subject, style: AppTextStyles.label),
+                    Text(
+                      '\${lesson.groupName} · \${lesson.studentsCount} o\'quvchi',
+                      style: AppTextStyles.caption
+                          .copyWith(color: AppColors.brandMuted),
+                    ),
+                    if (lesson.room.isNotEmpty)
+                      Text(
+                        lesson.room,
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.brandMuted),
+                      ),
+                  ],
+                ),
+              ),
+              if (lesson.isNow)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.s, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.brand,
+                    borderRadius: BorderRadius.circular(AppRadii.xs),
+                  ),
+                  child: Text('Hozir',
+                      style:
+                          AppTextStyles.caption.copyWith(color: Colors.white)),
+                ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }

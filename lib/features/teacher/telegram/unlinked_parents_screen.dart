@@ -77,7 +77,8 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
                     .contains(_searchQuery.toLowerCase());
             if (!matchesSearch) return false;
 
-            final isSent = p.sentAt != null || _locallySentIds.contains(p.parentId);
+            final isSent =
+                p.sentAt != null || _locallySentIds.contains(p.parentId);
             if (_selectedFilter == ParentFilter.unlinked) return !isSent;
             if (_selectedFilter == ParentFilter.sent) return isSent;
             return true;
@@ -109,8 +110,8 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
                     _FilterChip(
                       label: "Bog'lanmagan",
                       isSelected: _selectedFilter == ParentFilter.unlinked,
-                      onTap: () =>
-                          setState(() => _selectedFilter = ParentFilter.unlinked),
+                      onTap: () => setState(
+                          () => _selectedFilter = ParentFilter.unlinked),
                     ),
                     const SizedBox(width: AppSpacing.s),
                     _FilterChip(
@@ -133,7 +134,8 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
                         sending: _sending,
                         locallySentIds: _locallySentIds,
                         sendingAll: _sendingAll,
-                        onSendReminder: (p) => _sendReminder(p.parentId, p.parentName),
+                        onSendReminder: (p) =>
+                            _sendReminder(p.parentId, p.parentName),
                         onSendAll: () => _sendAllReminders(parents),
                       ),
               ),
@@ -147,13 +149,15 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
                     left: AppSpacing.l,
                     right: AppSpacing.l,
                     top: AppSpacing.m,
-                    bottom: MediaQuery.of(context).padding.bottom + AppSpacing.m,
+                    bottom:
+                        MediaQuery.of(context).padding.bottom + AppSpacing.m,
                   ),
                   child: AlochiButton.telegram(
                     label: "Hammasiga eslatma (${parents.length} kishi)",
                     icon: Icons.send_rounded,
                     isLoading: _sendingAll,
-                    onPressed: _sendingAll ? null : () => _sendAllReminders(parents),
+                    onPressed:
+                        _sendingAll ? null : () => _sendAllReminders(parents),
                   ),
                 ),
             ],
@@ -180,7 +184,6 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
       ),
     );
   }
-
 
   Future<void> _sendReminder(String parentId, String parentName) async {
     if (_sending.contains(parentId)) return;
@@ -348,7 +351,8 @@ class _ParentsList extends StatelessWidget {
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s),
       itemBuilder: (context, index) {
         final parent = parents[index];
-        final isSent = parent.sentAt != null || locallySentIds.contains(parent.parentId);
+        final isSent =
+            parent.sentAt != null || locallySentIds.contains(parent.parentId);
         return _ParentRow(
           parent: parent,
           isSending: sending.contains(parent.parentId),
@@ -400,7 +404,9 @@ class _ParentRow extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        parent.parentName.isEmpty ? 'Ota-ona' : parent.parentName,
+                        parent.parentName.isEmpty
+                            ? 'Ota-ona'
+                            : parent.parentName,
                         style: AppTextStyles.titleM
                             .copyWith(color: AppColors.ink, fontSize: 14),
                         maxLines: 1,
@@ -523,7 +529,9 @@ class _NoResultsState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              isSearch ? Icons.search_off_rounded : Icons.filter_list_off_rounded,
+              isSearch
+                  ? Icons.search_off_rounded
+                  : Icons.filter_list_off_rounded,
               size: 48,
               color: AppColors.brandMuted,
             ),

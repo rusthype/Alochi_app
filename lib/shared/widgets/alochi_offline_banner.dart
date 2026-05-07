@@ -10,7 +10,8 @@ class AlochiOfflineBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       color: Colors.amber.shade700,
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: AppSpacing.m),
+      padding:
+          const EdgeInsets.symmetric(vertical: 6, horizontal: AppSpacing.m),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
