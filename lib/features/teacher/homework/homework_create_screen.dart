@@ -149,8 +149,10 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
               AlochiButton.primary(
                 label: 'Yaratish',
                 icon: Icons.add_rounded,
-                isLoading: createStatus.isLoading,
-                onPressed: createStatus.isLoading ? null : _submit,
+                isLoading: createStatus.isLoading || createStatus.isRefreshing,
+                onPressed: (createStatus.isLoading || createStatus.isRefreshing)
+                    ? null
+                    : _submit,
               ),
             ],
           ),

@@ -6,6 +6,7 @@ import '../../../core/storage/offline_sync.dart';
 import '../../../core/models/attendance_model.dart';
 import '../../../core/models/student_model.dart';
 import '../dashboard/dashboard_provider.dart';
+import '../groups/groups_provider.dart';
 
 enum AttendancePeriod { week, month, quarter }
 
@@ -164,6 +165,9 @@ class AttendanceMarkingNotifier
         hasUnsavedChanges: false,
         savedSuccessfully: true,
       ));
+      // Refresh dashboard and group stats
+      ref.invalidate(dashboardSummaryProvider);
+      ref.invalidate(groupDetailProvider(classId));
     } catch (e, st) {
       debugPrint('AttendanceMarkingNotifier.save error: $e\n$st');
       state = AsyncValue.data(current.copyWith(

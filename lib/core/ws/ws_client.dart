@@ -14,6 +14,7 @@ class WsClient {
 
   WebSocket? _socket;
   WsStatus _status = WsStatus.disconnected;
+  String? _connectUrl; // track active URL to prevent duplicate reconnects
   final _controller = StreamController<Map<String, dynamic>>.broadcast();
   final _statusController = StreamController<WsStatus>.broadcast();
 
@@ -32,6 +33,7 @@ class WsClient {
       return;
     }
 
+    _connectUrl = url;
     _setStatus(WsStatus.connecting);
 
     try {
@@ -59,10 +61,12 @@ class WsClient {
           debugPrint('WS: Connection closed');
           _socket = null;
           _setStatus(WsStatus.disconnected);
-          // Retry after 5s if not manually disconnected
+          // Retry after 5s — only if no other connect() started
+          final reconnectUrl = url;
           Future.delayed(const Duration(seconds: 5), () {
-            if (_status == WsStatus.disconnected) {
-              connect(url);
+            if (_status == WsStatus.disconnected &&
+                _connectUrl == reconnectUrl) {
+              connect(reconnectUrl);
             }
           });
         },
@@ -106,6 +110,7 @@ class WsClient {
   }
 
   Future<void> disconnect() async {
+    _connectUrl = null; // prevent auto-reconnect
     _setStatus(WsStatus.disconnected);
     await _socket?.close();
     _socket = null;

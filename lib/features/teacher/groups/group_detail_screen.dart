@@ -261,7 +261,7 @@ class _MetricCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +300,7 @@ class _AttendanceBarChart extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -402,7 +402,7 @@ class _GradeLineChart extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -605,7 +605,7 @@ class _RankingCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -658,8 +658,8 @@ class _RankingItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.line)),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: Row(
         children: [
@@ -797,7 +797,7 @@ class _StatTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.lineSoft,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -881,9 +881,10 @@ class _StudentsTabState extends State<_StudentsTab> {
                     vertical: AppSpacing.m,
                   ),
                   itemCount: filteredStudents.length,
-                  separatorBuilder: (_, __) => const Divider(
+                  separatorBuilder: (_, __) => Divider(
                     height: 1,
-                    color: AppColors.lineSoft,
+                    color:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   itemBuilder: (context, index) => _StudentRow(
                     student: filteredStudents[index],
@@ -1103,7 +1104,7 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.line),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
@@ -1141,7 +1142,9 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
                   height: 34,
                   margin: const EdgeInsets.only(left: 6),
                   decoration: BoxDecoration(
-                    color: isSelected ? _gradeColor(grade) : AppColors.lineSoft,
+                    color: isSelected
+                        ? _gradeColor(grade)
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
@@ -1231,8 +1234,9 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.l),
       itemCount: 6,
-      separatorBuilder: (_, __) =>
-          const Divider(height: 1, color: AppColors.lineSoft),
+      separatorBuilder: (_, __) => Divider(
+          height: 1,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest),
       itemBuilder: (_, __) => Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
         child: Row(
@@ -1240,8 +1244,8 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
             Container(
               width: 38,
               height: 38,
-              decoration: const BoxDecoration(
-                color: AppColors.lineSoft,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 shape: BoxShape.circle,
               ),
             ),
@@ -1250,9 +1254,19 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(height: 14, width: 140, color: AppColors.lineSoft),
+                  Container(
+                      height: 14,
+                      width: 140,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest),
                   const SizedBox(height: 6),
-                  Container(height: 11, width: 100, color: AppColors.lineSoft),
+                  Container(
+                      height: 11,
+                      width: 100,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest),
                 ],
               ),
             ),

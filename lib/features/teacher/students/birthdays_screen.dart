@@ -119,7 +119,7 @@ class _BirthdayCard extends ConsumerWidget {
         border: Border.all(
           color: student.isToday
               ? AppColors.accent.withValues(alpha: 0.35)
-              : AppColors.line,
+              : Theme.of(context).dividerColor,
         ),
       ),
       child: Row(

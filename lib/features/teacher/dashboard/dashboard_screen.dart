@@ -340,7 +340,7 @@ class _InactiveLessonCard extends StatelessWidget {
       decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.line)),
+          border: Border.all(color: Theme.of(context).dividerColor)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -378,7 +378,7 @@ class _InactiveLessonCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-                color: AppColors.lineSoft,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(11)),
             alignment: Alignment.center,
             child: Text('Tayyorlanish',
@@ -560,7 +560,7 @@ class _ConcernItem extends StatelessWidget {
             padding: const EdgeInsets.all(11).copyWith(right: 13),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.line)),
+                border: Border.all(color: Theme.of(context).dividerColor)),
             child: Row(
               children: [
                 Container(
@@ -611,7 +611,7 @@ class _EmptyLessonsPlaceholder extends StatelessWidget {
       decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.line)),
+          border: Border.all(color: Theme.of(context).dividerColor)),
       child: Center(
         child: Column(
           children: [
