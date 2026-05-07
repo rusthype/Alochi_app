@@ -12,6 +12,7 @@ import '../../../shared/widgets/alochi_card.dart';
 import '../../../core/models/attendance_model.dart';
 import '../../../core/models/student_model.dart';
 import '../attendance/attendance_provider.dart';
+import '../dashboard/dashboard_provider.dart';
 
 class GradesEntryScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -97,7 +98,7 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
           ),
           _BottomAction(
             onSave: _save,
-            isEnabled: _grades.isNotEmpty && _topicController.text.isNotEmpty,
+            isEnabled: _grades.isNotEmpty && !_isSaving,
           ),
         ],
       ),
@@ -109,14 +110,53 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 
+  bool _isSaving = false;
+
   Future<void> _save() async {
-    // Implement bulk save API call here
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-          content: Text('Baholar saqlandi'),
-          backgroundColor: Color(0xFF0F9A6E)),
-    );
-    context.pop();
+    if (_isSaving) return;
+    setState(() => _isSaving = true);
+
+    final api = ref.read(teacherApiProvider);
+    final today = _todayString();
+    final errors = <String>[];
+
+    for (final entry in _grades.entries) {
+      if (entry.value == 0) continue;
+      try {
+        await api.setGrade(
+          studentId: entry.key,
+          grade: entry.value,
+          date: today,
+          groupId: widget.groupId,
+          subject: widget.subject.isNotEmpty ? widget.subject : 'Matematika',
+        );
+      } catch (e) {
+        errors.add(e.toString());
+      }
+    }
+
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    if (errors.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              '${_grades.values.where((v) => v > 0).length} ta baho saqlandi'),
+          backgroundColor: const Color(0xFF0F9A6E),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      context.pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Xato: ${errors.first}'),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
 

@@ -7,6 +7,7 @@ import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_pill.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_skeleton.dart';
@@ -105,7 +106,7 @@ class _HomeworkDetailBodyState extends ConsumerState<_HomeworkDetailBody>
     return Column(
       children: [
         _HwHeader(hw: widget.hw),
-        _StatsHero(stats: widget.hw.stats),
+        _StatsHero(hw: widget.hw),
         TabBar(
           controller: _tabController,
           labelColor: AppColors.brand,
@@ -266,13 +267,15 @@ class _InfoBadge extends StatelessWidget {
 }
 
 class _StatsHero extends StatelessWidget {
-  final HomeworkStats? stats;
+  final HomeworkModel hw;
 
-  const _StatsHero({this.stats});
+  const _StatsHero({required this.hw});
 
   @override
   Widget build(BuildContext context) {
-    if (stats == null) return const SizedBox.shrink();
+    final submitted = hw.submittedCount;
+    final total = hw.totalCount > 0 ? hw.totalCount : hw.submissions.length;
+    final pending = (total - submitted).clamp(0, total);
 
     return Container(
       color: Colors.white,
@@ -289,23 +292,32 @@ class _StatsHero extends StatelessWidget {
           children: [
             _StatItem(
               label: 'Topshirdi',
-              value: '${stats!.submitted}/${stats!.total}',
+              value: '$submitted/$total',
               color: AppColors.brand,
             ),
             _StatItem(
-              label: 'O\'z vaqtida',
-              value: '${stats!.onTime}',
-              color: const Color(0xFF0F9A6E),
+              label: "Topshirmagan",
+              value: '$pending',
+              color: AppColors.danger,
             ),
             _StatItem(
-              label: 'Kechikdi',
-              value: '${stats!.pending}',
-              color: AppColors.danger,
+              label: 'Muddat',
+              value: _shortDate(hw.deadline),
+              color: hw.isActive ? const Color(0xFF0F9A6E) : AppColors.danger,
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _shortDate(String raw) {
+    try {
+      final dt = DateTime.parse(raw);
+      return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return raw.isNotEmpty ? raw : '—';
+    }
   }
 }
 
@@ -339,26 +351,22 @@ class _StatItem extends StatelessWidget {
 
 class _ResponsesTab extends StatelessWidget {
   final List<HomeworkSubmission> submissions;
-
   const _ResponsesTab({required this.submissions});
 
   @override
   Widget build(BuildContext context) {
     if (submissions.isEmpty) {
       return const AlochiEmptyState(
-        title: 'Javoblar yo\'q',
+        title: "Javoblar yo'q",
         subtitle: "Hali hech bir o'quvchi vazifani topshirmagan",
       );
     }
-
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.l),
       itemCount: submissions.length,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s),
       itemBuilder: (context, index) {
         final sub = submissions[index];
-        final hasSubmitted = sub.submittedAt.isNotEmpty;
-
         return AlochiCard(
           padding: const EdgeInsets.all(AppSpacing.m),
           child: Row(
@@ -375,36 +383,26 @@ class _ResponsesTab extends StatelessWidget {
                           AppTextStyles.titleM.copyWith(color: AppColors.ink),
                     ),
                     Text(
-                      hasSubmitted
-                          ? _formatDateTime(sub.submittedAt)
-                          : 'Topshirilmagan',
+                      sub.hasSubmitted
+                          ? _fmtDate(sub.submittedAt)
+                          : "Topshirilmagan",
                       style: AppTextStyles.bodyS
                           .copyWith(color: AppColors.brandMuted),
                     ),
                   ],
                 ),
               ),
-              if (hasSubmitted)
+              if (sub.hasSubmitted)
                 AlochiPill(
-                  label: sub.isOnTime ? 'O\'z vaqtida' : 'Kechikdi',
+                  label: sub.isOnTime ? "O'z vaqtida" : 'Kechikdi',
                   variant: sub.isOnTime
                       ? AlochiPillVariant.success
-                      : AlochiPillVariant.danger,
+                      : AlochiPillVariant.warning,
                 )
               else
-                IconButton(
-                  icon: const Icon(Icons.notifications_active_outlined,
-                      color: AppColors.accent, size: 20),
-                  onPressed: () {
-                    // In a real app, this would call remind student endpoint
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("${sub.studentName}ga eslatma yuborildi"),
-                        behavior: SnackBarBehavior.floating,
-                        backgroundColor: const Color(0xFF0F9A6E),
-                      ),
-                    );
-                  },
+                const AlochiPill(
+                  label: 'Kutilmoqda',
+                  variant: AlochiPillVariant.neutral,
                 ),
             ],
           ),
@@ -413,10 +411,11 @@ class _ResponsesTab extends StatelessWidget {
     );
   }
 
-  String _formatDateTime(String raw) {
+  String _fmtDate(String raw) {
     try {
       final dt = DateTime.parse(raw).toLocal();
-      return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+      return "${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')} "
+          "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
     } catch (_) {
       return raw;
     }
@@ -425,34 +424,10 @@ class _ResponsesTab extends StatelessWidget {
 
 class _Avatar extends StatelessWidget {
   final String name;
-
   const _Avatar({required this.name});
 
   @override
-  Widget build(BuildContext context) {
-    final initials = name.split(' ').take(2).map((e) => e[0]).join();
-    return CircleAvatar(
-      radius: 20,
-      backgroundColor: _getAvatarColor(name),
-      child: Text(
-        initials.toUpperCase(),
-        style: AppTextStyles.label.copyWith(color: Colors.white),
-      ),
-    );
-  }
-
-  Color _getAvatarColor(String name) {
-    final hash = name.codeUnits.fold(0, (prev, e) => prev + e);
-    final colors = [
-      AppColors.brand,
-      Colors.indigo,
-      Colors.purple,
-      Colors.teal,
-      Colors.orange,
-      Colors.pink,
-    ];
-    return colors[hash % colors.length];
-  }
+  Widget build(BuildContext context) => AlochiAvatar(name: name, size: 40);
 }
 
 class _RemindersTab extends StatelessWidget {

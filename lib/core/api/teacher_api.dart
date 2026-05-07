@@ -368,6 +368,7 @@ class TeacherApi {
     required int grade,
     required String date,
     required String groupId,
+    String subject = 'Matematika',
   }) async {
     try {
       await _client.post('/teacher/grades/set/', data: {
@@ -375,6 +376,7 @@ class TeacherApi {
         'grade': grade,
         'date': date,
         'group_id': groupId,
+        'subject': subject,
       });
     } catch (e, st) {
       debugPrint('setGrade error: $e\n$st');
