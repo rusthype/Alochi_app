@@ -74,6 +74,7 @@ class NotificationsScreen extends ConsumerWidget {
                   onRefresh: () => ref.refresh(notificationsProvider.future),
                   color: AppColors.brand,
                   child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(AppSpacing.l),
                     itemCount: notifications.length,
                     separatorBuilder: (_, __) =>

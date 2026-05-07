@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/colors.dart';
 import '../../theme/typography.dart';
 
 class AlochiAppBar extends StatelessWidget implements PreferredSizeWidget {

@@ -42,7 +42,17 @@ class _AttendanceHistoryScreenState
           ),
           Expanded(
             child: historyAsync.when(
-              data: (data) => _HistoryBody(data: data),
+              data: (data) => RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(attendanceHistoryProvider);
+                  await ref.read(attendanceHistoryProvider((
+                    classId: widget.groupId,
+                    period: _period.name,
+                  )).future);
+                },
+                color: AppColors.brand,
+                child: _HistoryBody(data: data),
+              ),
               loading: () => const _HistoryLoadingSkeleton(),
               error: (err, _) => AlochiEmptyState(
                 icon: Icons.error_outline_rounded,

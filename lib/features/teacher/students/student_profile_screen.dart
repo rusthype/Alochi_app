@@ -65,7 +65,7 @@ class _StudentProfileSkeleton extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.l),
       children: const [
-        Center(child: AlochiSkeleton(height: 84, width: 84, borderRadius: 100)),
+        Center(child: AlochiSkeleton(height: 84, width: 84, borderRadius: BorderRadius.all(Radius.circular(100)))),
         SizedBox(height: AppSpacing.m),
         Center(child: AlochiSkeleton(width: 200, height: 24)),
         SizedBox(height: AppSpacing.s),
