@@ -190,8 +190,7 @@ class _ConversationRow extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (conversation.classCode != null &&
-                          conversation.classCode!.isNotEmpty)
+                      if ((conversation.classCode ?? '').isNotEmpty)
                         Container(
                           margin: const EdgeInsets.only(left: AppSpacing.s),
                           padding: const EdgeInsets.symmetric(
@@ -201,7 +200,7 @@ class _ConversationRow extends StatelessWidget {
                             borderRadius: BorderRadius.circular(AppRadii.xs),
                           ),
                           child: Text(
-                            conversation.classCode!,
+                            conversation.classCode ?? '',
                             style: AppTextStyles.caption.copyWith(
                               color: AppColors.brand,
                               fontWeight: FontWeight.w700,
