@@ -1183,6 +1183,9 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
         groupId: widget.groupId,
       );
       ref.invalidate(gradesJournalProvider(widget.groupId));
+      // Also refresh stats row and student list
+      ref.invalidate(groupDetailProvider(widget.groupId));
+      ref.invalidate(groupStudentsProvider(widget.groupId));
     } catch (e) {
       if (mounted) {
         setState(() => _selectedGrade = null);

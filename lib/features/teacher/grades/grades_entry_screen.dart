@@ -14,6 +14,8 @@ import '../../../core/models/student_model.dart';
 import '../attendance/attendance_provider.dart';
 import '../dashboard/dashboard_provider.dart';
 import '../groups/groups_provider.dart';
+import '../grades/grades_provider.dart';
+import '../grades/grades_provider.dart';
 
 class GradesEntryScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -183,6 +185,9 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      // Refresh journal and group stats
+      ref.invalidate(gradesJournalProvider(widget.groupId));
+      ref.invalidate(groupDetailProvider(widget.groupId));
       context.pop();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

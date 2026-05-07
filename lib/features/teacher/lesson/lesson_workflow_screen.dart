@@ -14,6 +14,8 @@ import '../../../core/models/attendance_model.dart';
 import '../attendance/attendance_provider.dart';
 import '../homework/homework_provider.dart';
 import '../dashboard/dashboard_provider.dart';
+import '../grades/grades_provider.dart';
+import '../groups/groups_provider.dart';
 import 'lesson_provider.dart';
 
 // Topic grade per student (2-5) — saved to grades/set endpoint
@@ -712,6 +714,9 @@ class _Step3ActivityContentState extends ConsumerState<_Step3ActivityContent> {
     }
     if (mounted) {
       setState(() => _isSaving = false);
+      // Refresh journal so GroupDetail shows new grades
+      ref.invalidate(gradesJournalProvider(widget.groupId));
+      ref.invalidate(groupDetailProvider(widget.groupId));
       widget.notifier.completeStep(WorkflowStep.grading);
     }
   }
