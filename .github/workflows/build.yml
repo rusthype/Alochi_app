@@ -24,7 +24,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.4'
+          flutter-version: '3.41.4'
           channel: stable
           cache: true
 
@@ -38,4 +38,4 @@ jobs:
         run: flutter test
 
       - name: Build APK (verify compilation)
-        run: flutter build apk --debug --dart-define=API_URL=https://alochi.org
+        run: flutter build apk --debug --dart-define=API_URL=https://api.alochi.org/api/v1
