@@ -14,79 +14,82 @@ class LandingScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 60),
-              // Logo
-              Container(
-                width: 80,
-                height: 80,
-                decoration: const BoxDecoration(
-                  color: AppColors.brand,
-                  shape: BoxShape.circle,
-                ),
-                child: const Center(
-                  child: Text(
-                    'A',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 48,
-                      fontWeight: FontWeight.w900,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 60),
+                // Logo
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    color: AppColors.brand,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'A',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 48,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                "A'lochi",
-                style: AppTextStyles.displayL.copyWith(color: AppColors.brand),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Ta\'lim platformasiga xush kelibsiz!',
-                style: AppTextStyles.body,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 60),
-              const Text(
-                'Rolingizni tanlang:',
-                style: AppTextStyles.titleL,
-              ),
-              const SizedBox(height: 32),
+                const SizedBox(height: 24),
+                Text(
+                  "A'lochi",
+                  style:
+                      AppTextStyles.displayL.copyWith(color: AppColors.brand),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Ta\'lim platformasiga xush kelibsiz!',
+                  style: AppTextStyles.body,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 60),
+                const Text(
+                  'Rolingizni tanlang:',
+                  style: AppTextStyles.titleL,
+                ),
+                const SizedBox(height: 32),
 
-              // Role buttons
-              _RoleCard(
-                title: 'Ustoz',
-                subtitle: 'Guruhlarni boshqarish va baholash',
-                icon: Icons.school_rounded,
-                color: AppColors.brand,
-                onTap: () => context.push('/teacher/auth/login'),
-              ),
-              const SizedBox(height: 16),
-              _RoleCard(
-                title: 'Ota-ona',
-                subtitle: 'Farzandingiz natijalarini kuzating',
-                icon: Icons.family_restroom_rounded,
-                color: AppColors.accent,
-                onTap: () => context.push('/teacher/auth/login?role=parent'),
-              ),
-              const SizedBox(height: 16),
-              _RoleCard(
-                title: 'O\'quvchi',
-                subtitle: 'Bilimingizni oshiring va XP yig\'ing',
-                icon: Icons.person_rounded,
-                color: AppColors.info,
-                onTap: () => context.push('/teacher/auth/login?role=student'),
-              ),
+                // Role buttons
+                _RoleCard(
+                  title: 'Ustoz',
+                  subtitle: 'Guruhlarni boshqarish va baholash',
+                  icon: Icons.school_rounded,
+                  color: AppColors.brand,
+                  onTap: () => context.push('/teacher/auth/login'),
+                ),
+                const SizedBox(height: 16),
+                _RoleCard(
+                  title: 'Ota-ona',
+                  subtitle: 'Farzandingiz natijalarini kuzating',
+                  icon: Icons.family_restroom_rounded,
+                  color: AppColors.accent,
+                  onTap: () => context.push('/teacher/auth/login?role=parent'),
+                ),
+                const SizedBox(height: 16),
+                _RoleCard(
+                  title: 'O\'quvchi',
+                  subtitle: 'Bilimingizni oshiring va XP yig\'ing',
+                  icon: Icons.person_rounded,
+                  color: AppColors.info,
+                  onTap: () => context.push('/teacher/auth/login?role=student'),
+                ),
 
-              const Spacer(),
-              const Text(
-                '© 2026 A\'lochi',
-                style: AppTextStyles.caption,
-              ),
-              const SizedBox(height: 20),
-            ],
+                const Spacer(),
+                const Text(
+                  '© 2026 A\'lochi',
+                  style: AppTextStyles.caption,
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
