@@ -325,13 +325,13 @@ class _SettingsRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 color: iconBg,
-                borderRadius: BorderRadius.circular(AppRadii.s),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: Colors.white, size: 18),
+              child: Icon(icon, color: Colors.white, size: 20),
             ),
             const SizedBox(width: AppSpacing.m),
             Expanded(

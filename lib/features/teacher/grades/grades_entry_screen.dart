@@ -53,7 +53,7 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.surface,
-      appBar: AlochiAppBar(title: 'Baho qo\'yish'),
+      appBar: const AlochiAppBar(title: 'Baho qo\'yish'),
       body: Column(
         children: [
           _TopicHeader(

@@ -177,9 +177,9 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
     } else if (result.hasValue && result.value != null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Vazifa yaratildi'),
-          backgroundColor: const Color(0xFF0F9A6E),
+        const SnackBar(
+          content: Text('Vazifa yaratildi'),
+          backgroundColor: Color(0xFF0F9A6E),
           behavior: SnackBarBehavior.floating,
         ),
       );
