@@ -29,6 +29,11 @@ abstract final class AppColors {
   static const Color heroDark = Color(0xFF0E2E2A);
   static const Color surface = Color(0xFFFAFAFA);
   static const Color ink = Color(0xFF111827);
+  static const Color gray = Color(0xFF6B7280);
+  static const Color gray2 = Color(0xFF9CA3AF);
+  static const Color gray3 = Color(0xFFD1D5DB);
+  static const Color line = Color(0xFFE5E7EB);
+  static const Color lineSoft = Color(0xFFF4F5F7);
 
   // --- V1.2 Dark Mode Prep Variants ---
 

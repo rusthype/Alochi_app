@@ -71,7 +71,7 @@ class _GreetingHeader extends ConsumerWidget {
               Text(
                 'Assalomu alaykum,',
                 style: AppTextStyles.bodyS.copyWith(
-                  color: const Color(0xFF6B7280),
+                  color: AppColors.gray,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -149,7 +149,7 @@ class _TodayLessonsSection extends StatelessWidget {
                 'BUGUNGI DARSLARIM · ${lessons.length}',
                 style: AppTextStyles.caption.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.gray2,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -229,7 +229,7 @@ class _ActiveLessonCard extends StatelessWidget {
               Text(
                 lesson.time,
                 style: AppTextStyles.caption.copyWith(
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.gray2,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -272,7 +272,7 @@ class _ActiveLessonCard extends StatelessWidget {
           Text(
             '${lesson.studentCount} o\'quvchi${lesson.topic.isNotEmpty ? ' · ${lesson.topic}' : ''}',
             style: AppTextStyles.caption.copyWith(
-              color: const Color(0xFF9CA3AF),
+              color: AppColors.gray2,
               fontSize: 12,
               height: 1.5,
             ),
@@ -343,7 +343,7 @@ class _InactiveLessonCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEFEFEF)),
+        border: Border.all(color: AppColors.line),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,7 +351,7 @@ class _InactiveLessonCard extends StatelessWidget {
           Text(
             lesson.time,
             style: AppTextStyles.caption.copyWith(
-              color: const Color(0xFF9CA3AF),
+              color: AppColors.gray2,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -392,7 +392,7 @@ class _InactiveLessonCard extends StatelessWidget {
           Text(
             '${lesson.studentCount} o\'quvchi${lesson.timeStatus.isNotEmpty ? ' · ${lesson.timeStatus}' : ''}',
             style: AppTextStyles.caption.copyWith(
-              color: const Color(0xFF6B7280),
+              color: AppColors.gray,
               fontSize: 12,
               height: 1.5,
             ),
@@ -404,7 +404,7 @@ class _InactiveLessonCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: const Color(0xFFF4F5F7),
+              color: AppColors.lineSoft,
               borderRadius: BorderRadius.circular(11),
             ),
             alignment: Alignment.center,
@@ -444,7 +444,7 @@ class _ConcernsSection extends StatelessWidget {
                 'DIQQAT TALAB',
                 style: AppTextStyles.caption.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.gray2,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -516,7 +516,7 @@ class _ConcernItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFEFEFEF)),
+        border: Border.all(color: AppColors.line),
       ),
       child: Row(
         children: [
@@ -584,7 +584,7 @@ class _EmptyLessonsPlaceholder extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFEFEFEF)),
+        border: Border.all(color: AppColors.line),
       ),
       child: Center(
         child: Column(
@@ -595,7 +595,7 @@ class _EmptyLessonsPlaceholder extends StatelessWidget {
               'Bugun darsingiz yo\'q',
               style: AppTextStyles.body.copyWith(
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF6B7280),
+                color: AppColors.gray,
               ),
             ),
             const SizedBox(height: 4),

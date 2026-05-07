@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/message_model.dart';
+import '../../../core/ws/ws_client.dart';
 import '../dashboard/dashboard_provider.dart';
 
 // ─── Conversations list ───────────────────────────────────────────────────────
@@ -44,10 +46,18 @@ class ChatThreadState {
 class ChatThreadNotifier extends StateNotifier<AsyncValue<ChatThreadState>> {
   final String conversationId;
   final Ref _ref;
+  StreamSubscription? _wsSub;
 
   ChatThreadNotifier(this.conversationId, this._ref)
       : super(const AsyncValue.loading()) {
     _load();
+    _initWs();
+  }
+
+  @override
+  void dispose() {
+    _wsSub?.cancel();
+    super.dispose();
   }
 
   Future<void> _load() async {
@@ -63,6 +73,34 @@ class ChatThreadNotifier extends StateNotifier<AsyncValue<ChatThreadState>> {
       debugPrint('ChatThread load error: $e\n$st');
       state = AsyncValue.error(e, st);
     }
+  }
+
+  void _initWs() {
+    final ws = WsClient.instance;
+    // Base URL is https://api.alochi.org, so WS is wss://api.alochi.org/ws/chat/
+    ws.connect('wss://api.alochi.org/ws/chat/$conversationId/');
+    _wsSub = ws.stream.listen((data) {
+      if (data['type'] == 'chat_message') {
+        final rawMsg = data['message'];
+        if (rawMsg != null) {
+          final msg = MessageModel.fromJson(rawMsg as Map<String, dynamic>);
+          _onNewWsMessage(msg);
+        }
+      }
+    });
+  }
+
+  void _onNewWsMessage(MessageModel msg) {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    
+    // Avoid duplicates if we already added it optimistically
+    if (current.messages.any((m) => m.id == msg.id)) return;
+
+    state = AsyncValue.data(current.copyWith(
+      messages: [...current.messages, msg],
+    ));
+    _ref.invalidate(conversationsProvider);
   }
 
   Future<void> sendMessage(String text) async {

@@ -335,7 +335,7 @@ class _AiMessageBubble extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
               decoration: BoxDecoration(
-                color: isUser ? AppColors.brand : Colors.white,
+                color: isUser ? Colors.white : AppColors.accentSoft,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -343,16 +343,14 @@ class _AiMessageBubble extends StatelessWidget {
                   bottomRight: Radius.circular(isUser ? 6 : 18),
                 ),
                 border:
-                    isUser ? null : Border.all(color: const Color(0xFFE5E7EB)),
-                boxShadow: isUser
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.04),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
+                    isUser ? Border.all(color: const Color(0xFFE5E7EB)) : null,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
               ),
               child: Column(
                 crossAxisAlignment:
@@ -362,7 +360,7 @@ class _AiMessageBubble extends StatelessWidget {
                   Text(
                     message.text,
                     style: AppTextStyles.body.copyWith(
-                      color: isUser ? Colors.white : AppColors.ink,
+                      color: isUser ? AppColors.ink : AppColors.accentInk,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -370,8 +368,8 @@ class _AiMessageBubble extends StatelessWidget {
                     _formatTime(message.timestamp),
                     style: AppTextStyles.caption.copyWith(
                       color: isUser
-                          ? Colors.white.withValues(alpha: 0.7)
-                          : AppColors.brandMuted,
+                          ? AppColors.brandMuted
+                          : AppColors.accentInk.withValues(alpha: 0.7),
                       fontSize: 10,
                     ),
                   ),

@@ -71,7 +71,7 @@ class _StudentProfileBody extends StatelessWidget {
                 ],
                 _AttendanceCalendarSection(days: student.recentAttendance),
                 const SizedBox(height: 24),
-                _TeacherNotesSection(),
+                _TeacherNotesSection(student: student),
                 const SizedBox(height: 40),
               ],
             ),
@@ -476,6 +476,10 @@ class _AttendanceCalendarSection extends StatelessWidget {
 }
 
 class _TeacherNotesSection extends StatelessWidget {
+  final StudentModel student;
+
+  const _TeacherNotesSection({required this.student});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -514,7 +518,7 @@ class _TeacherNotesSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "O'quvchi haqida izoh yozilmagan.",
+                student.notes ?? "O'quvchi haqida izoh yozilmagan.",
                 style:
                     AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
               ),
@@ -540,7 +544,7 @@ class _TeacherNotesSection extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  "+ Yozuv qo'shish",
+                  student.notes == null ? "+ Yozuv qo'shish" : "Tahrirlash",
                   style: AppTextStyles.bodyS.copyWith(
                     color: AppColors.brand,
                     fontWeight: FontWeight.w600,

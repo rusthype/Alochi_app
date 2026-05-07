@@ -425,7 +425,7 @@ class _LowAttendanceRow extends StatelessWidget {
                   style: AppTextStyles.titleM.copyWith(fontSize: 14),
                 ),
                 Text(
-                  "4 kun yo'q · 2 kun kech", // Mock stats
+                  "${student.missedLessons} kun qoldirgan",
                   style: AppTextStyles.caption
                       .copyWith(color: const Color(0xFF6B7280)),
                 ),

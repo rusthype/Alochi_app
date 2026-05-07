@@ -72,6 +72,7 @@ class _HomeworkDetailBodyState extends ConsumerState<_HomeworkDetailBody>
     return Column(
       children: [
         _HwHeader(hw: widget.hw),
+        _StatsHero(stats: widget.hw.stats),
         TabBar(
           controller: _tabController,
           labelColor: AppColors.brand,
@@ -90,7 +91,7 @@ class _HomeworkDetailBodyState extends ConsumerState<_HomeworkDetailBody>
             controller: _tabController,
             children: [
               // Responses tab
-              _ResponsesTab(hw: widget.hw),
+              _ResponsesTab(submissions: widget.hw.submissions),
               // Reminders tab
               _RemindersTab(
                 hw: widget.hw,
@@ -231,42 +232,193 @@ class _InfoBadge extends StatelessWidget {
   }
 }
 
-class _ResponsesTab extends StatelessWidget {
-  final HomeworkModel hw;
+class _StatsHero extends StatelessWidget {
+  final HomeworkStats? stats;
 
-  const _ResponsesTab({required this.hw});
+  const _StatsHero({this.stats});
 
   @override
   Widget build(BuildContext context) {
-    if (hw.responseCount == 0) {
-      return const AlochiEmptyState(
-        title: 'Javob yo\'q',
-        subtitle: "Hali hech bir o'quvchi topshirmagan",
-      );
-    }
-    // Backend does not return individual responses in detail endpoint yet
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xxl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    if (stats == null) return const SizedBox.shrink();
+
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.l, 0, AppSpacing.l, AppSpacing.l),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.m),
+        decoration: BoxDecoration(
+          color: AppColors.brandSoft,
+          borderRadius: BorderRadius.circular(AppRadii.m),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            const Icon(Icons.assignment_turned_in_outlined,
-                size: 48, color: AppColors.brand),
-            const SizedBox(height: AppSpacing.m),
-            Text(
-              '${hw.responseCount} ta javob',
-              style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+            _StatItem(
+              label: 'Topshirdi',
+              value: '${stats!.submitted}/${stats!.total}',
+              color: AppColors.brand,
             ),
-            const SizedBox(height: AppSpacing.s),
-            Text(
-              "O'quvchi javobi tafsilotlari V1.2 da",
-              style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+            _StatItem(
+              label: 'O\'z vaqtida',
+              value: '${stats!.onTime}',
+              color: const Color(0xFF0F9A6E),
+            ),
+            _StatItem(
+              label: 'Kechikdi',
+              value: '${stats!.pending}',
+              color: AppColors.danger,
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: AppTextStyles.titleL.copyWith(color: color),
+        ),
+        Text(
+          label,
+          style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+        ),
+      ],
+    );
+  }
+}
+
+class _ResponsesTab extends StatelessWidget {
+  final List<HomeworkSubmission> submissions;
+
+  const _ResponsesTab({required this.submissions});
+
+  @override
+  Widget build(BuildContext context) {
+    if (submissions.isEmpty) {
+      return const AlochiEmptyState(
+        title: 'Javoblar yo\'q',
+        subtitle: "Hali hech bir o'quvchi vazifani topshirmagan",
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      itemCount: submissions.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.s),
+      itemBuilder: (context, index) {
+        final sub = submissions[index];
+        final hasSubmitted = sub.submittedAt.isNotEmpty;
+
+        return AlochiCard(
+          padding: const EdgeInsets.all(AppSpacing.m),
+          child: Row(
+            children: [
+              _Avatar(name: sub.studentName),
+              const SizedBox(width: AppSpacing.m),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      sub.studentName,
+                      style:
+                          AppTextStyles.titleM.copyWith(color: AppColors.ink),
+                    ),
+                    Text(
+                      hasSubmitted
+                          ? _formatDateTime(sub.submittedAt)
+                          : 'Topshirilmagan',
+                      style: AppTextStyles.bodyS
+                          .copyWith(color: AppColors.brandMuted),
+                    ),
+                  ],
+                ),
+              ),
+              if (hasSubmitted)
+                AlochiPill(
+                  label: sub.isOnTime ? 'O\'z vaqtida' : 'Kechikdi',
+                  variant: sub.isOnTime
+                      ? AlochiPillVariant.success
+                      : AlochiPillVariant.danger,
+                )
+              else
+                IconButton(
+                  icon: const Icon(Icons.notifications_active_outlined,
+                      color: AppColors.accent, size: 20),
+                  onPressed: () {
+                    // In a real app, this would call remind student endpoint
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("${sub.studentName}ga eslatma yuborildi"),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: const Color(0xFF0F9A6E),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  String _formatDateTime(String raw) {
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      return '${dt.day.toString().padLeft(2, '0')}.${dt.month.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return raw;
+    }
+  }
+}
+
+class _Avatar extends StatelessWidget {
+  final String name;
+
+  const _Avatar({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name.split(' ').take(2).map((e) => e[0]).join();
+    return CircleAvatar(
+      radius: 20,
+      backgroundColor: _getAvatarColor(name),
+      child: Text(
+        initials.toUpperCase(),
+        style: AppTextStyles.label.copyWith(color: Colors.white),
+      ),
+    );
+  }
+
+  Color _getAvatarColor(String name) {
+    final hash = name.codeUnits.fold(0, (prev, e) => prev + e);
+    final colors = [
+      AppColors.brand,
+      Colors.indigo,
+      Colors.purple,
+      Colors.teal,
+      Colors.orange,
+      Colors.pink,
+    ];
+    return colors[hash % colors.length];
   }
 }
 

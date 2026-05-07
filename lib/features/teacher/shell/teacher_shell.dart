@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/alochi_bottom_nav.dart';
+import '../../../shared/widgets/alochi_offline_banner.dart';
+import '../../../core/api/connectivity_provider.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../groups/groups_list_screen.dart';
 import '../homework/homework_list_screen.dart';
@@ -66,13 +68,20 @@ class _TeacherShellState extends ConsumerState<TeacherShell> {
     }
 
     return Scaffold(
-      body: Stack(
+      body: Column(
         children: [
-          IndexedStack(
-            index: currentIndex,
-            children: _tabs,
+          if (!ref.watch(isOnlineProvider)) const AlochiOfflineBanner(),
+          Expanded(
+            child: Stack(
+              children: [
+                IndexedStack(
+                  index: currentIndex,
+                  children: _tabs,
+                ),
+                if (!isRootTab) widget.child,
+              ],
+            ),
           ),
-          if (!isRootTab) widget.child,
         ],
       ),
       bottomNavigationBar: AlochiBottomNav(

@@ -33,6 +33,7 @@ import '../features/teacher/lesson/lesson_workflow_screen.dart';
 import '../features/teacher/attendance/attendance_mark_screen.dart';
 import '../features/teacher/attendance/attendance_history_screen.dart';
 import '../features/teacher/grades/grades_screen.dart';
+import '../features/teacher/grades/grades_entry_screen.dart';
 import '../features/teacher/homework/homework_list_screen.dart';
 import '../features/teacher/homework/homework_create_screen.dart';
 import '../features/teacher/homework/homework_detail_screen.dart';
@@ -204,6 +205,20 @@ final routerProvider = Provider<GoRouter>((ref) {
               final subject = extra['subject']?.toString() ?? '';
               final groupName = extra['groupName']?.toString() ?? '';
               return GradesScreen(
+                groupId: id,
+                groupName: groupName,
+                subject: subject,
+              );
+            },
+          ),
+          GoRoute(
+            path: '/teacher/groups/:id/grades-entry',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              final extra = state.extra as Map<String, dynamic>? ?? {};
+              final subject = extra['subject']?.toString() ?? '';
+              final groupName = extra['groupName']?.toString() ?? '';
+              return GradesEntryScreen(
                 groupId: id,
                 groupName: groupName,
                 subject: subject,

@@ -12,6 +12,7 @@ class StudentModel {
   final int xp;
   final int level;
   final String? schoolName;
+  final String? notes;
   final List<ParentModel> parents;
   final List<AttendanceDayModel> recentAttendance;
   final List<RecentGradeModel> recentGrades;
@@ -30,6 +31,7 @@ class StudentModel {
     this.xp = 0,
     this.level = 1,
     this.schoolName,
+    this.notes,
     this.parents = const [],
     this.recentAttendance = const [],
     this.recentGrades = const [],
@@ -64,6 +66,7 @@ class StudentModel {
       xp: (json['xp'] as num?)?.toInt() ?? 0,
       level: (json['level'] as num?)?.toInt() ?? 1,
       schoolName: json['school_name']?.toString(),
+      notes: json['notes']?.toString(),
       parents: parentsList.isEmpty
           ? []
           : parentsList

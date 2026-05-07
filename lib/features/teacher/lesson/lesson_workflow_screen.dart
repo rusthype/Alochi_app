@@ -11,12 +11,16 @@ import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/models/lesson_detail_model.dart';
 import '../../../core/models/student_model.dart';
+import '../../../core/models/attendance_model.dart';
 import '../attendance/attendance_provider.dart';
-import '../grades/grades_provider.dart';
+import '../homework/homework_provider.dart';
 import 'lesson_provider.dart';
 
 // Local provider for homework check (did they do it?)
 final homeworkCheckProvider = StateProvider.autoDispose.family<Set<String>, String>((ref, lessonId) => {});
+
+// Local provider for activity rating (1=Zaif, 2=O'rta, 3=Yaxshi)
+final activityRatingProvider = StateProvider.autoDispose.family<Map<String, int>, String>((ref, lessonId) => {});
 
 class LessonWorkflowScreen extends ConsumerWidget {
   final String lessonId;
@@ -134,8 +138,8 @@ class _LessonWorkflowBody extends StatelessWidget {
           const SizedBox(height: AppSpacing.m),
           _StepCard(
             step: WorkflowStep.grading,
-            title: 'Baholash',
-            subtitle: "Darsdagi aktivlikni baholang",
+            title: 'Aktivlikni baholash',
+            subtitle: "Darsdagi qatnashuvni belgilang",
             icon: Icons.star_rounded,
             workflowState: workflowState,
             lesson: lesson,
@@ -185,7 +189,7 @@ class _WorkflowStepper extends StatelessWidget {
                       height: 4,
                       decoration: BoxDecoration(
                         color: isCompleted
-                            ? AppColors.success
+                            ? const Color(0xFF0F9A6E)
                             : isActive
                                 ? AppColors.brand
                                 : const Color(0xFFE5E7EB),
@@ -199,7 +203,7 @@ class _WorkflowStepper extends StatelessWidget {
                         color: isActive
                             ? AppColors.brand
                             : isCompleted
-                                ? AppColors.success
+                                ? const Color(0xFF0F9A6E)
                                 : AppColors.brandMuted,
                         fontWeight: isActive || isCompleted
                             ? FontWeight.w600
@@ -268,7 +272,7 @@ class _StepCard extends StatelessWidget {
     if (isCompleted) {
       borderColor = const Color(0xFFE1F5EE);
       bgColor = const Color(0xFFF8FFFD);
-      iconColor = AppColors.success;
+      iconColor = const Color(0xFF0F9A6E);
       iconBg = const Color(0xFFE1F5EE);
     } else if (isActive) {
       borderColor = AppColors.brandLight;
@@ -324,7 +328,7 @@ class _StepCard extends StatelessWidget {
               ),
               if (isCompleted)
                 const Icon(Icons.check_circle_rounded,
-                    color: AppColors.success, size: 22)
+                    color: Color(0xFF0F9A6E), size: 22)
               else if (isLocked)
                 const Icon(Icons.lock_rounded,
                     color: Color(0xFFD1D5DB), size: 18),
@@ -342,7 +346,7 @@ class _StepCard extends StatelessWidget {
           ],
           if (isActive && step == WorkflowStep.grading) ...[
             const SizedBox(height: AppSpacing.l),
-            _Step3GradingContent(
+            _Step3ActivityContent(
                 lesson: lesson, lessonId: lessonId, notifier: notifier),
           ],
           if (isActive && step == WorkflowStep.finish) ...[
@@ -501,7 +505,7 @@ class _Step2HomeworkCheck extends ConsumerWidget {
     final checkedStudents = ref.watch(homeworkCheckProvider(lessonId));
     final checkNotifier = ref.read(homeworkCheckProvider(lessonId).notifier);
 
-    // Get students from attendance provider if possible
+    // Get students from attendance provider
     final today = _todayString();
     final key = (classId: lesson.groupId, date: today);
     final attAsync = ref.watch(attendanceMarkingProvider(key));
@@ -512,9 +516,16 @@ class _Step2HomeworkCheck extends ConsumerWidget {
         if (students.isEmpty) {
           return const Text("O'quvchilar yo'q");
         }
+        
+        // Filter: only present/late students should be checked for homework in person
+        final attendingStudents = students.where((s) {
+          final status = state.statuses[s.id];
+          return status == AttendanceStatus.present || status == AttendanceStatus.late;
+        }).toList();
+
         return Column(
           children: [
-            ...students.map((s) {
+            ...attendingStudents.map((s) {
               final isChecked = checkedStudents.contains(s.id);
               return Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.s),
@@ -546,6 +557,11 @@ class _Step2HomeworkCheck extends ConsumerWidget {
                 ),
               );
             }),
+            if (attendingStudents.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.m),
+                child: Text('Bugun darsda hech kim yo\'q', style: AppTextStyles.bodyS),
+              ),
             const SizedBox(height: AppSpacing.m),
             Row(
               children: [
@@ -583,14 +599,14 @@ class _Step2HomeworkCheck extends ConsumerWidget {
   }
 }
 
-// ─── Step 3 — Baholash ───────────────────────────────────────────────────────
+// ─── Step 3 — Aktivlikni baholash ───────────────────────────────────────────
 
-class _Step3GradingContent extends ConsumerWidget {
+class _Step3ActivityContent extends ConsumerWidget {
   final LessonDetailModel lesson;
   final String lessonId;
   final LessonWorkflowNotifier notifier;
 
-  const _Step3GradingContent({
+  const _Step3ActivityContent({
     required this.lesson,
     required this.lessonId,
     required this.notifier,
@@ -598,38 +614,35 @@ class _Step3GradingContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final today = _todayString();
-    final key = (
-      groupId: lesson.groupId,
-      date: today,
-    );
-    final editState = ref.watch(gradeEditProvider(key));
-    final gradeNotifier = ref.read(gradeEditProvider(key).notifier);
+    final ratings = ref.watch(activityRatingProvider(lessonId));
+    final ratingNotifier = ref.read(activityRatingProvider(lessonId).notifier);
 
     // Get students from attendance
+    final today = _todayString();
     final attKey = (classId: lesson.groupId, date: today);
     final attAsync = ref.watch(attendanceMarkingProvider(attKey));
 
-    ref.listen<GradeEditState>(gradeEditProvider(key), (prev, next) {
-      if (next.savedSuccessfully && !(prev?.savedSuccessfully ?? false)) {
-        notifier.completeStep(WorkflowStep.grading);
-      }
-    });
-
-    final students = attAsync.valueOrNull?.students ?? [];
+    final students = attAsync.valueOrNull?.students.where((s) {
+          final status = attAsync.valueOrNull?.statuses[s.id];
+          return status == AttendanceStatus.present || status == AttendanceStatus.late;
+        }).toList() ?? [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (students.isEmpty)
-          const Text("O'quvchilar topilmadi")
+          const Text("Darsda o'quvchilar yo'q")
         else
           Column(
             children: students
-                .map((s) => _InlineGradeRow(
+                .map((s) => _ActivityRatingRow(
                       student: s,
-                      grade: editState.pending[s.id] ?? 0,
-                      onGradeChanged: (g) => gradeNotifier.setGrade(s.id, g),
+                      rating: ratings[s.id] ?? 0,
+                      onChanged: (r) {
+                        final current = Map<String, int>.from(ratings);
+                        current[s.id] = r;
+                        ratingNotifier.state = current;
+                      },
                     ))
                 .toList(),
           ),
@@ -645,17 +658,8 @@ class _Step3GradingContent extends ConsumerWidget {
             const SizedBox(width: AppSpacing.m),
             Expanded(
               child: AlochiButton.primary(
-                label: editState.hasChanges ? 'Saqlash' : "O'tkazish",
-                isLoading: editState.isSaving,
-                onPressed: editState.isSaving
-                    ? null
-                    : () {
-                        if (editState.hasChanges) {
-                          gradeNotifier.saveAll();
-                        } else {
-                          notifier.completeStep(WorkflowStep.grading);
-                        }
-                      },
+                label: "Keyingisi ›",
+                onPressed: () => notifier.completeStep(WorkflowStep.grading),
               ),
             ),
           ],
@@ -670,15 +674,15 @@ class _Step3GradingContent extends ConsumerWidget {
   }
 }
 
-class _InlineGradeRow extends StatelessWidget {
+class _ActivityRatingRow extends StatelessWidget {
   final StudentModel student;
-  final int grade;
-  final ValueChanged<int> onGradeChanged;
+  final int rating;
+  final ValueChanged<int> onChanged;
 
-  const _InlineGradeRow({
+  const _ActivityRatingRow({
     required this.student,
-    required this.grade,
-    required this.onGradeChanged,
+    required this.rating,
+    required this.onChanged,
   });
 
   @override
@@ -697,63 +701,63 @@ class _InlineGradeRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          _MiniGradeSegmented(value: grade, onChanged: onGradeChanged),
+          _RatingSegmented(value: rating, onChanged: onChanged),
         ],
       ),
     );
   }
 }
 
-class _MiniGradeSegmented extends StatelessWidget {
+class _RatingSegmented extends StatelessWidget {
   final int value;
   final ValueChanged<int> onChanged;
 
-  const _MiniGradeSegmented({required this.value, required this.onChanged});
+  const _RatingSegmented({required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    const grades = [2, 3, 4, 5];
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: grades.map((g) {
-        final isSelected = value == g;
-        return GestureDetector(
-          onTap: () => onChanged(isSelected ? 0 : g),
-          child: Container(
-            width: 28,
-            height: 28,
-            margin: const EdgeInsets.only(left: 3),
-            decoration: BoxDecoration(
-              color: isSelected ? _gradeColor(g) : const Color(0xFFF3F4F6),
-              borderRadius: BorderRadius.circular(AppRadii.xs),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '$g',
-              style: AppTextStyles.caption.copyWith(
-                color: isSelected ? Colors.white : const Color(0xFF6B7280),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        );
-      }).toList(),
+      children: [
+        _RateBtn(val: 1, label: 'Zaif', color: AppColors.danger, active: value == 1, onTap: () => onChanged(1)),
+        const SizedBox(width: 4),
+        _RateBtn(val: 2, label: 'O\'rta', color: const Color(0xFFD97706), active: value == 2, onTap: () => onChanged(2)),
+        const SizedBox(width: 4),
+        _RateBtn(val: 3, label: 'Yaxshi', color: const Color(0xFF0F9A6E), active: value == 3, onTap: () => onChanged(3)),
+      ],
     );
   }
+}
 
-  Color _gradeColor(int grade) {
-    switch (grade) {
-      case 5:
-        return const Color(0xFF0F9A6E);
-      case 4:
-        return AppColors.brand;
-      case 3:
-        return const Color(0xFFD97706);
-      case 2:
-        return AppColors.danger;
-      default:
-        return AppColors.brandMuted;
-    }
+class _RateBtn extends StatelessWidget {
+  final int val;
+  final String label;
+  final Color color;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _RateBtn({required this.val, required this.label, required this.color, required this.active, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: active ? color : const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Text(
+          label,
+          style: AppTextStyles.caption.copyWith(
+            color: active ? Colors.white : const Color(0xFF6B7280),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -776,6 +780,7 @@ class _Step4ContentState extends ConsumerState<_Step4FinishContent> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   int? _deadlineDays;
+  bool _telegramPoll = true;
   bool _isFinishing = false;
 
   static const _deadlineOptions = [
@@ -794,11 +799,13 @@ class _Step4ContentState extends ConsumerState<_Step4FinishContent> {
 
   @override
   Widget build(BuildContext context) {
+    final createStatus = ref.watch(homeworkCreateProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Yangi uy vazifasi',
+          'Yangi uy vazifasi (ixtiyoriy)',
           style: AppTextStyles.label.copyWith(
             color: AppColors.brandMuted,
             fontWeight: FontWeight.w600,
@@ -841,12 +848,25 @@ class _Step4ContentState extends ConsumerState<_Step4FinishContent> {
             );
           }).toList(),
         ),
+        const SizedBox(height: AppSpacing.m),
+        Row(
+          children: [
+            const Icon(Icons.telegram_rounded, color: Color(0xFF0088CC), size: 20),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('Telegram so\'rovnoma', style: AppTextStyles.bodyS)),
+            Switch.adaptive(
+              value: _telegramPoll,
+              onChanged: (v) => setState(() => _telegramPoll = v),
+              activeTrackColor: AppColors.brand,
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.l),
         AlochiButton.primary(
           label: 'Darsni yakunlash',
           icon: Icons.flag_rounded,
-          isLoading: _isFinishing,
-          onPressed: _isFinishing ? null : _finish,
+          isLoading: _isFinishing || createStatus.isLoading,
+          onPressed: (_isFinishing || createStatus.isLoading) ? null : _finish,
         ),
       ],
     );
@@ -854,12 +874,31 @@ class _Step4ContentState extends ConsumerState<_Step4FinishContent> {
 
   Future<void> _finish() async {
     setState(() => _isFinishing = true);
-    await Future.delayed(const Duration(milliseconds: 400));
+    
+    // Create homework if title is provided
+    if (_titleController.text.trim().isNotEmpty) {
+      final days = _deadlineDays ?? 7;
+      final deadline = DateTime.now().add(Duration(days: days));
+      final dueDateStr = '${deadline.year}-${deadline.month.toString().padLeft(2, '0')}-${deadline.day.toString().padLeft(2, '0')}';
+      
+      await ref.read(homeworkCreateProvider.notifier).create(
+        groupId: widget.lesson.groupId,
+        title: _titleController.text.trim(),
+        description: _descController.text.trim(),
+        dueDate: dueDateStr,
+      );
+    }
+
     widget.notifier.completeStep(WorkflowStep.finish);
+    
     if (mounted) {
       context.pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Dars yakunlandi'), backgroundColor: Color(0xFF0F9A6E)),
+        const SnackBar(
+          content: Text('Dars yakunlandi'),
+          backgroundColor: Color(0xFF0F9A6E),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }

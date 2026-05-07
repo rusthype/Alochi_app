@@ -72,3 +72,41 @@ class AlochiSkeletonCard extends StatelessWidget {
     );
   }
 }
+
+class SkeletonListTile extends StatelessWidget {
+  const SkeletonListTile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.s, horizontal: AppSpacing.m),
+      child: Row(
+        children: [
+          const AlochiSkeleton(
+            width: 48,
+            height: 48,
+            borderRadius: BorderRadius.all(Radius.circular(24)),
+          ),
+          const SizedBox(width: AppSpacing.m),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AlochiSkeleton(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  height: 16,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                AlochiSkeleton(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  height: 12,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -28,7 +28,11 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
 
   String? _selectedGroupId;
   DateTime? _deadline;
-  bool _isSubmitting = false;
+  
+  // Toggles
+  bool _telegramPoll = true;
+  bool _reminder = true;
+  bool _autoTrack = false;
 
   @override
   void dispose() {
@@ -40,6 +44,7 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
   @override
   Widget build(BuildContext context) {
     final groupsAsync = ref.watch(groupsListProvider);
+    final createStatus = ref.watch(homeworkCreateProvider);
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -84,16 +89,58 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
                 error: (_, __) => const _FieldSkeleton(label: 'Guruh'),
               ),
               const SizedBox(height: AppSpacing.m),
+              
               _DeadlinePicker(
                 value: _deadline,
                 onChanged: (dt) => setState(() => _deadline = dt),
               ),
+              const SizedBox(height: AppSpacing.m),
+              
+              _QuickDeadlineChips(
+                onSelected: (days) {
+                  setState(() {
+                    _deadline = DateTime.now().add(Duration(days: days));
+                  });
+                },
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              
+              Text(
+                'Sozlamalar',
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.brandMuted,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.s),
+              _ToggleRow(
+                icon: Icons.telegram_rounded,
+                iconColor: const Color(0xFF0088CC),
+                label: 'Telegram so\'rovnoma',
+                value: _telegramPoll,
+                onChanged: (v) => setState(() => _telegramPoll = v),
+              ),
+              _ToggleRow(
+                icon: Icons.notifications_active_outlined,
+                iconColor: AppColors.brand,
+                label: 'Ota-onalarga eslatma',
+                value: _reminder,
+                onChanged: (v) => setState(() => _reminder = v),
+              ),
+              _ToggleRow(
+                icon: Icons.auto_graph_rounded,
+                iconColor: const Color(0xFF0F9A6E),
+                label: 'Avtomatik kuzatuv',
+                value: _autoTrack,
+                onChanged: (v) => setState(() => _autoTrack = v),
+              ),
+
               const SizedBox(height: AppSpacing.xxl),
               AlochiButton.primary(
                 label: 'Yaratish',
                 icon: Icons.add_rounded,
-                isLoading: _isSubmitting,
-                onPressed: _isSubmitting ? null : _submit,
+                isLoading: createStatus.isLoading,
+                onPressed: createStatus.isLoading ? null : _submit,
               ),
             ],
           ),
@@ -104,59 +151,122 @@ class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
 
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    
     if (_selectedGroupId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Guruh tanlang'),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.fromLTRB(
-              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-          backgroundColor: AppColors.brand,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.m),
-          ),
-        ),
-      );
+      _showError('Guruh tanlang');
+      return;
+    }
+    
+    if (_deadline == null) {
+      _showError('Muddat tanlang');
       return;
     }
 
-    setState(() => _isSubmitting = true);
-    try {
-      // Backend homework POST is not yet available, show success anyway
-      // and invalidate provider so list refreshes
-      await Future.delayed(const Duration(milliseconds: 400));
-      ref.invalidate(homeworkListProvider);
+    final dueDateStr = '${_deadline!.year}-${_deadline!.month.toString().padLeft(2, '0')}-${_deadline!.day.toString().padLeft(2, '0')}';
+
+    await ref.read(homeworkCreateProvider.notifier).create(
+      groupId: _selectedGroupId!,
+      title: _titleController.text,
+      description: _descController.text,
+      dueDate: dueDateStr,
+    );
+
+    final result = ref.read(homeworkCreateProvider);
+    if (result.hasError) {
+      _showError(result.error.toString());
+    } else if (result.hasValue && result.value != null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Vazifa yaratildi'),
+          backgroundColor: const Color(0xFF0F9A6E),
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.fromLTRB(
-              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-          backgroundColor: AppColors.brand,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.m),
-          ),
         ),
       );
       context.pop();
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.fromLTRB(
-              AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-          backgroundColor: AppColors.brand,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadii.m),
-          ),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: AppColors.danger,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
+
+// ─── Sub-widgets ─────────────────────────────────────────────────────────────
+
+class _QuickDeadlineChips extends StatelessWidget {
+  final ValueChanged<int> onSelected;
+
+  const _QuickDeadlineChips({required this.onSelected});
+
+  @override
+  Widget build(BuildContext context) {
+    final options = [
+      (label: 'Bugun', days: 0),
+      (label: 'Erta', days: 1),
+      (label: '3 kun', days: 3),
+      (label: '1 hafta', days: 7),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      children: options.map((opt) {
+        return ActionChip(
+          label: Text(opt.label),
+          labelStyle: AppTextStyles.caption.copyWith(color: AppColors.ink),
+          backgroundColor: const Color(0xFFF3F4F6),
+          side: BorderSide.none,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.s)),
+          onPressed: () => onSelected(opt.days),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _ToggleRow extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _ToggleRow({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: Row(
+        children: [
+          Icon(icon, color: iconColor, size: 20),
+          const SizedBox(width: AppSpacing.m),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.body.copyWith(color: AppColors.ink),
+            ),
+          ),
+          Switch.adaptive(
+            value: value,
+            onChanged: onChanged,
+            activeTrackColor: AppColors.brand,
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -5,8 +5,6 @@ import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
-import '../../../shared/widgets/alochi_avatar.dart';
-import '../../../shared/widgets/alochi_card.dart';
 import '../../../features/auth/auth_provider.dart';
 import '../../../core/api/teacher_api.dart';
 import 'profile_provider.dart';
@@ -117,122 +115,138 @@ class _ProfileContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(AppSpacing.l),
+      padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // User info card
-          AlochiCard(
+          Container(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFEFEFEF)),
+            ),
             child: Column(
               children: [
-                AlochiAvatar(name: profile.name, size: 64),
-                const SizedBox(height: AppSpacing.m),
+                CircleAvatar(
+                  radius: 36,
+                  backgroundColor: AppColors.brand,
+                  child: Text(
+                    profile.name.isNotEmpty
+                        ? profile.name[0].toUpperCase()
+                        : 'U',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
                 Text(
                   profile.name.isEmpty ? 'Ustoz' : profile.name,
-                  style: AppTextStyles.titleL.copyWith(color: AppColors.ink),
+                  style: AppTextStyles.displayM.copyWith(
+                    color: AppColors.ink,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
                   textAlign: TextAlign.center,
                 ),
-                if (profile.username.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                const SizedBox(height: 4),
+                if (profile.username.isNotEmpty)
                   Text(
                     '@${profile.username}',
-                    style: AppTextStyles.body
-                        .copyWith(color: AppColors.brandMuted),
+                    style: AppTextStyles.body.copyWith(
+                      color: AppColors.brand,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                ],
-                if (schoolName != null && schoolName!.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.school_rounded,
-                          size: 14, color: AppColors.brandMuted),
-                      const SizedBox(width: 4),
-                      Text(
-                        schoolName!,
-                        style: AppTextStyles.bodyS
-                            .copyWith(color: AppColors.brandMuted),
-                      ),
-                    ],
-                  ),
-                ],
                 if (profile.phone.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.phone_outlined,
-                          size: 14, color: AppColors.brandMuted),
-                      const SizedBox(width: 4),
-                      Text(
-                        profile.phone,
-                        style: AppTextStyles.bodyS
-                            .copyWith(color: AppColors.brandMuted),
-                      ),
-                    ],
+                  const SizedBox(height: 2),
+                  Text(
+                    profile.phone,
+                    style: AppTextStyles.bodyS.copyWith(
+                      color: const Color(0xFF6B7280),
+                      fontSize: 13,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.l),
+          const SizedBox(height: 20),
 
           // Settings list
-          AlochiCard(
-            padding: EdgeInsets.zero,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFEFEFEF)),
+            ),
             child: Column(
               children: [
                 _SettingsRow(
                   icon: Icons.send_rounded,
-                  iconBg: const Color(0xFF0088CC),
+                  iconBg: const Color(0xFF26A5E4),
                   label: 'Telegram ota-onalar',
                   onTap: () => context.push('/teacher/profile/telegram'),
                 ),
-                const Divider(height: 1, indent: 56, color: Color(0xFFE5E7EB)),
+                const Divider(height: 1, indent: 64, color: Color(0xFFF3F4F6)),
                 _SettingsRow(
                   icon: Icons.edit_outlined,
-                  iconBg: AppColors.brand,
+                  iconBg: const Color(0xFF1F6F65),
                   label: 'Profilni tahrirlash',
                   onTap: () => context.push('/teacher/profile/edit'),
                 ),
-                const Divider(height: 1, indent: 56, color: Color(0xFFE5E7EB)),
+                const Divider(height: 1, indent: 64, color: Color(0xFFF3F4F6)),
                 _SettingsRow(
                   icon: Icons.lock_outline_rounded,
-                  iconBg: AppColors.warning,
+                  iconBg: const Color(0xFFD97706),
                   label: "Parolni o'zgartirish",
                   onTap: () => context.push('/teacher/profile/password'),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.m),
+          const SizedBox(height: 12),
 
           // Help section
-          AlochiCard(
-            padding: EdgeInsets.zero,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFEFEFEF)),
+            ),
             child: _SettingsRow(
               icon: Icons.info_outline_rounded,
-              iconBg: AppColors.info,
+              iconBg: const Color(0xFF0EA5E9),
               label: 'Ilova haqida',
               onTap: () => context.push('/teacher/about'),
             ),
           ),
-          const SizedBox(height: AppSpacing.m),
+          const SizedBox(height: 12),
 
           // Logout card
-          AlochiCard(
-            padding: EdgeInsets.zero,
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFEFEFEF)),
+            ),
             child: _SettingsRow(
               icon: Icons.logout_rounded,
-              iconBg: AppColors.danger,
-              label: 'Chiqish',
-              labelColor: AppColors.danger,
+              iconBg: const Color(0xFFDC2626),
+              label: 'Tizimdan chiqish',
+              labelColor: const Color(0xFFDC2626),
               showChevron: false,
               onTap: () => _showLogoutDialog(context, ref),
             ),
           ),
-          const SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: 40),
         ],
       ),
     );
