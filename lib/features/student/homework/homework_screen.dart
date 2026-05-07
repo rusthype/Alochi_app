@@ -22,8 +22,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final xfile =
-        await picker.pickImage(source: ImageSource.gallery);
+    final xfile = await picker.pickImage(source: ImageSource.gallery);
     if (xfile != null) {
       setState(() {
         _file = File(xfile.path);
@@ -57,8 +56,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
     });
     try {
       final formData = FormData.fromMap({
-        'file': await MultipartFile.fromFile(_file!.path,
-            filename: _fileName),
+        'file': await MultipartFile.fromFile(_file!.path, filename: _fileName),
       });
       final response = await ApiClient.instance.dio
           .post('/ai/homework/analyze/', data: formData);
@@ -106,17 +104,13 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 ),
                 child: _file != null
                     ? Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Icon(
-                              Icons.check_circle_rounded,
-                              color: kGreen,
-                              size: 40),
+                          const Icon(Icons.check_circle_rounded,
+                              color: kGreen, size: 40),
                           const SizedBox(height: 8),
                           Text(_fileName ?? 'Fayl',
-                              style: const TextStyle(
-                                  color: kTextPrimary),
+                              style: const TextStyle(color: kTextPrimary),
                               textAlign: TextAlign.center),
                           TextButton(
                             onPressed: () => setState(() {
@@ -124,25 +118,21 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                               _fileName = null;
                             }),
                             child: const Text("O'zgartirish",
-                                style: TextStyle(
-                                    color: kTextMuted)),
+                                style: TextStyle(color: kTextMuted)),
                           ),
                         ],
                       )
                     : const Column(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.cloud_upload_outlined,
                               color: kTextMuted, size: 48),
                           SizedBox(height: 8),
                           Text('Bosing yoki faylni suring',
-                              style: TextStyle(
-                                  color: kTextSecondary)),
+                              style: TextStyle(color: kTextSecondary)),
                           Text('JPG, PNG, PDF',
-                              style: TextStyle(
-                                  color: kTextMuted,
-                                  fontSize: 12)),
+                              style:
+                                  TextStyle(color: kTextMuted, fontSize: 12)),
                         ],
                       ),
               ),
@@ -165,8 +155,7 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _pickFile,
-                    icon: const Icon(
-                        Icons.picture_as_pdf_rounded),
+                    icon: const Icon(Icons.picture_as_pdf_rounded),
                     label: const Text('PDF'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: kTextSecondary,
@@ -180,20 +169,16 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: (_file == null || _analyzing)
-                    ? null
-                    : _analyze,
+                onPressed: (_file == null || _analyzing) ? null : _analyze,
                 icon: _analyzing
                     ? const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2))
+                            color: Colors.white, strokeWidth: 2))
                     : const Icon(Icons.auto_awesome_rounded),
-                label: Text(_analyzing
-                    ? 'Tahlil qilinmoqda...'
-                    : 'Tahlil qilish'),
+                label:
+                    Text(_analyzing ? 'Tahlil qilinmoqda...' : 'Tahlil qilish'),
               ),
             ),
             if (_error != null) ...[
@@ -203,11 +188,9 @@ class _HomeworkScreenState extends State<HomeworkScreen> {
                 decoration: BoxDecoration(
                   color: kRed.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border:
-                      Border.all(color: kRed.withValues(alpha: 0.3)),
+                  border: Border.all(color: kRed.withValues(alpha: 0.3)),
                 ),
-                child: Text(_error!,
-                    style: const TextStyle(color: kRed)),
+                child: Text(_error!, style: const TextStyle(color: kRed)),
               ),
             ],
             if (_result != null) ...[
@@ -244,8 +227,7 @@ class _ResultCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome_rounded,
-                  color: kOrange),
+              const Icon(Icons.auto_awesome_rounded, color: kOrange),
               const SizedBox(width: 8),
               const Text('AI Tahlil natijasi',
                   style: TextStyle(
@@ -254,8 +236,8 @@ class _ResultCard extends StatelessWidget {
                       fontSize: 16)),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
@@ -270,8 +252,7 @@ class _ResultCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(feedback,
-              style: const TextStyle(
-                  color: kTextSecondary, height: 1.6)),
+              style: const TextStyle(color: kTextSecondary, height: 1.6)),
         ],
       ),
     );

@@ -4,8 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../core/api/student_api.dart';
 
-final _unreadCountProvider =
-    FutureProvider<int>((ref) async {
+final _unreadCountProvider = FutureProvider<int>((ref) async {
   try {
     final data = await StudentApi().getUnreadCount();
     return data['count'] as int? ?? 0;
@@ -23,7 +22,9 @@ class StudentShell extends ConsumerWidget {
     if (loc.startsWith('/student/dashboard')) return 0;
     if (loc.startsWith('/student/tests')) return 1;
     if (loc.startsWith('/student/leaderboard') ||
-        loc.startsWith('/leaderboard')) { return 2; }
+        loc.startsWith('/leaderboard')) {
+      return 2;
+    }
     if (loc.startsWith('/student/profile')) return 3;
     return 0;
   }
@@ -80,14 +81,10 @@ class StudentShell extends ConsumerWidget {
                   selectedIndex: selectedIndex,
                   onDestinationSelected: (i) => _onTap(context, i),
                   labelType: NavigationRailLabelType.selected,
-                  selectedIconTheme:
-                      const IconThemeData(color: kOrange),
-                  selectedLabelTextStyle:
-                      const TextStyle(color: kOrange),
-                  unselectedIconTheme:
-                      const IconThemeData(color: kTextMuted),
-                  unselectedLabelTextStyle:
-                      const TextStyle(color: kTextMuted),
+                  selectedIconTheme: const IconThemeData(color: kOrange),
+                  selectedLabelTextStyle: const TextStyle(color: kOrange),
+                  unselectedIconTheme: const IconThemeData(color: kTextMuted),
+                  unselectedLabelTextStyle: const TextStyle(color: kTextMuted),
                   destinations: destinations
                       .map((d) => NavigationRailDestination(
                             icon: d.icon,
@@ -97,12 +94,10 @@ class StudentShell extends ConsumerWidget {
                       .toList(),
                   leading: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Icon(Icons.school_rounded,
-                        color: kOrange, size: 28),
+                    child: Icon(Icons.school_rounded, color: kOrange, size: 28),
                   ),
                 ),
-                const VerticalDivider(
-                    thickness: 1, width: 1, color: kBgBorder),
+                const VerticalDivider(thickness: 1, width: 1, color: kBgBorder),
                 Expanded(child: child),
               ],
             ),
@@ -120,8 +115,7 @@ class StudentShell extends ConsumerWidget {
                 unreadCount: unread,
                 destinations: destinations,
               ),
-              const VerticalDivider(
-                  thickness: 1, width: 1, color: kBgBorder),
+              const VerticalDivider(thickness: 1, width: 1, color: kBgBorder),
               Expanded(child: child),
             ],
           ),
@@ -157,9 +151,7 @@ class _Destination {
   final Widget selectedIcon;
   final String label;
   const _Destination(
-      {required this.icon,
-      required this.selectedIcon,
-      required this.label});
+      {required this.icon, required this.selectedIcon, required this.label});
 }
 
 class _BottomNav extends StatelessWidget {
@@ -243,12 +235,10 @@ class _DesktopSidebar extends StatelessWidget {
           children: [
             const SafeArea(
               child: Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                 child: Row(
                   children: [
-                    Icon(Icons.school_rounded,
-                        color: kOrange, size: 28),
+                    Icon(Icons.school_rounded, color: kOrange, size: 28),
                     SizedBox(width: 10),
                     Text("A'lochi",
                         style: TextStyle(
@@ -263,30 +253,23 @@ class _DesktopSidebar extends StatelessWidget {
             const SizedBox(height: 8),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 children: destinations.asMap().entries.map((e) {
                   final i = e.key;
                   final d = e.value;
                   final isSelected = selectedIndex == i;
                   return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 2),
+                    padding: const EdgeInsets.symmetric(vertical: 2),
                     child: ListTile(
                       selected: isSelected,
-                      selectedTileColor:
-                          kOrange.withValues(alpha: 0.1),
+                      selectedTileColor: kOrange.withValues(alpha: 0.1),
                       selectedColor: kOrange,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
-                      leading: isSelected
-                          ? d.selectedIcon
-                          : d.icon,
+                      leading: isSelected ? d.selectedIcon : d.icon,
                       title: Text(d.label,
                           style: TextStyle(
-                              color: isSelected
-                                  ? kOrange
-                                  : kTextMuted,
+                              color: isSelected ? kOrange : kTextMuted,
                               fontWeight: isSelected
                                   ? FontWeight.w600
                                   : FontWeight.normal,

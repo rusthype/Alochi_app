@@ -61,8 +61,7 @@ class ApiClient {
       );
       final newAccess = response.data['access'] as String?;
       if (newAccess == null) return false;
-      final newRefresh =
-          response.data['refresh'] as String? ?? oldRefresh;
+      final newRefresh = response.data['refresh'] as String? ?? oldRefresh;
       await AppStorage.saveTokens(newAccess, newRefresh);
       return true;
     } catch (_) {

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/avatar_widget.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/api/parent_api.dart';
 import '../../auth/auth_provider.dart';
 
@@ -30,8 +30,7 @@ class ParentDashboardScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
             if (user != null)
               Text(user.fullName,
-                  style: const TextStyle(
-                      fontSize: 12, color: kTextMuted)),
+                  style: const TextStyle(fontSize: 12, color: kTextMuted)),
           ],
         ),
         actions: [
@@ -47,15 +46,12 @@ class ParentDashboardScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded,
-                  color: kRed, size: 48),
+              const Icon(Icons.error_outline_rounded, color: kRed, size: 48),
               const SizedBox(height: 16),
-              Text('Xatolik: $e',
-                  style: const TextStyle(color: kTextMuted)),
+              Text('Xatolik: $e', style: const TextStyle(color: kTextMuted)),
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () =>
-                    ref.invalidate(_childrenProvider),
+                onPressed: () => ref.invalidate(_childrenProvider),
                 child: const Text('Qayta urinish'),
               ),
             ],
@@ -67,17 +63,13 @@ class ParentDashboardScreen extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.child_care_rounded,
-                      size: 64, color: kTextMuted),
+                  Icon(Icons.child_care_rounded, size: 64, color: kTextMuted),
                   SizedBox(height: 16),
                   Text("Bolalar bog'lanmagan",
-                      style: TextStyle(
-                          color: kTextPrimary, fontSize: 18)),
+                      style: TextStyle(color: kTextPrimary, fontSize: 18)),
                   SizedBox(height: 8),
-                  Text(
-                      'Farzandingizning ilovasidan sizga invite kodi yuboring',
-                      style: TextStyle(
-                          color: kTextSecondary, fontSize: 14),
+                  Text('Farzandingizning ilovasidan sizga invite kodi yuboring',
+                      style: TextStyle(color: kTextSecondary, fontSize: 14),
                       textAlign: TextAlign.center),
                 ],
               ),
@@ -102,8 +94,7 @@ class ParentDashboardScreen extends ConsumerWidget {
                 final child = children[i - 1];
                 return _ChildCard(
                   child: child,
-                  onTap: () =>
-                      context.go('/parent/children/${child['id']}'),
+                  onTap: () => context.go('/parent/children/${child['id']}'),
                 );
               }
               // Footer: spacing + summary
@@ -149,7 +140,7 @@ class _ChildCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                AvatarWidget(name: name, size: 52),
+                AlochiAvatar(name: name, size: 52),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -163,8 +154,7 @@ class _ChildCard extends StatelessWidget {
                       if (school != null)
                         Text(school,
                             style: const TextStyle(
-                                color: kTextSecondary,
-                                fontSize: 12)),
+                                color: kTextSecondary, fontSize: 12)),
                       if (grade != null)
                         Text('$grade-sinf',
                             style: const TextStyle(
@@ -187,13 +177,12 @@ class _ChildCard extends StatelessWidget {
                       ],
                     ),
                     Text('Daraja $level',
-                        style: const TextStyle(
-                            color: kTextMuted, fontSize: 11)),
+                        style:
+                            const TextStyle(color: kTextMuted, fontSize: 11)),
                   ],
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.chevron_right_rounded,
-                    color: kTextMuted),
+                const Icon(Icons.chevron_right_rounded, color: kTextMuted),
               ],
             ),
             const SizedBox(height: 12),
@@ -209,8 +198,7 @@ class _ChildCard extends StatelessWidget {
                     color: kOrange),
                 _Mini(
                     icon: Icons.bar_chart_rounded,
-                    value:
-                        '${(avgScore as num).toStringAsFixed(0)}%',
+                    value: '${(avgScore as num).toStringAsFixed(0)}%',
                     label: "O'rtacha",
                     color: kBlue),
                 _Mini(
@@ -246,12 +234,8 @@ class _Mini extends StatelessWidget {
         const SizedBox(height: 2),
         Text(value,
             style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w700,
-                fontSize: 14)),
-        Text(label,
-            style:
-                const TextStyle(color: kTextMuted, fontSize: 10)),
+                color: color, fontWeight: FontWeight.w700, fontSize: 14)),
+        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 10)),
       ],
     );
   }
@@ -264,17 +248,15 @@ class _SummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (children.isEmpty) return const SizedBox.shrink();
-    final totalXp = children
-        .fold<int>(0, (sum, c) => sum + (c['xp'] as int? ?? 0));
+    final totalXp =
+        children.fold<int>(0, (sum, c) => sum + (c['xp'] as int? ?? 0));
     final avgScore = children.isEmpty
         ? 0
-        : children.fold<double>(
-                0,
-                (sum, c) =>
-                    sum + ((c['avg_score'] as num?)?.toDouble() ?? 0)) /
+        : children.fold<double>(0,
+                (sum, c) => sum + ((c['avg_score'] as num?)?.toDouble() ?? 0)) /
             children.length;
-    final totalStreak = children
-        .fold<int>(0, (s, c) => s + (c['streak'] as int? ?? 0));
+    final totalStreak =
+        children.fold<int>(0, (s, c) => s + (c['streak'] as int? ?? 0));
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -295,18 +277,13 @@ class _SummarySection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _SumStat(
-                  label: 'Jami XP',
-                  value: '$totalXp',
-                  color: kOrange),
+              _SumStat(label: 'Jami XP', value: '$totalXp', color: kOrange),
               _SumStat(
                   label: "O'rtacha ball",
                   value: '${avgScore.toStringAsFixed(0)}%',
                   color: kBlue),
               _SumStat(
-                  label: 'Jami seriya',
-                  value: '$totalStreak',
-                  color: kGreen),
+                  label: 'Jami seriya', value: '$totalStreak', color: kGreen),
             ],
           ),
         ],
@@ -328,13 +305,9 @@ class _SumStat extends StatelessWidget {
       children: [
         Text(value,
             style: TextStyle(
-                color: color,
-                fontSize: 22,
-                fontWeight: FontWeight.w800)),
+                color: color, fontSize: 22, fontWeight: FontWeight.w800)),
         const SizedBox(height: 4),
-        Text(label,
-            style:
-                const TextStyle(color: kTextMuted, fontSize: 11)),
+        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
       ],
     );
   }

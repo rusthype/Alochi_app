@@ -9,12 +9,10 @@ class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  ConsumerState<EditProfileScreen> createState() =>
-      _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState
-    extends ConsumerState<EditProfileScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late final TextEditingController _firstCtrl;
   late final TextEditingController _lastCtrl;
   bool _saving = false;
@@ -43,9 +41,7 @@ class _EditProfileScreenState
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Saqlandi'),
-              backgroundColor: kGreen),
+          const SnackBar(content: Text('Saqlandi'), backgroundColor: kGreen),
         );
         context.go('/student/profile');
       }
@@ -77,8 +73,7 @@ class _EditProfileScreenState
             const SizedBox(height: 16),
             TextField(
               controller: _lastCtrl,
-              decoration:
-                  const InputDecoration(labelText: 'Familiya'),
+              decoration: const InputDecoration(labelText: 'Familiya'),
             ),
             const SizedBox(height: 24),
             SizedBox(

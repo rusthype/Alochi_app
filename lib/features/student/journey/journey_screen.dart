@@ -5,8 +5,7 @@ import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
 import '../../../core/api/student_api.dart';
 
-final _journeyProvider =
-    FutureProvider<Map<String, dynamic>>((ref) async {
+final _journeyProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   return StudentApi().getJourney();
 });
 
@@ -22,24 +21,19 @@ class JourneyScreen extends ConsumerWidget {
       body: async.when(
         loading: () => const LoadingWidget(),
         error: (e, _) => Center(
-            child: Text('Xatolik: $e',
-                style: const TextStyle(color: kRed))),
+            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (data) {
-          final nodes = ((data['nodes'] ??
-                      data['stages'] ??
-                      []) as List)
-                  .cast<Map<String, dynamic>>();
+          final nodes = ((data['nodes'] ?? data['stages'] ?? []) as List)
+              .cast<Map<String, dynamic>>();
           if (nodes.isEmpty) {
             return const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.map_rounded,
-                      size: 64, color: kTextMuted),
+                  Icon(Icons.map_rounded, size: 64, color: kTextMuted),
                   SizedBox(height: 16),
                   Text('Sayohat tez orada',
-                      style:
-                          TextStyle(color: kTextSecondary)),
+                      style: TextStyle(color: kTextSecondary)),
                 ],
               ),
             );
@@ -63,17 +57,13 @@ class _Node extends StatelessWidget {
   final Map<String, dynamic> node;
   final int index;
   final bool isLast;
-  const _Node(
-      {required this.node,
-      required this.index,
-      required this.isLast});
+  const _Node({required this.node, required this.index, required this.isLast});
 
   @override
   Widget build(BuildContext context) {
     final status = node['status'] as String? ?? 'locked';
     final isCompleted = status == 'completed';
-    final isCurrent =
-        status == 'current' || status == 'available';
+    final isCurrent = status == 'current' || status == 'available';
     final isLocked = status == 'locked';
 
     final Color nodeColor;
@@ -100,26 +90,22 @@ class _Node extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: nodeColor.withValues(
-                        alpha: isLocked ? 0.1 : 0.2),
+                    color: nodeColor.withValues(alpha: isLocked ? 0.1 : 0.2),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: nodeColor.withValues(
-                          alpha: isLocked ? 0.3 : 1),
+                      color: nodeColor.withValues(alpha: isLocked ? 0.3 : 1),
                       width: isCurrent ? 3 : 1,
                     ),
                   ),
                   child: Center(
-                    child: Icon(nodeIcon,
-                        color: nodeColor, size: 20),
+                    child: Icon(nodeIcon, color: nodeColor, size: 20),
                   ),
                 ),
                 if (!isLast)
                   Container(
                     width: 2,
                     height: 40,
-                    color:
-                        isCompleted ? kGreen : kBgBorder,
+                    color: isCompleted ? kGreen : kBgBorder,
                   ),
               ],
             ),
@@ -128,9 +114,7 @@ class _Node extends StatelessWidget {
           Expanded(
             child: GestureDetector(
               onTap: isLocked
-                  ? () =>
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(
+                  ? () => ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text(
                               'Bu bosqichni ochish uchun oldingi bosqichni yakunlang'),
@@ -138,49 +122,38 @@ class _Node extends StatelessWidget {
                         ),
                       )
                   : () {
-                      final testId =
-                          node['test_id']?.toString();
+                      final testId = node['test_id']?.toString();
                       if (testId != null) {
-                        context.go(
-                            '/student/tests/$testId/play');
+                        context.go('/student/tests/$testId/play');
                       }
                     },
               child: Container(
-                margin:
-                    const EdgeInsets.only(bottom: 24),
+                margin: const EdgeInsets.only(bottom: 24),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: kBgCard,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isCurrent
-                        ? kOrange.withValues(alpha: 0.5)
-                        : kBgBorder,
+                    color:
+                        isCurrent ? kOrange.withValues(alpha: 0.5) : kBgBorder,
                   ),
                 ),
                 child: Row(
                   children: [
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                               node['title'] as String? ??
                                   'Bosqich ${index + 1}',
                               style: TextStyle(
-                                  color: isLocked
-                                      ? kTextMuted
-                                      : kTextPrimary,
-                                  fontWeight:
-                                      FontWeight.w600)),
+                                  color: isLocked ? kTextMuted : kTextPrimary,
+                                  fontWeight: FontWeight.w600)),
                           if (node['description'] != null)
-                            Text(
-                                node['description']
-                                    as String,
+                            Text(node['description'] as String,
                                 style: const TextStyle(
-                                    color: kTextMuted,
-                                    fontSize: 12)),
+                                    color: kTextMuted, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -189,13 +162,11 @@ class _Node extends StatelessWidget {
                         children: [
                           const Icon(Icons.bolt_rounded,
                               color: kOrange, size: 14),
-                          Text(
-                              '${node['xp_reward']} XP',
+                          Text('${node['xp_reward']} XP',
                               style: const TextStyle(
                                   color: kOrange,
                                   fontSize: 12,
-                                  fontWeight:
-                                      FontWeight.w600)),
+                                  fontWeight: FontWeight.w600)),
                         ],
                       ),
                   ],

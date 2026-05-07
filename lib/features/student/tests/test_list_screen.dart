@@ -3,12 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/test_model.dart';
 
-final _booksProvider =
-    FutureProvider<List<Map<String, dynamic>>>((ref) async {
+final _booksProvider = FutureProvider<List<Map<String, dynamic>>>((ref) async {
   return StudentApi().getBooks();
 });
 
@@ -40,8 +39,7 @@ class TestListScreen extends ConsumerWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Test qidirish...',
-                prefixIcon:
-                    const Icon(Icons.search_rounded),
+                prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: ref.watch(_searchProvider).isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear_rounded),
@@ -50,8 +48,7 @@ class TestListScreen extends ConsumerWidget {
                       )
                     : null,
               ),
-              onChanged: (v) =>
-                  ref.read(_searchProvider.notifier).state = v,
+              onChanged: (v) => ref.read(_searchProvider.notifier).state = v,
             ),
           ),
           booksAsync.when(
@@ -61,8 +58,8 @@ class TestListScreen extends ConsumerWidget {
               height: 56,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 itemCount: books.length + 1,
                 itemBuilder: (ctx, i) {
                   if (i == 0) {
@@ -85,9 +82,8 @@ class TestListScreen extends ConsumerWidget {
                     child: FilterChip(
                       label: Text(book['title'] as String? ?? ''),
                       selected: selectedBook == id,
-                      onSelected: (_) => ref
-                          .read(_selectedBookProvider.notifier)
-                          .state = id,
+                      onSelected: (_) =>
+                          ref.read(_selectedBookProvider.notifier).state = id,
                       selectedColor: kOrange,
                     ),
                   );
@@ -99,13 +95,11 @@ class TestListScreen extends ConsumerWidget {
             child: testsAsync.when(
               loading: () => const LoadingWidget(),
               error: (e, _) => Center(
-                  child: Text('Xatolik: $e',
-                      style: const TextStyle(color: kRed))),
+                  child:
+                      Text('Xatolik: $e', style: const TextStyle(color: kRed))),
               data: (tests) {
                 if (tests.isEmpty) {
-                  return const EmptyState(
-                      message: 'Testlar topilmadi',
-                      icon: Icons.quiz_outlined);
+                  return const AlochiEmptyState(title: 'Testlar topilmadi');
                 }
                 return LayoutBuilder(builder: (ctx, constraints) {
                   final cols = constraints.maxWidth > 900
@@ -115,16 +109,14 @@ class TestListScreen extends ConsumerWidget {
                           : 2;
                   return GridView.builder(
                     padding: const EdgeInsets.all(16),
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: cols,
                       childAspectRatio: 0.85,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                     ),
                     itemCount: tests.length,
-                    itemBuilder: (ctx, i) =>
-                        _TestCard(test: tests[i]),
+                    itemBuilder: (ctx, i) => _TestCard(test: tests[i]),
                   );
                 });
               },
@@ -158,8 +150,8 @@ class _TestCard extends StatelessWidget {
             children: [
               if (test.bookTitle != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: kBlue.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
@@ -183,30 +175,24 @@ class _TestCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.quiz_rounded,
-                      size: 12, color: kTextMuted),
+                  const Icon(Icons.quiz_rounded, size: 12, color: kTextMuted),
                   const SizedBox(width: 4),
                   Text('${test.questionCount} savol',
-                      style: const TextStyle(
-                          color: kTextMuted, fontSize: 11)),
+                      style: const TextStyle(color: kTextMuted, fontSize: 11)),
                   const SizedBox(width: 8),
-                  const Icon(Icons.timer_rounded,
-                      size: 12, color: kTextMuted),
+                  const Icon(Icons.timer_rounded, size: 12, color: kTextMuted),
                   const SizedBox(width: 4),
                   Text('${test.timeLimitMinutes} min',
-                      style: const TextStyle(
-                          color: kTextMuted, fontSize: 11)),
+                      style: const TextStyle(color: kTextMuted, fontSize: 11)),
                 ],
               ),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () =>
-                      context.go('/student/tests/${test.id}/play'),
+                  onPressed: () => context.go('/student/tests/${test.id}/play'),
                   style: ElevatedButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     textStyle: const TextStyle(fontSize: 13),
                   ),
                   child: const Text('Boshlash'),

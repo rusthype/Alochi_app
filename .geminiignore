@@ -1,0 +1,40 @@
+# Build artifacts
+build/
+.dart_tool/
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Sensitive
+.env
+.env.*
+google-services.json
+GoogleService-Info.plist
+*.keystore
+*.jks
+key.properties
+
+# Generated
+**/*.g.dart
+**/*.freezed.dart
+**/generated_plugin_registrant.dart
+android/local.properties
+ios/Pods/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# Large binary assets (reduce context)
+assets/animations/*.json
+assets/images/*.png
+assets/images/*.jpg
+build/**/*.apk
+build/**/*.aab
+
+# Test data
+test/fixtures/
+
+# Lock files (read pubspec.yaml instead)
+pubspec.lock

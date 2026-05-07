@@ -1,0 +1,4 @@
+storePassword=YOUR_KEYSTORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=alochi
+storeFile=/Users/YOUR_USERNAME/alochi-release.jks

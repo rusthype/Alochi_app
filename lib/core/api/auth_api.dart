@@ -10,8 +10,15 @@ class AuthApi {
       'username': username,
       'password': password,
     }) as Map<String, dynamic>;
-    await AppStorage.saveTokens(
-        data['access'] as String, data['refresh'] as String);
+    final access = (data['access'] ?? data['access_token'])?.toString() ?? '';
+    final refresh = data['refresh']?.toString() ?? access;
+    if (access.isEmpty) throw Exception('Token olishda xatolik');
+    await AppStorage.saveTokens(access, refresh);
+    // Populate user from login response if /auth/me is not available
+    final userJson = data['user'] as Map<String, dynamic>?;
+    if (userJson != null) {
+      return UserModel.fromJson(userJson);
+    }
     return me();
   }
 
@@ -28,7 +35,6 @@ class AuthApi {
   }
 
   Future<void> forgotPassword(String username) async {
-    await _client
-        .post('/auth/forgot-password/', data: {'username': username});
+    await _client.post('/auth/forgot-password/', data: {'username': username});
   }
 }

@@ -66,10 +66,8 @@ class ParentShell extends ConsumerWidget {
                     label: 'Farzandlar',
                   ),
                   BottomNavigationBarItem(
-                    icon:
-                        Icon(Icons.notifications_none_rounded),
-                    activeIcon:
-                        Icon(Icons.notifications_rounded),
+                    icon: Icon(Icons.notifications_none_rounded),
+                    activeIcon: Icon(Icons.notifications_rounded),
                     label: 'Bildirishnoma',
                   ),
                 ],
@@ -86,17 +84,12 @@ class ParentShell extends ConsumerWidget {
               NavigationRail(
                 backgroundColor: kBgCard,
                 selectedIndex: selectedIndex,
-                onDestinationSelected: (i) =>
-                    _onTap(context, i),
+                onDestinationSelected: (i) => _onTap(context, i),
                 labelType: NavigationRailLabelType.selected,
-                selectedIconTheme:
-                    const IconThemeData(color: kOrange),
-                selectedLabelTextStyle:
-                    const TextStyle(color: kOrange),
-                unselectedIconTheme:
-                    const IconThemeData(color: kTextMuted),
-                unselectedLabelTextStyle:
-                    const TextStyle(color: kTextMuted),
+                selectedIconTheme: const IconThemeData(color: kOrange),
+                selectedLabelTextStyle: const TextStyle(color: kOrange),
+                unselectedIconTheme: const IconThemeData(color: kTextMuted),
+                unselectedLabelTextStyle: const TextStyle(color: kTextMuted),
                 destinations: const [
                   NavigationRailDestination(
                     icon: Icon(Icons.home_outlined),
@@ -105,15 +98,12 @@ class ParentShell extends ConsumerWidget {
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.child_care_outlined),
-                    selectedIcon:
-                        Icon(Icons.child_care_rounded),
+                    selectedIcon: Icon(Icons.child_care_rounded),
                     label: Text('Farzandlar'),
                   ),
                   NavigationRailDestination(
-                    icon: Icon(
-                        Icons.notifications_none_rounded),
-                    selectedIcon:
-                        Icon(Icons.notifications_rounded),
+                    icon: Icon(Icons.notifications_none_rounded),
+                    selectedIcon: Icon(Icons.notifications_rounded),
                     label: Text('Bildirishnoma'),
                   ),
                 ],
@@ -123,8 +113,7 @@ class ParentShell extends ConsumerWidget {
                       color: kOrange, size: 28),
                 ),
               ),
-              const VerticalDivider(
-                  thickness: 1, width: 1, color: kBgBorder),
+              const VerticalDivider(thickness: 1, width: 1, color: kBgBorder),
               Expanded(child: child),
             ],
           ),

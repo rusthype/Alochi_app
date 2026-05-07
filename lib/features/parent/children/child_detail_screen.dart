@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/avatar_widget.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/api/parent_api.dart';
 
 final _childDetailProvider =
@@ -24,8 +24,7 @@ class ChildDetailScreen extends ConsumerWidget {
       body: async.when(
         loading: () => const LoadingWidget(),
         error: (e, _) => Center(
-            child: Text('Xatolik: $e',
-                style: const TextStyle(color: kRed))),
+            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (data) => _ChildDetail(data: data),
       ),
     );
@@ -50,12 +49,12 @@ class _ChildDetail extends StatelessWidget {
     final school = data['school'] as String?;
     final grade = data['grade'];
 
-    final weeklyActivity = ((data['weekly_activity'] ?? []) as List)
-        .cast<Map<String, dynamic>>();
-    final recentTests = ((data['recent_tests'] ?? []) as List)
-        .cast<Map<String, dynamic>>();
-    final achievements = ((data['achievements'] ?? []) as List)
-        .cast<Map<String, dynamic>>();
+    final weeklyActivity =
+        ((data['weekly_activity'] ?? []) as List).cast<Map<String, dynamic>>();
+    final recentTests =
+        ((data['recent_tests'] ?? []) as List).cast<Map<String, dynamic>>();
+    final achievements =
+        ((data['achievements'] ?? []) as List).cast<Map<String, dynamic>>();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -66,7 +65,7 @@ class _ChildDetail extends StatelessWidget {
           Center(
             child: Column(
               children: [
-                AvatarWidget(name: name, size: 80),
+                AlochiAvatar(name: name, size: 80),
                 const SizedBox(height: 12),
                 Text(name,
                     style: const TextStyle(
@@ -74,12 +73,10 @@ class _ChildDetail extends StatelessWidget {
                         fontSize: 24,
                         fontWeight: FontWeight.w700)),
                 if (school != null)
-                  Text(school,
-                      style: const TextStyle(color: kTextSecondary)),
+                  Text(school, style: const TextStyle(color: kTextSecondary)),
                 if (grade != null)
                   Text('$grade-sinf',
-                      style: const TextStyle(
-                          color: kTextMuted, fontSize: 12)),
+                      style: const TextStyle(color: kTextMuted, fontSize: 12)),
               ],
             ),
           ),
@@ -116,8 +113,7 @@ class _ChildDetail extends StatelessWidget {
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: xpToNext > 0
-                        ? ((xp % xpToNext) / xpToNext)
-                            .clamp(0.0, 1.0)
+                        ? ((xp % xpToNext) / xpToNext).clamp(0.0, 1.0)
                         : 0.0,
                     backgroundColor: kBgBorder,
                     color: kOrange,
@@ -125,17 +121,15 @@ class _ChildDetail extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                    'Keyingi darajaga: ${xpToNext - (xp % xpToNext)} XP',
-                    style: const TextStyle(
-                        color: kTextMuted, fontSize: 12)),
+                Text('Keyingi darajaga: ${xpToNext - (xp % xpToNext)} XP',
+                    style: const TextStyle(color: kTextMuted, fontSize: 12)),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _Stat('Testlar', '$testsCompleted'),
-                    _Stat("O'rtacha",
-                        '${(avgScore as num).toStringAsFixed(0)}%'),
+                    _Stat(
+                        "O'rtacha", '${(avgScore as num).toStringAsFixed(0)}%'),
                     _Stat('Seriya', '$streak'),
                     _Stat('Reyting', '#${rank ?? '-'}'),
                   ],
@@ -191,8 +185,7 @@ class _ChildDetail extends StatelessWidget {
                           }
                           return Text(days[idx],
                               style: const TextStyle(
-                                  color: kTextMuted,
-                                  fontSize: 11));
+                                  color: kTextMuted, fontSize: 11));
                         },
                       ),
                     ),
@@ -204,14 +197,11 @@ class _ChildDetail extends StatelessWidget {
                             x: e.key,
                             barRods: [
                               BarChartRodData(
-                                toY: (e.value['xp'] as num?)
-                                        ?.toDouble() ??
-                                    0,
+                                toY: (e.value['xp'] as num?)?.toDouble() ?? 0,
                                 color: kOrange,
                                 width: 20,
-                                borderRadius:
-                                    const BorderRadius.vertical(
-                                        top: Radius.circular(4)),
+                                borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(4)),
                               ),
                             ],
                           ))
@@ -235,8 +225,8 @@ class _ChildDetail extends StatelessWidget {
               final color = scoreColor(score);
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: kBgCard,
                   borderRadius: BorderRadius.circular(12),
@@ -246,20 +236,15 @@ class _ChildDetail extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                              t['test_title'] as String? ??
-                                  'Test',
+                          Text(t['test_title'] as String? ?? 'Test',
                               style: const TextStyle(
                                   color: kTextPrimary,
                                   fontWeight: FontWeight.w600)),
-                          Text(
-                              t['completed_at'] as String? ?? '',
+                          Text(t['completed_at'] as String? ?? '',
                               style: const TextStyle(
-                                  color: kTextMuted,
-                                  fontSize: 12)),
+                                  color: kTextMuted, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -272,8 +257,7 @@ class _ChildDetail extends StatelessWidget {
                       ),
                       child: Text('$score%',
                           style: TextStyle(
-                              color: color,
-                              fontWeight: FontWeight.w700)),
+                              color: color, fontWeight: FontWeight.w700)),
                     ),
                   ],
                 ),
@@ -312,16 +296,12 @@ class _ChildDetail extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(Icons.emoji_events_rounded,
-                          color: unlocked ? kOrange : kTextMuted,
-                          size: 20),
+                          color: unlocked ? kOrange : kTextMuted, size: 20),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(
-                            a['name'] as String? ?? '',
+                        child: Text(a['name'] as String? ?? '',
                             style: TextStyle(
-                                color: unlocked
-                                    ? kTextPrimary
-                                    : kTextMuted,
+                                color: unlocked ? kTextPrimary : kTextMuted,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600),
                             maxLines: 1,
@@ -354,9 +334,7 @@ class _Stat extends StatelessWidget {
                 color: kTextPrimary,
                 fontWeight: FontWeight.w700,
                 fontSize: 18)),
-        Text(label,
-            style:
-                const TextStyle(color: kTextMuted, fontSize: 11)),
+        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
       ],
     );
   }

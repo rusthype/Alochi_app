@@ -9,8 +9,7 @@ import '../../../shared/widgets/score_cell.dart';
 import '../../../core/api/student_api.dart';
 import '../../auth/auth_provider.dart';
 
-final _dashboardProvider =
-    FutureProvider<Map<String, dynamic>>((ref) async {
+final _dashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final api = StudentApi();
   final profile = await api.getProfile();
   // Fetch coins from separate endpoint
@@ -35,8 +34,8 @@ class StudentDashboardScreen extends ConsumerWidget {
       backgroundColor: kBgMain,
       body: dashAsync.when(
         loading: () => const LoadingWidget(),
-        error: (e, _) =>
-            Center(child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
+        error: (e, _) => Center(
+            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (data) => RefreshIndicator(
           onRefresh: () => ref.refresh(_dashboardProvider.future),
           child: SingleChildScrollView(
@@ -78,7 +77,8 @@ class _Header extends StatelessWidget {
     final xp = data['total_xp'] ?? data['xp'] ?? 0;
     final level = data['level'] ?? 1;
     final xpToNext = data['xp_to_next_level'] ?? 1000;
-    final progress = xpToNext > 0 ? ((xp % xpToNext) / xpToNext).clamp(0.0, 1.0) : 0.0;
+    final progress =
+        xpToNext > 0 ? ((xp % xpToNext) / xpToNext).clamp(0.0, 1.0) : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,14 +95,13 @@ class _Header extends StatelessWidget {
                           fontSize: 24,
                           fontWeight: FontWeight.w700)),
                   Text('Daraja $level',
-                      style: const TextStyle(
-                          color: kTextSecondary, fontSize: 14)),
+                      style:
+                          const TextStyle(color: kTextSecondary, fontSize: 14)),
                 ],
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: kOrange.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
@@ -134,8 +133,7 @@ class _Header extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-            'Keyingi darajaga: ${(xpToNext - (xp % xpToNext)).toInt()} XP',
+        Text('Keyingi darajaga: ${(xpToNext - (xp % xpToNext)).toInt()} XP',
             style: const TextStyle(color: kTextMuted, fontSize: 12)),
       ],
     );
@@ -212,8 +210,7 @@ class _QuickActions extends StatelessWidget {
                         onTap: () => context.go(a.$4),
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
                             color: kBgCard,
                             borderRadius: BorderRadius.circular(12),
@@ -247,8 +244,7 @@ class _WeeklyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final weeklyData =
-        (data['weekly_activity'] as List?)?.cast<Map<String, dynamic>>() ??
-            [];
+        (data['weekly_activity'] as List?)?.cast<Map<String, dynamic>>() ?? [];
     const days = ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'];
 
     return Container(
@@ -299,8 +295,7 @@ class _WeeklyChart extends StatelessWidget {
                       showTitles: true,
                       getTitlesWidget: (value, meta) => Text(
                         days[value.toInt()],
-                        style: const TextStyle(
-                            color: kTextMuted, fontSize: 11),
+                        style: const TextStyle(color: kTextMuted, fontSize: 11),
                       ),
                     ),
                   ),
@@ -323,8 +318,7 @@ class _RecentResults extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final results =
-        (data['recent_results'] as List?)?.take(5).toList() ?? [];
+    final results = (data['recent_results'] as List?)?.take(5).toList() ?? [];
     if (results.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -353,8 +347,7 @@ class _RecentResults extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Text(
-                              r['test_title'] ?? r['title'] ?? 'Test',
+                          child: Text(r['test_title'] ?? r['title'] ?? 'Test',
                               style: const TextStyle(
                                   color: kTextPrimary, fontSize: 14),
                               overflow: TextOverflow.ellipsis),
@@ -417,8 +410,8 @@ class _DailyChallengeCard extends StatelessWidget {
                   Text(
                       data['description'] as String? ??
                           'Bugungi musobaqada qatnashing',
-                      style: const TextStyle(
-                          color: kTextSecondary, fontSize: 13)),
+                      style:
+                          const TextStyle(color: kTextSecondary, fontSize: 13)),
                 ],
               ),
             ),

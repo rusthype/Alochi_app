@@ -5,6 +5,7 @@ class AppNotification {
   final bool isRead;
   final DateTime createdAt;
   final String? type;
+  final String? actionUrl;
 
   const AppNotification({
     required this.id,
@@ -13,6 +14,7 @@ class AppNotification {
     required this.isRead,
     required this.createdAt,
     this.type,
+    this.actionUrl,
   });
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
@@ -21,9 +23,9 @@ class AppNotification {
       title: json['title'] ?? '',
       body: json['body'] ?? json['message'] ?? '',
       isRead: json['is_read'] ?? false,
-      createdAt:
-          DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
       type: json['type'],
+      actionUrl: json['action_url'],
     );
   }
 }

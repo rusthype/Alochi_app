@@ -3,18 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/avatar_widget.dart';
+import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/achievement.dart';
 import '../../auth/auth_provider.dart';
 
-final _profileProvider =
-    FutureProvider<Map<String, dynamic>>((ref) async {
+final _profileProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   return StudentApi().getProfile();
 });
 
-final _achievementsProvider =
-    FutureProvider<List<Achievement>>((ref) async {
+final _achievementsProvider = FutureProvider<List<Achievement>>((ref) async {
   return StudentApi().getAchievements();
 });
 
@@ -47,7 +45,7 @@ class ProfileScreen extends ConsumerWidget {
             Center(
               child: Column(
                 children: [
-                  AvatarWidget(name: user.fullName, size: 80),
+                  AlochiAvatar(name: user.fullName, size: 80),
                   const SizedBox(height: 12),
                   Text(user.fullName,
                       style: const TextStyle(
@@ -56,12 +54,11 @@ class ProfileScreen extends ConsumerWidget {
                           fontWeight: FontWeight.w700)),
                   if (user.school != null)
                     Text(user.school!,
-                        style: const TextStyle(
-                            color: kTextSecondary)),
+                        style: const TextStyle(color: kTextSecondary)),
                   if (user.grade != null)
                     Text("${user.grade}-sinf",
-                        style: const TextStyle(
-                            color: kTextMuted, fontSize: 12)),
+                        style:
+                            const TextStyle(color: kTextMuted, fontSize: 12)),
                 ],
               ),
             ),
@@ -72,8 +69,7 @@ class ProfileScreen extends ConsumerWidget {
               data: (profile) {
                 final xp = profile['xp'] ?? 0;
                 final level = profile['level'] ?? 1;
-                final xpToNext =
-                    profile['xp_to_next_level'] ?? 1000;
+                final xpToNext = profile['xp_to_next_level'] ?? 1000;
                 return Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -85,8 +81,7 @@ class ProfileScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Daraja $level',
                               style: const TextStyle(
@@ -94,8 +89,7 @@ class ProfileScreen extends ConsumerWidget {
                                   fontWeight: FontWeight.w700)),
                           Text('$xp XP',
                               style: const TextStyle(
-                                  color: kOrange,
-                                  fontWeight: FontWeight.w700)),
+                                  color: kOrange, fontWeight: FontWeight.w700)),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -103,8 +97,7 @@ class ProfileScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: LinearProgressIndicator(
                           value: xpToNext > 0
-                              ? ((xp % xpToNext) / xpToNext)
-                                  .clamp(0.0, 1.0)
+                              ? ((xp % xpToNext) / xpToNext).clamp(0.0, 1.0)
                               : 0.0,
                           backgroundColor: kBgBorder,
                           color: kOrange,
@@ -112,24 +105,19 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                          'Keyingi darajaga: ${xpToNext - (xp % xpToNext)} XP',
-                          style: const TextStyle(
-                              color: kTextMuted, fontSize: 12)),
+                      Text('Keyingi darajaga: ${xpToNext - (xp % xpToNext)} XP',
+                          style:
+                              const TextStyle(color: kTextMuted, fontSize: 12)),
                       const SizedBox(height: 16),
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.spaceAround,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _Stat('Testlar',
-                              '${profile['tests_completed'] ?? 0}'),
                           _Stat(
-                              "O'rtacha",
+                              'Testlar', '${profile['tests_completed'] ?? 0}'),
+                          _Stat("O'rtacha",
                               '${(profile['avg_score'] ?? 0).toStringAsFixed(0)}%'),
-                          _Stat('Seriya',
-                              '${profile['streak'] ?? 0}'),
-                          _Stat('Reyting',
-                              '#${profile['global_rank'] ?? '-'}'),
+                          _Stat('Seriya', '${profile['streak'] ?? 0}'),
+                          _Stat('Reyting', '#${profile['global_rank'] ?? '-'}'),
                         ],
                       ),
                     ],
@@ -157,8 +145,7 @@ class ProfileScreen extends ConsumerWidget {
                     GridView.count(
                       crossAxisCount: 2,
                       shrinkWrap: true,
-                      physics:
-                          const NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                       childAspectRatio: 2,
@@ -198,8 +185,7 @@ class ProfileScreen extends ConsumerWidget {
               icon: Icons.logout_rounded,
               label: 'Chiqish',
               color: kRed,
-              onTap: () =>
-                  ref.read(authProvider.notifier).logout(),
+              onTap: () => ref.read(authProvider.notifier).logout(),
             ),
           ],
         ),
@@ -222,9 +208,7 @@ class _Stat extends StatelessWidget {
                 color: kTextPrimary,
                 fontWeight: FontWeight.w700,
                 fontSize: 18)),
-        Text(label,
-            style: const TextStyle(
-                color: kTextMuted, fontSize: 11)),
+        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
       ],
     );
   }
@@ -242,16 +226,13 @@ class _AchievementCard extends StatelessWidget {
         color: kBgCard,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: a.isUnlocked
-              ? kOrange.withValues(alpha: 0.4)
-              : kBgBorder,
+          color: a.isUnlocked ? kOrange.withValues(alpha: 0.4) : kBgBorder,
         ),
       ),
       child: Row(
         children: [
           Icon(Icons.emoji_events_rounded,
-              color: a.isUnlocked ? kOrange : kTextMuted,
-              size: 24),
+              color: a.isUnlocked ? kOrange : kTextMuted, size: 24),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
@@ -260,16 +241,13 @@ class _AchievementCard extends StatelessWidget {
               children: [
                 Text(a.name,
                     style: TextStyle(
-                        color: a.isUnlocked
-                            ? kTextPrimary
-                            : kTextMuted,
+                        color: a.isUnlocked ? kTextPrimary : kTextMuted,
                         fontWeight: FontWeight.w600,
                         fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 Text(a.description,
-                    style: const TextStyle(
-                        color: kTextMuted, fontSize: 10),
+                    style: const TextStyle(color: kTextMuted, fontSize: 10),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ],
@@ -303,8 +281,7 @@ class _ActionBtn extends StatelessWidget {
       child: ListTile(
         leading: Icon(icon, color: color),
         title: Text(label, style: TextStyle(color: color)),
-        trailing: const Icon(Icons.chevron_right_rounded,
-            color: kTextMuted),
+        trailing: const Icon(Icons.chevron_right_rounded, color: kTextMuted),
         onTap: onTap,
       ),
     );

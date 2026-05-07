@@ -42,7 +42,8 @@ ThemeData buildTheme() {
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(color: kTextPrimary, fontWeight: FontWeight.w900),
-      displayMedium: TextStyle(color: kTextPrimary, fontWeight: FontWeight.w700),
+      displayMedium:
+          TextStyle(color: kTextPrimary, fontWeight: FontWeight.w700),
       bodyLarge: TextStyle(color: kTextPrimary),
       bodyMedium: TextStyle(color: kTextSecondary),
       bodySmall: TextStyle(color: kTextMuted),

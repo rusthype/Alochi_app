@@ -4,20 +4,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:confetti/confetti.dart';
 import '../../../shared/constants/colors.dart';
 import '../../../shared/widgets/loading_widget.dart';
-import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
 import '../../../core/models/shop_item.dart';
 
-final _walletProvider =
-    FutureProvider<Map<String, dynamic>>((ref) async {
+final _walletProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   return StudentApi().getWallet();
 });
 
-final _selectedCategoryProvider =
-    StateProvider<String?>((ref) => null);
+final _selectedCategoryProvider = StateProvider<String?>((ref) => null);
 
-final _shopItemsProvider =
-    FutureProvider<List<ShopItem>>((ref) async {
+final _shopItemsProvider = FutureProvider<List<ShopItem>>((ref) async {
   final cat = ref.watch(_selectedCategoryProvider);
   return StudentApi().getShopItems(category: cat);
 });
@@ -35,8 +32,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
   @override
   void initState() {
     super.initState();
-    _confetti =
-        ConfettiController(duration: const Duration(seconds: 2));
+    _confetti = ConfettiController(duration: const Duration(seconds: 2));
   }
 
   @override
@@ -50,16 +46,15 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: kBgCard,
-        title: const Text('Sotib olish?',
-            style: TextStyle(color: kTextPrimary)),
+        title:
+            const Text('Sotib olish?', style: TextStyle(color: kTextPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(item.name,
                 style: const TextStyle(
-                    color: kTextPrimary,
-                    fontWeight: FontWeight.w700)),
+                    color: kTextPrimary, fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -67,21 +62,18 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     color: kYellow, size: 16),
                 const SizedBox(width: 4),
                 Text('${item.price} tanga',
-                    style:
-                        const TextStyle(color: kYellow)),
+                    style: const TextStyle(color: kYellow)),
               ],
             ),
             const SizedBox(height: 4),
             Text('Qoladi: ${balance - item.price} tanga',
-                style: const TextStyle(
-                    color: kTextMuted, fontSize: 12)),
+                style: const TextStyle(color: kTextMuted, fontSize: 12)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Bekor',
-                style: TextStyle(color: kTextSecondary)),
+            child: const Text('Bekor', style: TextStyle(color: kTextSecondary)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -97,8 +89,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         ref.invalidate(_walletProvider);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                '${item.name} muvaffaqiyatli sotib olindi!'),
+            content: Text('${item.name} muvaffaqiyatli sotib olindi!'),
             backgroundColor: kGreen,
           ));
         }
@@ -130,8 +121,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 loading: () => const SizedBox(height: 80),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (wallet) {
-                  final coins =
-                      wallet['coins'] ?? wallet['balance'] ?? 0;
+                  final coins = wallet['coins'] ?? wallet['balance'] ?? 0;
                   return Container(
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.all(20),
@@ -141,19 +131,15 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         kOrange.withValues(alpha: 0.2)
                       ]),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                          color: kYellow.withValues(alpha: 0.3)),
+                      border: Border.all(color: kYellow.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                            Icons.monetization_on_rounded,
-                            color: kYellow,
-                            size: 40),
+                        const Icon(Icons.monetization_on_rounded,
+                            color: kYellow, size: 40),
                         const SizedBox(width: 16),
                         Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('$coins',
                                 style: const TextStyle(
@@ -162,8 +148,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                                     fontWeight: FontWeight.w900)),
                             const Text('tanga',
                                 style: TextStyle(
-                                    color: kTextSecondary,
-                                    fontSize: 14)),
+                                    color: kTextSecondary, fontSize: 14)),
                           ],
                         ),
                       ],
@@ -175,8 +160,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                 height: 48,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
@@ -184,22 +168,19 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         label: const Text('Barchasi'),
                         selected: selectedCat == null,
                         onSelected: (_) => ref
-                            .read(_selectedCategoryProvider
-                                .notifier)
+                            .read(_selectedCategoryProvider.notifier)
                             .state = null,
                         selectedColor: kOrange,
                       ),
                     ),
                     ...['badge', 'avatar', 'boost', 'decoration']
                         .map((c) => Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.only(right: 8),
                               child: FilterChip(
                                 label: Text(c),
                                 selected: selectedCat == c,
                                 onSelected: (_) => ref
-                                    .read(_selectedCategoryProvider
-                                        .notifier)
+                                    .read(_selectedCategoryProvider.notifier)
                                     .state = c,
                                 selectedColor: kOrange,
                               ),
@@ -216,22 +197,17 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                           style: const TextStyle(color: kRed))),
                   data: (items) {
                     if (items.isEmpty) {
-                      return const EmptyState(
-                          message: 'Mahsulotlar topilmadi',
-                          icon: Icons.storefront_outlined);
+                      return const AlochiEmptyState(
+                          title: 'Mahsulotlar topilmadi');
                     }
-                    final balance =
-                        (walletAsync.value?['coins'] ??
-                                walletAsync.value?['balance'] ??
-                                0) as int;
-                    return LayoutBuilder(
-                        builder: (ctx, constraints) {
-                      final cols =
-                          constraints.maxWidth > 600 ? 3 : 2;
+                    final balance = (walletAsync.value?['coins'] ??
+                        walletAsync.value?['balance'] ??
+                        0) as int;
+                    return LayoutBuilder(builder: (ctx, constraints) {
+                      final cols = constraints.maxWidth > 600 ? 3 : 2;
                       return GridView.builder(
                         padding: const EdgeInsets.all(16),
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: cols,
                           childAspectRatio: 0.85,
                           mainAxisSpacing: 12,
@@ -241,8 +217,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                         itemBuilder: (ctx, i) => _ShopItemCard(
                           item: items[i],
                           balance: balance,
-                          onPurchase: () =>
-                              _purchase(items[i], balance),
+                          onPurchase: () => _purchase(items[i], balance),
                         ),
                       );
                     });
@@ -256,9 +231,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             child: ConfettiWidget(
               confettiController: _confetti,
               blastDirectionality: BlastDirectionality.explosive,
-              colors: const [
-                kOrange, kGreen, kYellow, kPurple, kBlue
-              ],
+              colors: const [kOrange, kGreen, kYellow, kPurple, kBlue],
             ),
           ),
         ],
@@ -272,9 +245,7 @@ class _ShopItemCard extends StatelessWidget {
   final int balance;
   final VoidCallback onPurchase;
   const _ShopItemCard(
-      {required this.item,
-      required this.balance,
-      required this.onPurchase});
+      {required this.item, required this.balance, required this.onPurchase});
 
   @override
   Widget build(BuildContext context) {
@@ -292,15 +263,18 @@ class _ShopItemCard extends StatelessWidget {
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: kBgMain,
-                borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(16)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: item.imageUrl != null
                   ? CachedNetworkImage(
                       imageUrl: item.imageUrl!,
                       fit: BoxFit.contain,
-                      placeholder: (context, url) => const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
-                      errorWidget: (context, url, error) => const Icon(Icons.broken_image, size: 24),
+                      placeholder: (context, url) => const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2)),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.broken_image, size: 24),
                     )
                   : const Center(
                       child: Icon(Icons.card_giftcard_rounded,
@@ -328,8 +302,7 @@ class _ShopItemCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text('${item.price}',
                         style: const TextStyle(
-                            color: kYellow,
-                            fontWeight: FontWeight.w700)),
+                            color: kYellow, fontWeight: FontWeight.w700)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -338,8 +311,7 @@ class _ShopItemCard extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: canAfford ? onPurchase : null,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       textStyle: const TextStyle(fontSize: 12),
                     ),
                     child: const Text('Sotib olish'),

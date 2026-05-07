@@ -22,11 +22,20 @@ class UserModel {
   String get fullName => '$firstName $lastName'.trim();
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    String firstName = json['first_name'] ?? '';
+    String lastName = json['last_name'] ?? '';
+
+    if (firstName.isEmpty && lastName.isEmpty && json['name'] != null) {
+      final nameParts = (json['name'] as String).split(' ');
+      firstName = nameParts.isNotEmpty ? nameParts[0] : '';
+      lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+    }
+
     return UserModel(
       id: json['id']?.toString() ?? '',
       username: json['username'] ?? '',
-      firstName: json['first_name'] ?? '',
-      lastName: json['last_name'] ?? '',
+      firstName: firstName,
+      lastName: lastName,
       role: json['role'] ?? 'student',
       school: json['school']?.toString(),
       grade: json['grade']?.toString(),
