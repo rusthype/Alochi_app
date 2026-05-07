@@ -6,6 +6,8 @@ import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/parent_api.dart';
 import '../../../core/models/notification.dart';
 
+import '../../../shared/widgets/alochi_app_bar.dart';
+
 final _parentNotificationsProvider =
     FutureProvider<List<AppNotification>>((ref) async {
   return ParentApi().getNotifications();
@@ -19,8 +21,8 @@ class ParentNotificationsScreen extends ConsumerWidget {
     final async = ref.watch(_parentNotificationsProvider);
     return Scaffold(
       backgroundColor: kBgMain,
-      appBar: AppBar(
-        title: const Text('Bildirishnomalar'),
+      appBar: AlochiAppBar(
+        title: 'Bildirishnomalar',
         actions: [
           TextButton(
             onPressed: () async {
@@ -34,22 +36,44 @@ class ParentNotificationsScreen extends ConsumerWidget {
       ),
       body: async.when(
         loading: () => const LoadingWidget(),
-        error: (e, _) => Center(
-            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
+        error: (e, _) => AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          iconColor: kRed,
+          title: 'Xatolik yuz berdi',
+          subtitle: e.toString(),
+          actionLabel: "Qayta urinish",
+          onAction: () => ref.invalidate(_parentNotificationsProvider),
+        ),
         data: (notifications) {
           if (notifications.isEmpty) {
-            return const AlochiEmptyState(title: "Yangi bildirishnomalar yo'q");
+            return RefreshIndicator(
+              onRefresh: () => ref.refresh(_parentNotificationsProvider.future),
+              color: kOrange,
+              child: const SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: 400,
+                  child: AlochiEmptyState(title: "Yangi bildirishnomalar yo'q"),
+                ),
+              ),
+            );
           }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: notifications.length,
-            itemBuilder: (ctx, i) => _NotificationCard(n: notifications[i]),
+          return RefreshIndicator(
+            onRefresh: () => ref.refresh(_parentNotificationsProvider.future),
+            color: kOrange,
+            child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              itemCount: notifications.length,
+              itemBuilder: (ctx, i) => _NotificationCard(n: notifications[i]),
+            ),
           );
         },
       ),
     );
   }
 }
+
 
 class _NotificationCard extends StatelessWidget {
   final AppNotification n;

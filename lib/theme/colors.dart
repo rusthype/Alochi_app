@@ -35,25 +35,14 @@ abstract final class AppColors {
   static const Color line = Color(0xFFE5E7EB);
   static const Color lineSoft = Color(0xFFF4F5F7);
 
-  // --- V1.2 Dark Mode Prep Variants ---
+  // --- V1.2 Dark Mode Tokens ---
+  static const Color darkBg = Color(0xFF0E1514);
+  static const Color darkSurface = Color(0xFF1A2422);
+  static const Color darkCard = Color(0xFF1F2D2B);
+  static const Color darkBorder = Color(0xFF2A3D3A);
+  static const Color darkInk = Color(0xFFF0F4F3);
+  static const Color darkMuted = Color(0xFF8BA8A3);
 
-  // Brand Soft
-  static const Color brandSoftLight = Color(0xFFE8F2EF); // same as brandSoft
+  // Dark mode brand variants
   static const Color brandSoftDark = Color(0xFF1A3D38);
-
-  // Surface
-  static const Color surfaceLight = Color(0xFFFAFAFA); // same as surface
-  static const Color surfaceDark = Color(0xFF0D1F1C);
-
-  // Background
-  static const Color backgroundLight = Color(0xFFFAFBF9);
-  static const Color backgroundDark = Color(0xFF050E0D);
-
-  // Ink (Text)
-  static const Color inkLight = Color(0xFF111827); // same as ink
-  static const Color inkDark = Color(0xFFE8F2EF);
-
-  // Ink Muted
-  static const Color inkMutedLight = Color(0xFF5A8B87); // same as brandMuted
-  static const Color inkMutedDark = Color(0xFFA8BBB7);
 }

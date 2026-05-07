@@ -12,14 +12,26 @@ import '../../auth/auth_provider.dart';
 final _dashboardProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   final api = StudentApi();
   final profile = await api.getProfile();
-  // Fetch coins from separate endpoint
-  try {
-    final wallet = await api.getWallet();
-    final coins = wallet['balance'] ?? wallet['coins'] ?? 0;
-    return {...profile, 'coins': coins};
-  } catch (_) {
-    return profile;
-  }
+
+  // Fetch coins and homework in parallel
+  final results = await Future.wait([
+    api.getWallet().catchError((_) => <String, dynamic>{}),
+    api.getHomework().catchError((_) => <String, dynamic>{}),
+  ]);
+
+  final wallet = results[0];
+  final homework = results[1];
+
+  final coins = wallet['balance'] ?? wallet['coins'] ?? 0;
+  final activeHomework = (homework['results'] as List? ?? [])
+      .where((h) => h['status'] != 'completed')
+      .toList();
+
+  return {
+    ...profile,
+    'coins': coins,
+    'active_homework': activeHomework,
+  };
 });
 
 class StudentDashboardScreen extends ConsumerWidget {
@@ -49,6 +61,10 @@ class StudentDashboardScreen extends ConsumerWidget {
                 _StatsRow(data: data),
                 const SizedBox(height: 20),
                 const _QuickActions(),
+                const SizedBox(height: 20),
+                _HomeworkSection(data: data),
+                const SizedBox(height: 20),
+                _RecentGradesBadges(data: data),
                 const SizedBox(height: 20),
                 _WeeklyChart(data: data),
                 const SizedBox(height: 20),
@@ -420,6 +436,134 @@ class _DailyChallengeCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _HomeworkSection extends StatelessWidget {
+  final Map<String, dynamic> data;
+  const _HomeworkSection({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final homework = (data['active_homework'] as List?) ?? [];
+    if (homework.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("Bugungi vazifalar",
+                style: TextStyle(
+                    color: kTextPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700)),
+            TextButton(
+              onPressed: () => context.go('/student/homework'),
+              child: const Text("Barchasi", style: TextStyle(color: kOrange)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...homework.take(2).map((h) => Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: kBgCard,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kBgBorder),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: kBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.assignment_outlined,
+                        color: kBlue, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(h['title'] ?? 'Vazifa',
+                            style: const TextStyle(
+                                color: kTextPrimary,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14)),
+                        Text(h['subject_name'] ?? 'Fan nomi',
+                            style: const TextStyle(
+                                color: kTextSecondary, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded,
+                      color: kTextMuted, size: 20),
+                ],
+              ),
+            )),
+      ],
+    );
+  }
+}
+
+class _RecentGradesBadges extends StatelessWidget {
+  final Map<String, dynamic> data;
+  const _RecentGradesBadges({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final results = (data['recent_results'] as List?)?.take(3).toList() ?? [];
+    if (results.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("So'nggi baholar",
+            style: TextStyle(
+                color: kTextPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700)),
+        const SizedBox(height: 12),
+        Row(
+          children: results.map((r) {
+            final score = (r['score'] as num?) ?? 0;
+            final color = scoreColor(score);
+            return Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: color.withValues(alpha: 0.2)),
+                ),
+                child: Column(
+                  children: [
+                    Text('${score.toStringAsFixed(0)}%',
+                        style: TextStyle(
+                            color: color,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 2),
+                    Text(r['test_title']?.toString() ?? 'Test',
+                        style: const TextStyle(
+                            color: kTextSecondary,
+                            fontSize: 10,
+                            overflow: TextOverflow.ellipsis),
+                        maxLines: 1),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

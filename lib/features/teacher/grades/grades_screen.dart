@@ -29,7 +29,6 @@ class GradesScreen extends ConsumerWidget {
     final today = _todayString();
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
       appBar: AlochiAppBar(
         titleWidget: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +36,8 @@ class GradesScreen extends ConsumerWidget {
           children: [
             Text(
               'Baholar',
-              style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+              style: AppTextStyles.titleM
+                  .copyWith(color: Theme.of(context).colorScheme.onSurface),
             ),
             Text(
               '$groupName · $subject',
@@ -201,7 +201,7 @@ class _DateHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.l,
         vertical: AppSpacing.m,
@@ -246,11 +246,12 @@ class _GradeRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(
-          color:
-              pendingGrade > 0 ? AppColors.brandLight : const Color(0xFFE5E7EB),
+          color: pendingGrade > 0
+              ? AppColors.brandLight
+              : Theme.of(context).dividerColor,
         ),
       ),
       child: Row(
@@ -263,13 +264,15 @@ class _GradeRow extends StatelessWidget {
               children: [
                 Text(
                   student.name,
-                  style: AppTextStyles.body.copyWith(color: AppColors.ink),
+                  style: AppTextStyles.body
+                      .copyWith(color: Theme.of(context).colorScheme.onSurface),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   "O'rtacha: ${student.average.toStringAsFixed(1)}",
-                  style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted),
+                  style: AppTextStyles.caption
+                      .copyWith(color: AppColors.brandMuted),
                 ),
               ],
             ),
@@ -303,7 +306,7 @@ class _GradeSegmented extends StatelessWidget {
           bgColor = _gradeColor(g);
           fgColor = Colors.white;
         } else {
-          bgColor = const Color(0xFFF3F4F6);
+          bgColor = Theme.of(context).colorScheme.surfaceContainerHighest;
           fgColor = const Color(0xFF6B7280);
         }
         return GestureDetector(
@@ -360,9 +363,9 @@ class _SaveBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(
           AppSpacing.l, AppSpacing.m, AppSpacing.l, AppSpacing.xl),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: ElevatedButton(
         onPressed: state.isSaving ? null : () => onSave(),

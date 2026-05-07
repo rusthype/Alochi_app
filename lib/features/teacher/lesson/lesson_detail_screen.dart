@@ -5,6 +5,8 @@ import '../../../core/models/lesson_model.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_card.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/radii.dart';
 import '../../../theme/spacing.dart';
@@ -53,10 +55,17 @@ class LessonDetailScreen extends ConsumerWidget {
       ),
       body: lessonAsync.when(
         data: (lessonDetail) => _LessonDetailBody(lesson: lessonDetail),
-        loading: () => lesson != null 
-          ? _LessonDetailBodyFromModel(lesson: lesson!)
-          : const Center(child: CircularProgressIndicator(color: AppColors.brand)),
-        error: (err, __) => Center(child: Text('Xatolik: $err')),
+        loading: () => lesson != null
+            ? _LessonDetailBodyFromModel(lesson: lesson!)
+            : const _LessonDetailLoadingSkeleton(),
+        error: (err, __) => AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          iconColor: AppColors.danger,
+          title: 'Yuklab bo\'lmadi',
+          subtitle: 'Qayta urinib ko\'ring',
+          actionLabel: 'Yangilash',
+          onAction: () => ref.invalidate(lessonDetailProvider(lessonId)),
+        ),
       ),
     );
   }
@@ -191,6 +200,30 @@ class _LessonDetailBodyFromModel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _LessonDetailBody(lesson: lesson);
+  }
+}
+
+class _LessonDetailLoadingSkeleton extends StatelessWidget {
+  const _LessonDetailLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        AlochiSkeletonCard(height: 100),
+        SizedBox(height: AppSpacing.xl),
+        AlochiSkeleton(height: 20, width: 80),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 48),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 48),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 48),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 48),
+      ],
+    );
   }
 }
 

@@ -21,9 +21,12 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
   int _current = 0;
   bool _loading = true;
   bool _submitting = false;
-  int _secondsLeft = 1800;
+  int _secondsLeft = 1800; // Total time
+  int _questionSecondsLeft = 30; // Per-question timer
   Timer? _timer;
+  Timer? _questionTimer;
   String? _error;
+  bool _showFeedback = false;
 
   @override
   void initState() {
@@ -34,6 +37,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _questionTimer?.cancel();
     super.dispose();
   }
 
@@ -50,6 +54,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
         _loading = false;
       });
       _startTimer();
+      _startQuestionTimer();
     } catch (e) {
       setState(() {
         _error = 'Test yuklanmadi: $e';
@@ -64,17 +69,59 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
         _timer?.cancel();
         _submit();
       } else {
-        setState(() => _secondsLeft--);
+        if (mounted) setState(() => _secondsLeft--);
+      }
+    });
+  }
+
+  void _startQuestionTimer() {
+    _questionTimer?.cancel();
+    _questionSecondsLeft = 30;
+    _questionTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (_questionSecondsLeft <= 0) {
+        _questionTimer?.cancel();
+        _next();
+      } else {
+        if (mounted) setState(() => _questionSecondsLeft--);
       }
     });
   }
 
   void _next() {
-    if (_current < _questions.length - 1) setState(() => _current++);
+    if (_current < _questions.length - 1) {
+      setState(() {
+        _current++;
+        _showFeedback = false;
+      });
+      _startQuestionTimer();
+    } else if (_current == _questions.length - 1) {
+      _showSubmitDialog();
+    }
   }
 
   void _prev() {
-    if (_current > 0) setState(() => _current--);
+    if (_current > 0) {
+      setState(() {
+        _current--;
+        _showFeedback = false;
+      });
+      _startQuestionTimer();
+    }
+  }
+
+  void _onOptionSelected(int idx) {
+    if (_showFeedback) return;
+    setState(() {
+      _answers[_questions[_current].id] = idx;
+      _showFeedback = true;
+    });
+
+    // Pause timers during feedback
+    _questionTimer?.cancel();
+
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) _next();
+    });
   }
 
   Future<void> _showSubmitDialog() async {
@@ -103,6 +150,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
 
   Future<void> _submit() async {
     _timer?.cancel();
+    _questionTimer?.cancel();
     setState(() => _submitting = true);
     try {
       final result = await StudentApi().submitTest(widget.id, _answers);
@@ -156,23 +204,37 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
               color: _timerColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(_timerText,
-                style: TextStyle(
-                    color: _timerColor,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16)),
+            child: Row(
+              children: [
+                const Icon(Icons.timer_outlined, size: 16, color: kOrange),
+                const SizedBox(width: 4),
+                Text(_timerText,
+                    style: TextStyle(
+                        color: _timerColor,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16)),
+              ],
+            ),
           ),
         ],
       ),
       body: Column(
         children: [
-          ClipRRect(
-            child: LinearProgressIndicator(
-              value: progress,
-              backgroundColor: kBgBorder,
-              color: kOrange,
-              minHeight: 4,
-            ),
+          Stack(
+            children: [
+              LinearProgressIndicator(
+                value: progress,
+                backgroundColor: kBgBorder,
+                color: kOrange,
+                minHeight: 4,
+              ),
+              LinearProgressIndicator(
+                value: _questionSecondsLeft / 30,
+                backgroundColor: Colors.transparent,
+                color: kGreen.withValues(alpha: 0.5),
+                minHeight: 4,
+              ),
+            ],
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -180,6 +242,18 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Savol",
+                          style: TextStyle(color: kTextMuted, fontSize: 12)),
+                      Text("$_questionSecondsLeft s",
+                          style: TextStyle(
+                              color: _questionSecondsLeft < 10 ? kRed : kGreen,
+                              fontWeight: FontWeight.w700)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   if (q.image != null)
                     Container(
                       height: 180,
@@ -197,25 +271,32 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                   Text(q.text,
                       style: const TextStyle(
                           color: kTextPrimary,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600)),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700)),
                   const SizedBox(height: 24),
                   ...q.options.asMap().entries.map((entry) {
                     final idx = entry.key;
                     final opt = entry.value;
                     final isSelected = _answers[q.id] == idx;
+                    
+                    Color itemColor = isSelected ? kOrange : kBgBorder;
+                    if (_showFeedback && isSelected) {
+                      itemColor = kGreen; // For prototype we show green on selection
+                    }
+
                     return GestureDetector(
-                      onTap: () => setState(() => _answers[q.id] = idx),
-                      child: Container(
+                      onTap: () => _onOptionSelected(idx),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? kOrange.withValues(alpha: 0.15)
+                              ? itemColor.withValues(alpha: 0.1)
                               : kBgCard,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? kOrange : kBgBorder,
+                            color: isSelected ? itemColor : kBgBorder,
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -225,7 +306,7 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: isSelected ? kOrange : kBgBorder,
+                                color: isSelected ? itemColor : kBgBorder,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -243,8 +324,11 @@ class _TestPlayScreenState extends State<TestPlayScreen> {
                                   style: TextStyle(
                                       color: isSelected
                                           ? kTextPrimary
-                                          : kTextSecondary)),
+                                          : kTextSecondary,
+                                      fontSize: 15)),
                             ),
+                            if (_showFeedback && isSelected)
+                              const Icon(Icons.check_circle_rounded, color: kGreen),
                           ],
                         ),
                       ),

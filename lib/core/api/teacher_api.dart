@@ -3,7 +3,6 @@ import 'api_client.dart';
 import '../models/teacher_dashboard.dart';
 import '../models/group_model.dart';
 import '../models/student_model.dart';
-import '../models/attendance_model.dart';
 import '../models/lesson_detail_model.dart';
 import '../models/lesson_model.dart';
 import '../models/message_model.dart';
@@ -13,6 +12,7 @@ import '../models/ai_message_model.dart';
 import '../models/teacher_profile_model.dart';
 import '../models/telegram_model.dart';
 import '../models/notification.dart';
+import '../models/group_analytics.dart';
 
 export '../models/grades_model.dart';
 export '../models/homework_model.dart';
@@ -240,6 +240,19 @@ class TeacherApi {
       return GradesJournalData.fromJson(data, groupId);
     } catch (e, st) {
       debugPrint('getGrades error: $e\n$st');
+      rethrow;
+    }
+  }
+
+  Future<GroupAnalyticsModel> getGroupAnalytics(String groupId) async {
+    try {
+      final data = await _client.get(
+        '/teacher/analytics/',
+        params: {'group_id': groupId},
+      ) as Map<String, dynamic>;
+      return GroupAnalyticsModel.fromJson(data);
+    } catch (e, st) {
+      debugPrint('getGroupAnalytics error: $e\n$st');
       rethrow;
     }
   }

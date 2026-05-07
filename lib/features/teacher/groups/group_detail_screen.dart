@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
@@ -11,8 +12,10 @@ import '../../../shared/widgets/alochi_grade_badge.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_search_bar.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/models/group_model.dart';
 import '../../../core/models/student_model.dart';
+import '../../../core/models/group_analytics.dart';
 import '../../../core/api/teacher_api.dart';
 import '../grades/grades_provider.dart';
 import '../dashboard/dashboard_provider.dart';
@@ -145,22 +148,334 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                 _AttendanceTab(groupId: widget.groupId),
                 // Grades tab
                 _GradesJournalBody(groupId: widget.groupId),
-                // Analytics tab — placeholder (V1.2)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xxl),
-                    child: Text(
-                      'Tahlil V1.2 da qo\'shiladi',
-                      style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.brandMuted),
-                    ),
-                  ),
-                ),
+                // Analytics tab
+                _AnalyticsTab(groupId: widget.groupId),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AnalyticsTab extends ConsumerWidget {
+  final String groupId;
+
+  const _AnalyticsTab({required this.groupId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final analyticsAsync = ref.watch(groupAnalyticsProvider(groupId));
+
+    return analyticsAsync.when(
+      data: (analytics) => SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.l),
+        child: Column(
+          children: [
+            _TrendChart(
+              title: 'DAVOMAT TRENDI (4 HAFTA)',
+              points: analytics.attendanceTrend,
+              color: AppColors.success,
+              suffix: '%',
+            ),
+            const SizedBox(height: AppSpacing.l),
+            _TrendChart(
+              title: 'BAHOLAR TRENDI (4 HAFTA)',
+              points: analytics.gradeTrend,
+              color: AppColors.brand,
+              minY: 2,
+              maxY: 5,
+            ),
+            const SizedBox(height: AppSpacing.l),
+            _RankingsSection(
+              topStudents: analytics.topStudents,
+              lowAttendanceStudents: analytics.lowAttendanceStudents,
+            ),
+          ],
+        ),
+      ),
+      loading: () => const _AnalyticsLoadingSkeleton(),
+      error: (err, _) => Center(
+        child: AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          title: 'Yuklab bo\'lmadi',
+          subtitle: err.toString(),
+          actionLabel: 'Qayta urinish',
+          onAction: () => ref.refresh(groupAnalyticsProvider(groupId)),
+        ),
+      ),
+    );
+  }
+}
+
+class _TrendChart extends StatelessWidget {
+  final String title;
+  final List<ChartPointModel> points;
+  final Color color;
+  final String suffix;
+  final double? minY;
+  final double? maxY;
+
+  const _TrendChart({
+    required this.title,
+    required this.points,
+    required this.color,
+    this.suffix = '',
+    this.minY,
+    this.maxY,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (points.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.m),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.gray2,
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 140,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index < 0 || index >= points.length) return const SizedBox.shrink();
+                        return Text(
+                          points[index].label.split('-').last,
+                          style: const TextStyle(fontSize: 9, color: AppColors.gray2),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                minX: 0,
+                maxX: (points.length - 1).toDouble(),
+                minY: minY ?? 0,
+                maxY: maxY ?? 100,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: points.asMap().entries.map((e) {
+                      return FlSpot(e.key.toDouble(), e.value.value);
+                    }).toList(),
+                    isCurved: true,
+                    color: color,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                        radius: 3,
+                        color: Colors.white,
+                        strokeWidth: 2,
+                        strokeColor: color,
+                      ),
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: color.withValues(alpha: 0.1),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RankingsSection extends StatelessWidget {
+  final List<TopStudentModel> topStudents;
+  final List<LowAttendanceStudentModel> lowAttendanceStudents;
+
+  const _RankingsSection({
+    required this.topStudents,
+    required this.lowAttendanceStudents,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        if (topStudents.isNotEmpty) ...[
+          _RankingCard(
+            title: 'ENG FAOL O\'QUVCHILAR',
+            icon: Icons.emoji_events_rounded,
+            iconColor: AppColors.warning,
+            items: topStudents.map((s) => _RankingItem(
+              name: s.name,
+              value: '${s.xp} XP',
+              subValue: '${s.level}-daraja',
+            )).toList(),
+          ),
+          const SizedBox(height: AppSpacing.l),
+        ],
+        if (lowAttendanceStudents.isNotEmpty)
+          _RankingCard(
+            title: 'PAST DAVOMAT',
+            icon: Icons.warning_amber_rounded,
+            iconColor: AppColors.danger,
+            items: lowAttendanceStudents.map((s) => _RankingItem(
+              name: s.name,
+              value: '${s.attendancePct.toStringAsFixed(0)}%',
+              subValue: '${s.missedLessons} kun qoldirgan',
+              valueColor: AppColors.danger,
+            )).toList(),
+          ),
+      ],
+    );
+  }
+}
+
+class _RankingCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color iconColor;
+  final List<_RankingItem> items;
+
+  const _RankingCard({
+    required this.title,
+    required this.icon,
+    required this.iconColor,
+    required this.items,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: iconColor),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.gray2,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ...items,
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+class _RankingItem extends StatelessWidget {
+  final String name;
+  final String value;
+  final String subValue;
+  final Color? valueColor;
+
+  const _RankingItem({
+    required this.name,
+    required this.value,
+    required this.subValue,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+      ),
+      child: Row(
+        children: [
+          AlochiAvatar(name: name, size: 36),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: AppTextStyles.titleM.copyWith(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                Text(
+                  subValue,
+                  style: const TextStyle(fontSize: 11, color: AppColors.gray2),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            value,
+            style: AppTextStyles.titleM.copyWith(
+              color: valueColor ?? AppColors.brand,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AnalyticsLoadingSkeleton extends StatelessWidget {
+  const _AnalyticsLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        AlochiSkeletonCard(height: 180),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeletonCard(height: 180),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeletonCard(height: 240),
+      ],
     );
   }
 }
@@ -485,9 +800,7 @@ class _GradesJournalBody extends ConsumerWidget {
           },
         );
       },
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: AppColors.brand),
-      ),
+      loading: () => const _GradesJournalLoadingSkeleton(),
       error: (e, _) => AlochiEmptyState(
         icon: Icons.error_outline,
         title: 'Yuklab bo\'lmadi',
@@ -623,6 +936,26 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+}
+
+class _GradesJournalLoadingSkeleton extends StatelessWidget {
+  const _GradesJournalLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      itemCount: 6,
+      itemBuilder: (_, __) => Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.s),
+        child: AlochiSkeleton(
+          height: 58,
+          width: double.infinity,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
   }
 }
 

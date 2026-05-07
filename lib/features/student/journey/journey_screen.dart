@@ -6,7 +6,13 @@ import '../../../shared/widgets/loading_widget.dart';
 import '../../../core/api/student_api.dart';
 
 final _journeyProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  return StudentApi().getJourney();
+  final api = StudentApi();
+  final journey = await api.getJourney();
+  final profile = await api.getProfile();
+  return {
+    'journey': journey,
+    'profile': profile,
+  };
 });
 
 class JourneyScreen extends ConsumerWidget {
@@ -23,32 +29,125 @@ class JourneyScreen extends ConsumerWidget {
         error: (e, _) => Center(
             child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
         data: (data) {
-          final nodes = ((data['nodes'] ?? data['stages'] ?? []) as List)
+          final journey = data['journey'] as Map<String, dynamic>;
+          final profile = data['profile'] as Map<String, dynamic>;
+          final nodes = ((journey['nodes'] ?? journey['stages'] ?? []) as List)
               .cast<Map<String, dynamic>>();
-          if (nodes.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.map_rounded, size: 64, color: kTextMuted),
-                  SizedBox(height: 16),
-                  Text('Sayohat tez orada',
-                      style: TextStyle(color: kTextSecondary)),
-                ],
+
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _JourneyStats(profile: profile),
+                ),
               ),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: nodes.length,
-            itemBuilder: (ctx, i) => _Node(
-              node: nodes[i],
-              index: i,
-              isLast: i == nodes.length - 1,
-            ),
+              if (nodes.isEmpty)
+                const SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.map_rounded, size: 64, color: kTextMuted),
+                        SizedBox(height: 16),
+                        Text('Sayohat tez orada',
+                            style: TextStyle(color: kTextSecondary)),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (ctx, i) => _Node(
+                        node: nodes[i],
+                        index: i,
+                        isLast: i == nodes.length - 1,
+                      ),
+                      childCount: nodes.length,
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),
+    );
+  }
+}
+
+class _JourneyStats extends StatelessWidget {
+  final Map<String, dynamic> profile;
+  const _JourneyStats({required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    final streak = profile['day_streak'] ?? profile['streak'] ?? 0;
+    final xp = profile['total_xp'] ?? profile['xp'] ?? 0;
+    final bestSubject = profile['best_subject'] ?? 'Matematika';
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: kBgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: kBgBorder),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _StatItem(
+            icon: Icons.local_fire_department_rounded,
+            value: '$streak kun',
+            label: 'Seriya',
+            color: kRed,
+          ),
+          _StatItem(
+            icon: Icons.bolt_rounded,
+            value: '$xp',
+            label: 'Jami XP',
+            color: kOrange,
+          ),
+          _StatItem(
+            icon: Icons.star_rounded,
+            value: bestSubject,
+            label: 'Eng yaxshi fan',
+            color: kGreen,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatItem extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color color;
+
+  const _StatItem({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 24),
+        const SizedBox(height: 8),
+        Text(value,
+            style: const TextStyle(
+                color: kTextPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: 16)),
+        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+      ],
     );
   }
 }

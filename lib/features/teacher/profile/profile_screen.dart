@@ -18,19 +18,19 @@ class ProfileScreen extends ConsumerWidget {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           'Profil',
-          style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+          style: AppTextStyles.titleM
+              .copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
         automaticallyImplyLeading: false,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: Color(0xFFE5E7EB)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Divider(height: 1, color: Theme.of(context).dividerColor),
         ),
       ),
       body: RefreshIndicator(
@@ -123,9 +123,9 @@ class _ProfileContent extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFEFEFEF)),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: Column(
               children: [
@@ -147,7 +147,7 @@ class _ProfileContent extends ConsumerWidget {
                 Text(
                   profile.name.isEmpty ? 'Ustoz' : profile.name,
                   style: AppTextStyles.displayM.copyWith(
-                    color: AppColors.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
@@ -183,9 +183,9 @@ class _ProfileContent extends ConsumerWidget {
           // Settings list
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFEFEFEF)),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: Column(
               children: [
@@ -195,14 +195,20 @@ class _ProfileContent extends ConsumerWidget {
                   label: 'Telegram ota-onalar',
                   onTap: () => context.push('/teacher/profile/telegram'),
                 ),
-                const Divider(height: 1, indent: 64, color: Color(0xFFF3F4F6)),
+                Divider(
+                    height: 1,
+                    indent: 64,
+                    color: Theme.of(context).dividerColor),
                 _SettingsRow(
                   icon: Icons.edit_outlined,
                   iconBg: const Color(0xFF1F6F65),
                   label: 'Profilni tahrirlash',
                   onTap: () => context.push('/teacher/profile/edit'),
                 ),
-                const Divider(height: 1, indent: 64, color: Color(0xFFF3F4F6)),
+                Divider(
+                    height: 1,
+                    indent: 64,
+                    color: Theme.of(context).dividerColor),
                 _SettingsRow(
                   icon: Icons.lock_outline_rounded,
                   iconBg: const Color(0xFFD97706),
@@ -217,9 +223,9 @@ class _ProfileContent extends ConsumerWidget {
           // Help section
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFEFEFEF)),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: _SettingsRow(
               icon: Icons.info_outline_rounded,
@@ -233,9 +239,9 @@ class _ProfileContent extends ConsumerWidget {
           // Logout card
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFEFEFEF)),
+              border: Border.all(color: Theme.of(context).dividerColor),
             ),
             child: _SettingsRow(
               icon: Icons.logout_rounded,
@@ -256,12 +262,13 @@ class _ProfileContent extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
+        backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.l)),
         title: Text(
           'Tizimdan chiqish',
-          style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+          style: AppTextStyles.titleM
+              .copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
         content: Text(
           "Haqiqatdan ham tizimdan chiqmoqchimisiz?",
@@ -337,8 +344,9 @@ class _SettingsRow extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: AppTextStyles.body
-                    .copyWith(color: labelColor ?? AppColors.ink),
+                style: AppTextStyles.body.copyWith(
+                    color: labelColor ??
+                        Theme.of(context).colorScheme.onSurface),
               ),
             ),
             if (showChevron)

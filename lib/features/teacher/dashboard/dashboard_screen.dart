@@ -19,7 +19,7 @@ class TeacherDashboardScreen extends ConsumerWidget {
     final summaryAsync = ref.watch(dashboardSummaryProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: AppColors.surface,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => ref.refresh(dashboardSummaryProvider.future),

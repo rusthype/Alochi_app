@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../../shared/constants/colors.dart';
-import '../../../shared/widgets/loading_widget.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/typography.dart';
+import '../../../shared/widgets/alochi_app_bar.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
+import '../../../shared/widgets/alochi_button.dart';
 import '../../../core/api/parent_api.dart';
 
 final _childDetailProvider =
@@ -19,13 +23,30 @@ class ChildDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(_childDetailProvider(childId));
     return Scaffold(
-      backgroundColor: kBgMain,
-      appBar: AppBar(title: const Text('Bola tafsilotlari')),
+      backgroundColor: AppColors.darkBg,
+      appBar: const AlochiAppBar(
+        title: 'Bola tafsilotlari',
+        backgroundColor: AppColors.darkBg,
+      ),
       body: async.when(
-        loading: () => const LoadingWidget(),
-        error: (e, _) => Center(
-            child: Text('Xatolik: $e', style: const TextStyle(color: kRed))),
-        data: (data) => _ChildDetail(data: data),
+        loading: () => const Padding(
+          padding: EdgeInsets.all(16),
+          child: AlochiSkeleton(height: 200, repeat: 2),
+        ),
+        error: (e, _) => AlochiEmptyState(
+          icon: Icons.error_outline_rounded,
+          iconColor: AppColors.danger,
+          title: 'Yuklab bo\'lmadi',
+          subtitle: e.toString(),
+          actionLabel: "Qayta urinish",
+          onAction: () => ref.invalidate(_childDetailProvider(childId)),
+        ),
+        data: (data) => RefreshIndicator(
+          onRefresh: () => ref.refresh(_childDetailProvider(childId).future),
+          color: AppColors.accent,
+          backgroundColor: AppColors.darkSurface,
+          child: _ChildDetail(data: data),
+        ),
       ),
     );
   }
@@ -55,8 +76,12 @@ class _ChildDetail extends StatelessWidget {
         ((data['recent_tests'] ?? []) as List).cast<Map<String, dynamic>>();
     final achievements =
         ((data['achievements'] ?? []) as List).cast<Map<String, dynamic>>();
+    
+    // Placeholder for 14-day attendance
+    final attendanceData = List.generate(14, (i) => i % 5 != 0); // true = present, false = absent
 
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,26 +94,38 @@ class _ChildDetail extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(name,
                     style: const TextStyle(
-                        color: kTextPrimary,
+                        color: AppColors.darkInk,
                         fontSize: 24,
                         fontWeight: FontWeight.w700)),
                 if (school != null)
-                  Text(school, style: const TextStyle(color: kTextSecondary)),
+                  Text(school, style: const TextStyle(color: AppColors.darkMuted)),
                 if (grade != null)
                   Text('$grade-sinf',
-                      style: const TextStyle(color: kTextMuted, fontSize: 12)),
+                      style: const TextStyle(color: AppColors.darkMuted, fontSize: 12)),
               ],
             ),
           ),
           const SizedBox(height: 20),
 
+          // Chat button
+          AlochiButton(
+            label: 'Ustoz bilan muloqot',
+            icon: Icons.chat_bubble_rounded,
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Ustoz bilan chat ochilmoqda...")),
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
           // XP card
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: kBgCard,
+              color: AppColors.darkCard,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: kBgBorder),
+              border: Border.all(color: AppColors.darkBorder),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,12 +135,12 @@ class _ChildDetail extends StatelessWidget {
                   children: [
                     Text('Daraja $level',
                         style: const TextStyle(
-                            color: kTextPrimary,
+                            color: AppColors.darkInk,
                             fontWeight: FontWeight.w700,
                             fontSize: 16)),
                     Text('$xp XP',
                         style: const TextStyle(
-                            color: kOrange,
+                            color: AppColors.accent,
                             fontWeight: FontWeight.w700,
                             fontSize: 16)),
                   ],
@@ -115,14 +152,14 @@ class _ChildDetail extends StatelessWidget {
                     value: xpToNext > 0
                         ? ((xp % xpToNext) / xpToNext).clamp(0.0, 1.0)
                         : 0.0,
-                    backgroundColor: kBgBorder,
-                    color: kOrange,
+                    backgroundColor: AppColors.darkBorder,
+                    color: AppColors.accent,
                     minHeight: 8,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text('Keyingi darajaga: ${xpToNext - (xp % xpToNext)} XP',
-                    style: const TextStyle(color: kTextMuted, fontSize: 12)),
+                    style: const TextStyle(color: AppColors.darkMuted, fontSize: 12)),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -138,12 +175,60 @@ class _ChildDetail extends StatelessWidget {
             ),
           ),
 
+          const SizedBox(height: 24),
+          const Text('14 kunlik davomat',
+              style: TextStyle(
+                  color: AppColors.darkInk,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.darkCard,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.darkBorder),
+            ),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: List.generate(14, (i) {
+                final isPresent = attendanceData[i];
+                return Column(
+                  children: [
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isPresent
+                            ? AppColors.success.withValues(alpha: 0.2)
+                            : AppColors.danger.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            color: isPresent ? AppColors.success : AppColors.danger,
+                            width: 1),
+                      ),
+                      child: Icon(
+                        isPresent ? Icons.check_rounded : Icons.close_rounded,
+                        color: isPresent ? AppColors.success : AppColors.danger,
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text('${i + 1}',
+                        style: const TextStyle(color: AppColors.darkMuted, fontSize: 10)),
+                  ],
+                );
+              }),
+            ),
+          ),
+
           // Weekly activity chart
           if (weeklyActivity.isNotEmpty) ...[
             const SizedBox(height: 24),
             const Text('Haftalik faollik',
                 style: TextStyle(
-                    color: kTextPrimary,
+                    color: AppColors.darkInk,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
@@ -151,9 +236,9 @@ class _ChildDetail extends StatelessWidget {
               height: 160,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: kBgCard,
+                color: AppColors.darkCard,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: kBgBorder),
+                border: Border.all(color: AppColors.darkBorder),
               ),
               child: BarChart(
                 BarChartData(
@@ -185,7 +270,7 @@ class _ChildDetail extends StatelessWidget {
                           }
                           return Text(days[idx],
                               style: const TextStyle(
-                                  color: kTextMuted, fontSize: 11));
+                                  color: AppColors.darkMuted, fontSize: 11));
                         },
                       ),
                     ),
@@ -198,7 +283,7 @@ class _ChildDetail extends StatelessWidget {
                             barRods: [
                               BarChartRodData(
                                 toY: (e.value['xp'] as num?)?.toDouble() ?? 0,
-                                color: kOrange,
+                                color: AppColors.accent,
                                 width: 20,
                                 borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(4)),
@@ -216,21 +301,25 @@ class _ChildDetail extends StatelessWidget {
             const SizedBox(height: 24),
             const Text("So'nggi natijalar",
                 style: TextStyle(
-                    color: kTextPrimary,
+                    color: AppColors.darkInk,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
             ...recentTests.take(5).map((t) {
               final score = t['score'] as int? ?? 0;
-              final color = scoreColor(score);
+              final color = score >= 90
+                  ? AppColors.success
+                  : score >= 60
+                      ? AppColors.warning
+                      : AppColors.danger;
               return Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: kBgCard,
+                  color: AppColors.darkCard,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: kBgBorder),
+                  border: Border.all(color: AppColors.darkBorder),
                 ),
                 child: Row(
                   children: [
@@ -240,11 +329,11 @@ class _ChildDetail extends StatelessWidget {
                         children: [
                           Text(t['test_title'] as String? ?? 'Test',
                               style: const TextStyle(
-                                  color: kTextPrimary,
+                                  color: AppColors.darkInk,
                                   fontWeight: FontWeight.w600)),
                           Text(t['completed_at'] as String? ?? '',
                               style: const TextStyle(
-                                  color: kTextMuted, fontSize: 12)),
+                                  color: AppColors.darkMuted, fontSize: 12)),
                         ],
                       ),
                     ),
@@ -270,7 +359,7 @@ class _ChildDetail extends StatelessWidget {
             const SizedBox(height: 24),
             const Text('Yutuqlar',
                 style: TextStyle(
-                    color: kTextPrimary,
+                    color: AppColors.darkInk,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
@@ -286,22 +375,22 @@ class _ChildDetail extends StatelessWidget {
                 return Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: kBgCard,
+                    color: AppColors.darkCard,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                         color: unlocked
-                            ? kOrange.withValues(alpha: 0.4)
-                            : kBgBorder),
+                            ? AppColors.accent.withValues(alpha: 0.4)
+                            : AppColors.darkBorder),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.emoji_events_rounded,
-                          color: unlocked ? kOrange : kTextMuted, size: 20),
+                          color: unlocked ? AppColors.accent : AppColors.darkMuted, size: 20),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(a['name'] as String? ?? '',
                             style: TextStyle(
-                                color: unlocked ? kTextPrimary : kTextMuted,
+                                color: unlocked ? AppColors.darkInk : AppColors.darkMuted,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600),
                             maxLines: 1,
@@ -331,10 +420,16 @@ class _Stat extends StatelessWidget {
       children: [
         Text(value,
             style: const TextStyle(
-                color: kTextPrimary,
+                color: AppColors.darkInk,
                 fontWeight: FontWeight.w700,
                 fontSize: 18)),
-        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
+      ],
+    );
+  }
+}
+                fontSize: 18)),
+        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
       ],
     );
   }

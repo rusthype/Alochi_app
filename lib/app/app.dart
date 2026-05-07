@@ -14,6 +14,8 @@ class AlochiApp extends ConsumerWidget {
       title: "A'lochi",
       debugShowCheckedModeBanner: false,
       theme: AlochiTheme.light,
+      darkTheme: AlochiTheme.dark,
+      themeMode: ThemeMode.system,
       routerConfig: router,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

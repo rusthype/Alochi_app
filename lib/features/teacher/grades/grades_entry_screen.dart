@@ -52,7 +52,6 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
     final attAsync = ref.watch(attendanceMarkingProvider(attKey));
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
       appBar: const AlochiAppBar(title: 'Baho qo\'yish'),
       body: Column(
         children: [
@@ -132,7 +131,7 @@ class _TopicHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.all(AppSpacing.l),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,8 +142,12 @@ class _TopicHeader extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(groupName, style: AppTextStyles.titleM.copyWith(color: AppColors.ink)),
-                    Text(subject, style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted)),
+                    Text(groupName,
+                        style: AppTextStyles.titleM.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface)),
+                    Text(subject,
+                        style: AppTextStyles.bodyS
+                            .copyWith(color: AppColors.brandMuted)),
                   ],
                 ),
               ),
@@ -152,8 +155,12 @@ class _TopicHeader extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(avgGrade.toStringAsFixed(1), style: AppTextStyles.titleL.copyWith(color: AppColors.brand)),
-                    Text('O\'rtacha', style: AppTextStyles.caption.copyWith(color: AppColors.brandMuted)),
+                    Text(avgGrade.toStringAsFixed(1),
+                        style: AppTextStyles.titleL
+                            .copyWith(color: AppColors.brand)),
+                    Text('O\'rtacha',
+                        style: AppTextStyles.caption
+                            .copyWith(color: AppColors.brandMuted)),
                   ],
                 ),
             ],
@@ -163,9 +170,10 @@ class _TopicHeader extends StatelessWidget {
             controller: controller,
             decoration: InputDecoration(
               hintText: 'Mavzu sarlavhasini yozing...',
-              hintStyle: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
+              hintStyle:
+                  AppTextStyles.body.copyWith(color: AppColors.brandMuted),
               filled: true,
-              fillColor: const Color(0xFFF3F4F6),
+              fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadii.m),
                 borderSide: BorderSide.none,
@@ -273,9 +281,9 @@ class _BottomAction extends StatelessWidget {
         top: AppSpacing.m,
         bottom: MediaQuery.of(context).padding.bottom + AppSpacing.m,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: AlochiButton.primary(
         label: 'Baholarni saqlash',

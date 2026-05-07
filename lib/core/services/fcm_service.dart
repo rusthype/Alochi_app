@@ -11,6 +11,8 @@ class FCMService {
   static bool _firebaseAvailable = false;
   FirebaseMessaging? _messaging;
 
+  bool get isAvailable => _firebaseAvailable;
+
   Future<void> initialize() async {
     if (kIsWeb) return; // V1.1 is Android-only
 

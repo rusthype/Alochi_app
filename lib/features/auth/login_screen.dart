@@ -48,22 +48,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final role = next.user!.role;
         if (role == 'teacher') {
           context.go('/teacher/dashboard');
+        } else if (role == 'parent') {
+          context.go('/parent/dashboard');
+        } else if (role == 'student') {
+          context.go('/student/dashboard');
         } else {
-          // Non-teacher: show message and logout
+          // Unknown role
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                'Bu ilova faqat ustozlar uchun. Iltimos, alohida ilovadan foydalaning',
-              ),
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.fromLTRB(
-                  AppSpacing.l, 0, AppSpacing.l, AppSpacing.m),
-              backgroundColor: AppColors.danger,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadii.m),
-              ),
-              duration: const Duration(seconds: 4),
-            ),
+            const SnackBar(content: Text('Noma\'lum rol aniqlandi')),
           );
           ref.read(authProvider.notifier).logout();
         }

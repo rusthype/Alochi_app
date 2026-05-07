@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/group_model.dart';
 import '../../../core/models/student_model.dart';
+import '../../../core/models/group_analytics.dart';
 import '../dashboard/dashboard_provider.dart';
 
 final groupsListProvider = FutureProvider<List<GroupModel>>((ref) async {
@@ -18,4 +19,10 @@ final groupStudentsProvider = FutureProvider.autoDispose
     .family<List<StudentModel>, String>((ref, groupId) async {
   final api = ref.read(teacherApiProvider);
   return api.getGroupStudents(groupId);
+});
+
+final groupAnalyticsProvider = FutureProvider.autoDispose
+    .family<GroupAnalyticsModel, String>((ref, groupId) async {
+  final api = ref.read(teacherApiProvider);
+  return api.getGroupAnalytics(groupId);
 });

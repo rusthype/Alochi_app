@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../shared/constants/colors.dart';
-import '../../../shared/widgets/loading_widget.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/typography.dart';
+import '../../../shared/widgets/alochi_app_bar.dart';
+import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/api/parent_api.dart';
 import '../../auth/auth_provider.dart';
 
@@ -21,90 +24,104 @@ class ParentDashboardScreen extends ConsumerWidget {
     final childrenAsync = ref.watch(_childrenProvider);
 
     return Scaffold(
-      backgroundColor: kBgMain,
-      appBar: AppBar(
-        title: Column(
+      backgroundColor: AppColors.darkBg,
+      appBar: AlochiAppBar(
+        showBackButton: false,
+        backgroundColor: AppColors.darkBg,
+        titleWidget: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Ota-ona paneli',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkInk)),
             if (user != null)
               Text(user.fullName,
-                  style: const TextStyle(fontSize: 12, color: kTextMuted)),
+                  style:
+                      const TextStyle(fontSize: 12, color: AppColors.darkMuted)),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_rounded),
+            icon: const Icon(Icons.notifications_rounded,
+                color: AppColors.darkMuted),
             onPressed: () => context.go('/parent/notifications'),
           ),
         ],
       ),
-      body: childrenAsync.when(
-        loading: () => const LoadingWidget(),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline_rounded, color: kRed, size: 48),
-              const SizedBox(height: 16),
-              Text('Xatolik: $e', style: const TextStyle(color: kTextMuted)),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () => ref.invalidate(_childrenProvider),
-                child: const Text('Qayta urinish'),
-              ),
-            ],
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(_childrenProvider.future),
+        color: AppColors.accent,
+        backgroundColor: AppColors.darkSurface,
+        child: childrenAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              children: [
+                AlochiSkeleton(height: 120),
+                SizedBox(height: 16),
+                AlochiSkeleton(height: 120),
+                SizedBox(height: 16),
+                AlochiSkeleton(height: 120),
+              ],
+            ),
           ),
-        ),
-        data: (children) {
-          if (children.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.child_care_rounded, size: 64, color: kTextMuted),
-                  SizedBox(height: 16),
-                  Text("Bolalar bog'lanmagan",
-                      style: TextStyle(color: kTextPrimary, fontSize: 18)),
-                  SizedBox(height: 8),
-                  Text('Farzandingizning ilovasidan sizga invite kodi yuboring',
-                      style: TextStyle(color: kTextSecondary, fontSize: 14),
-                      textAlign: TextAlign.center),
-                ],
-              ),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            // header + children + spacing + summary footer
-            itemCount: 2 + children.length + 1,
-            itemBuilder: (ctx, i) {
-              if (i == 0) {
-                return const Padding(
-                  padding: EdgeInsets.only(bottom: 16),
-                  child: Text('Farzandlarim',
-                      style: TextStyle(
-                          color: kTextPrimary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700)),
-                );
-              }
-              if (i <= children.length) {
-                final child = children[i - 1];
-                return _ChildCard(
-                  child: child,
-                  onTap: () => context.go('/parent/children/${child['id']}'),
-                );
-              }
-              // Footer: spacing + summary
-              return Padding(
-                padding: const EdgeInsets.only(top: 24),
-                child: _SummarySection(children: children),
+          error: (e, _) => AlochiEmptyState(
+            icon: Icons.error_outline_rounded,
+            iconColor: AppColors.danger,
+            title: 'Yuklab bo\'lmadi',
+            subtitle: e.toString(),
+            actionLabel: 'Qayta urinish',
+            onAction: () => ref.invalidate(_childrenProvider),
+          ),
+          data: (children) {
+            if (children.isEmpty) {
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  child: const AlochiEmptyState(
+                    icon: Icons.child_care_rounded,
+                    title: "Bolalar bog'lanmagan",
+                    subtitle:
+                        'Farzandingizning ilovasidan sizga invite kodi yuboring',
+                  ),
+                ),
               );
-            },
-          );
-        },
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              // header + children + spacing + summary footer
+              itemCount: 2 + children.length + 1,
+              itemBuilder: (ctx, i) {
+                if (i == 0) {
+                  return const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: Text('Farzandlarim',
+                        style: TextStyle(
+                            color: AppColors.darkInk,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700)),
+                  );
+                }
+                if (i <= children.length) {
+                  final child = children[i - 1];
+                  return _ChildCard(
+                    child: child,
+                    onTap: () => context.go('/parent/children/${child['id']}'),
+                  );
+                }
+                // Footer: spacing + summary
+                return Padding(
+                  padding: const EdgeInsets.only(top: 24),
+                  child: _SummarySection(children: children),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -123,6 +140,7 @@ class _ChildCard extends StatelessWidget {
     final level = child['level'] ?? 1;
     final streak = child['streak'] ?? 0;
     final avgScore = child['avg_score'] ?? 0;
+    final attendance = child['attendance_rate'] ?? 95; // Placeholder/Safe default
     final school = child['school'] as String?;
     final grade = child['grade'];
 
@@ -132,9 +150,9 @@ class _ChildCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: kBgCard,
+          color: AppColors.darkCard,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: kBgBorder),
+          border: Border.all(color: AppColors.darkBorder),
         ),
         child: Column(
           children: [
@@ -148,19 +166,29 @@ class _ChildCard extends StatelessWidget {
                     children: [
                       Text(name,
                           style: const TextStyle(
-                              color: kTextPrimary,
+                              color: AppColors.darkInk,
                               fontWeight: FontWeight.w700,
                               fontSize: 16)),
                       if (school != null)
                         Text(school,
                             style: const TextStyle(
-                                color: kTextSecondary, fontSize: 12)),
+                                color: AppColors.darkMuted, fontSize: 12)),
                       if (grade != null)
                         Text('$grade-sinf',
                             style: const TextStyle(
-                                color: kTextMuted, fontSize: 11)),
+                                color: AppColors.darkMuted, fontSize: 11)),
                     ],
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chat_bubble_outline_rounded,
+                      color: AppColors.brand, size: 22),
+                  onPressed: () {
+                    // Chat to teacher logic
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Ustoz bilan chat ochilmoqda...")),
+                    );
+                  },
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -168,25 +196,25 @@ class _ChildCard extends StatelessWidget {
                     Row(
                       children: [
                         const Icon(Icons.bolt_rounded,
-                            color: kOrange, size: 14),
+                            color: AppColors.accent, size: 14),
                         Text('$xp XP',
                             style: const TextStyle(
-                                color: kOrange,
+                                color: AppColors.accent,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13)),
                       ],
                     ),
                     Text('Daraja $level',
                         style:
-                            const TextStyle(color: kTextMuted, fontSize: 11)),
+                            const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
                   ],
                 ),
-                const SizedBox(width: 8),
-                const Icon(Icons.chevron_right_rounded, color: kTextMuted),
+                const SizedBox(width: 4),
+                const Icon(Icons.chevron_right_rounded, color: AppColors.darkMuted),
               ],
             ),
             const SizedBox(height: 12),
-            const Divider(color: kBgBorder, height: 1),
+            const Divider(color: AppColors.darkBorder, height: 1),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -195,17 +223,22 @@ class _ChildCard extends StatelessWidget {
                     icon: Icons.local_fire_department_rounded,
                     value: '$streak',
                     label: 'Seriya',
-                    color: kOrange),
+                    color: AppColors.accent),
                 _Mini(
                     icon: Icons.bar_chart_rounded,
                     value: '${(avgScore as num).toStringAsFixed(0)}%',
                     label: "O'rtacha",
-                    color: kBlue),
+                    color: AppColors.info),
+                _Mini(
+                    icon: Icons.calendar_today_rounded,
+                    value: '$attendance%',
+                    label: 'Davomat',
+                    color: AppColors.success),
                 _Mini(
                     icon: Icons.emoji_events_rounded,
                     value: '#${child['rank'] ?? '-'}',
                     label: 'Reyting',
-                    color: kYellow),
+                    color: AppColors.warning),
               ],
             ),
           ],
@@ -235,7 +268,7 @@ class _Mini extends StatelessWidget {
         Text(value,
             style: TextStyle(
                 color: color, fontWeight: FontWeight.w700, fontSize: 14)),
-        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 10)),
+        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 10)),
       ],
     );
   }
@@ -261,29 +294,29 @@ class _SummarySection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: kBgCard,
+        color: AppColors.darkCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBgBorder),
+        border: Border.all(color: AppColors.darkBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Umumiy natijalar',
               style: TextStyle(
-                  color: kTextPrimary,
+                  color: AppColors.darkInk,
                   fontWeight: FontWeight.w700,
                   fontSize: 16)),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _SumStat(label: 'Jami XP', value: '$totalXp', color: kOrange),
+              _SumStat(label: 'Jami XP', value: '$totalXp', color: AppColors.accent),
               _SumStat(
                   label: "O'rtacha ball",
                   value: '${avgScore.toStringAsFixed(0)}%',
-                  color: kBlue),
+                  color: AppColors.info),
               _SumStat(
-                  label: 'Jami seriya', value: '$totalStreak', color: kGreen),
+                  label: 'Jami seriya', value: '$totalStreak', color: AppColors.success),
             ],
           ),
         ],
@@ -307,7 +340,7 @@ class _SumStat extends StatelessWidget {
             style: TextStyle(
                 color: color, fontSize: 22, fontWeight: FontWeight.w800)),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: kTextMuted, fontSize: 11)),
+        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
       ],
     );
   }

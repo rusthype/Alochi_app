@@ -21,12 +21,12 @@ class StudentProfileScreen extends ConsumerWidget {
     final studentAsync = ref.watch(studentProfileProvider(studentId));
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
       appBar: AlochiAppBar(
         title: '',
         actions: [
           IconButton(
-            icon: const Icon(Icons.more_horiz_rounded, color: AppColors.ink),
+            icon: Icon(Icons.more_horiz_rounded,
+                color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {},
           ),
         ],
@@ -64,6 +64,8 @@ class _StudentProfileBody extends StatelessWidget {
               children: [
                 const SizedBox(height: AppSpacing.m),
                 _ThreeStatTiles(student: student),
+                const SizedBox(height: 16),
+                _TodayActivityCard(student: student),
                 const SizedBox(height: 24),
                 if (student.parents.isNotEmpty) ...[
                   _ParentContactSection(parents: student.parents),
@@ -89,9 +91,14 @@ class _HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final nextLevelXp = student.level * 500;
+    final currentLevelBase = (student.level - 1) * 500;
+    final xpInCurrentLevel = student.xp - currentLevelBase;
+    final progress = (xpInCurrentLevel / 500).clamp(0.0, 1.0);
+
     return Container(
       width: double.infinity,
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.fromLTRB(24, 14, 24, 22),
       child: Column(
         children: [
@@ -100,7 +107,7 @@ class _HeroSection extends StatelessWidget {
           Text(
             student.fullName,
             style: AppTextStyles.displayM.copyWith(
-              color: AppColors.ink,
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -117,27 +124,41 @@ class _HeroSection extends StatelessWidget {
                 Text(
                   student.schoolName!,
                   style: AppTextStyles.bodyS
-                      .copyWith(color: const Color(0xFF6B7280)),
+                      .copyWith(color: AppColors.gray),
                 ),
               ],
             ],
           ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F2EF),
-              borderRadius: BorderRadius.circular(100),
-            ),
-            child: Text(
-              "★ ${student.xp} XP · ${student.level}-daraja",
-              style: AppTextStyles.label.copyWith(
-                color: AppColors.brand,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
           const SizedBox(height: 16),
+          // XP Progress
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _LevelBadge(level: student.level),
+                  Text(
+                    '${student.xp} / $nextLevelXp XP',
+                    style: AppTextStyles.label.copyWith(
+                      color: AppColors.brand,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 8,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.brand),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(
@@ -157,6 +178,211 @@ class _HeroSection extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _LevelBadge extends StatelessWidget {
+  final int level;
+
+  const _LevelBadge({required this.level});
+
+  @override
+  Widget build(BuildContext context) {
+    Color color = const Color(0xFF6B7280); // 1-3
+    if (level >= 10) {
+      color = AppColors.success;
+    } else if (level >= 7) {
+      color = AppColors.warning;
+    } else if (level >= 4) {
+      color = AppColors.brand;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        '$level-DARAJA',
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+}
+
+class _TodayActivityCard extends StatelessWidget {
+  final StudentModel student;
+
+  const _TodayActivityCard({required this.student});
+
+  @override
+  Widget build(BuildContext context) {
+    final today = DateTime.now();
+    final dateStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    final todayAtt = student.recentAttendance.firstWhere(
+      (a) => a.date == dateStr,
+      orElse: () => const AttendanceDayModel(date: '', status: 'no_lesson'),
+    );
+
+    final todayGrade = student.recentGrades.firstWhere(
+      (g) => g.date == dateStr,
+      orElse: () => const RecentGradeModel(id: '', value: 0, topicTitle: '', date: ''),
+    );
+
+    final hasActivity = todayAtt.status != 'no_lesson' || todayGrade.value > 0;
+
+    if (!hasActivity) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.bolt_rounded, color: AppColors.accent, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                "BUGUNGI FAOLLIK",
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.gray2,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              if (todayAtt.status != 'no_lesson')
+                Expanded(
+                  child: _ActivityItem(
+                    label: 'Davomat',
+                    value: _attLabel(todayAtt.status),
+                    color: _attColor(todayAtt.status),
+                  ),
+                ),
+              if (todayAtt.status != 'no_lesson' && todayGrade.value > 0)
+                Container(
+                  width: 1,
+                  height: 32,
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  color: Theme.of(context).dividerColor,
+                ),
+              if (todayGrade.value > 0)
+                Expanded(
+                  child: _ActivityItem(
+                    label: 'Baho',
+                    value: '${todayGrade.value}',
+                    color: _gradeColor(todayGrade.value),
+                    subLabel: todayGrade.topicTitle,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _attLabel(String status) {
+    switch (status) {
+      case 'present':
+        return 'Keldi';
+      case 'late':
+        return 'Kech';
+      case 'absent':
+        return 'Kelmagan';
+      default:
+        return 'Noma\'lum';
+    }
+  }
+
+  Color _attColor(String status) {
+    switch (status) {
+      case 'present':
+        return AppColors.success;
+      case 'late':
+        return AppColors.warning;
+      case 'absent':
+        return AppColors.danger;
+      default:
+        return AppColors.gray;
+    }
+  }
+
+  Color _gradeColor(int grade) {
+    if (grade == 5) return AppColors.success;
+    if (grade == 4) return AppColors.brand;
+    if (grade == 3) return AppColors.warning;
+    return AppColors.danger;
+  }
+}
+
+class _ActivityItem extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  final String? subLabel;
+
+  const _ActivityItem({
+    required this.label,
+    required this.value,
+    required this.color,
+    this.subLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: AppColors.gray),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              value,
+              style: AppTextStyles.titleM.copyWith(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+        if (subLabel != null)
+          Text(
+            subLabel!,
+            style: const TextStyle(fontSize: 10, color: AppColors.gray2),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+      ],
     );
   }
 }
@@ -218,9 +444,9 @@ class _StatTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFEFEFEF)),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,9 +511,9 @@ class _ParentRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF3F4F6)),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Row(
         children: [
@@ -314,7 +540,7 @@ class _ParentRow extends StatelessWidget {
                 Text(
                   parent.name,
                   style: AppTextStyles.body.copyWith(
-                    color: AppColors.ink,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -358,7 +584,7 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color(0xFFF4F5F7),
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, size: 18, color: color),
@@ -406,7 +632,7 @@ class _AttendanceCalendarSection extends StatelessWidget {
                       style: AppTextStyles.caption.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 9,
-                        color: AppColors.ink,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
@@ -510,9 +736,9 @@ class _TeacherNotesSection extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFFF3F4F6)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -526,8 +752,11 @@ class _TeacherNotesSection extends StatelessWidget {
               GestureDetector(
                 onTap: () => showDialog(
                   context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text('Izoh qo\'shish'),
+                  builder: (ctx) => AlertDialog(
+                    backgroundColor: Theme.of(context).cardColor,
+                    title: Text('Izoh qo\'shish',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface)),
                     content: const TextField(
                       maxLines: 4,
                       decoration: InputDecoration(
@@ -537,7 +766,7 @@ class _TeacherNotesSection extends StatelessWidget {
                     ),
                     actions: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => Navigator.pop(ctx),
                         child: const Text('Yopish'),
                       ),
                     ],
