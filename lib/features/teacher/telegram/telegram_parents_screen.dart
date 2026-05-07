@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
@@ -168,6 +172,17 @@ class _GroupCard extends StatelessWidget {
 
   const _GroupCard({required this.group, required this.onTap});
 
+  void _showQrDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _QrBottomSheet(group: group),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final percent = group.linkedPercent;
@@ -199,6 +214,11 @@ class _GroupCard extends StatelessWidget {
                           ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.qr_code_rounded,
+                        color: AppColors.brand),
+                    onPressed: () => _showQrDialog(context),
                   ),
                   const Icon(Icons.chevron_right_rounded,
                       color: AppColors.brandMuted),
@@ -244,6 +264,159 @@ class _GroupCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QrBottomSheet extends StatelessWidget {
+  final TelegramGroupStatusData group;
+
+  const _QrBottomSheet({required this.group});
+
+  String get _deepLink =>
+      'https://t.me/alochi_uz_bot?start=group_${group.groupId}';
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  group.groupName,
+                  style: AppTextStyles.titleL.copyWith(color: AppColors.ink),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close_rounded),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.m),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadii.l),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: QrImageView(
+              data: _deepLink,
+              version: QrVersions.auto,
+              size: 240.0,
+              gapless: false,
+              eyeStyle: const QrEyeStyle(
+                eyeShape: QrEyeShape.square,
+                color: AppColors.ink,
+              ),
+              dataModuleStyle: const QrDataModuleStyle(
+                dataModuleShape: QrDataModuleShape.square,
+                color: AppColors.ink,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.l),
+          Text(
+            _deepLink,
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.brand),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _ActionButton(
+                icon: Icons.copy_rounded,
+                label: "Nusxa olish",
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: _deepLink));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Havola nusxalandi")),
+                  );
+                },
+              ),
+              _ActionButton(
+                icon: Icons.share_rounded,
+                label: "Ulashish",
+                onTap: () {
+                  Share.share(
+                    'A\'lochi botga ulaning: $_deepLink',
+                  );
+                },
+              ),
+              _ActionButton(
+                icon: Icons.telegram_rounded,
+                label: "Telegram",
+                onTap: () async {
+                  final uri = Uri.parse(_deepLink);
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  }
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            "QR kod 24 soat amal qiladi",
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.inkMuted),
+          ),
+          const SizedBox(height: AppSpacing.m),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadii.m),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.s),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.m),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFE5E7EB)),
+              ),
+              child: Icon(icon, color: AppColors.brand, size: 24),
+            ),
+            const SizedBox(height: AppSpacing.s),
+            Text(label, style: AppTextStyles.label.copyWith(color: AppColors.ink)),
+          ],
         ),
       ),
     );
