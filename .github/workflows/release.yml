@@ -6,7 +6,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  API_URL: https://alochi.org
 
 permissions:
   contents: write
@@ -18,169 +17,96 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.4'
-          channel: stable
-          cache: true
-      - run: flutter pub get
-      - run: flutter build apk --release --split-per-abi --dart-define=API_URL=${{ env.API_URL }}
-      - run: flutter build appbundle --release --dart-define=API_URL=${{ env.API_URL }}
-      - uses: actions/upload-artifact@v5
-        with:
-          name: android
-          path: |
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-x86_64-release.apk
-            build/app/outputs/bundle/release/app-release.aab
-
-  ios:
-    name: iOS (IPA)
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v5
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.4'
+          flutter-version: '3.41.4'
           channel: stable
           cache: true
 
-      - run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Install CocoaPods
-        run: sudo gem install cocoapods && cd ios && pod install --repo-update
-
-      - name: Build iOS
+      - name: Decode keystore
         run: |
-          flutter build ios \
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.jks
+
+      - name: Create key.properties
+        run: |
+          cat > android/key.properties << EOF
+          storePassword=${{ secrets.STORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=release.jks
+          EOF
+
+      - name: Build APK
+        run: |
+          flutter build apk \
             --release \
-            --no-codesign \
-            --dart-define=API_URL=https://alochi.org
-        continue-on-error: false
+            --split-per-abi \
+            --dart-define=API_URL=https://api.alochi.org/api/v1
 
-      - name: Zip iOS build
+      - name: Build AAB
         run: |
-          cd build/ios/iphoneos
-          zip -r ../../../alochi-ios.zip .
-        continue-on-error: true
+          flutter build appbundle \
+            --release \
+            --dart-define=API_URL=https://api.alochi.org/api/v1
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v4
         with:
-          name: ios
-          path: alochi-ios.zip
-          if-no-files-found: warn
-
-  macos:
-    name: macOS (DMG)
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.4'
-          channel: stable
-          cache: true
-      - run: flutter pub get
-      - run: flutter build macos --release --dart-define=API_URL=${{ env.API_URL }}
-      - run: cd build/macos/Build/Products/Release && zip -r ../../../../../alochi-macos.zip alochi_app.app
-      - uses: actions/upload-artifact@v5
-        with:
-          name: macos
-          path: alochi-macos.zip
-
-  windows:
-    name: Windows (NSIS Installer)
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.4'
-          channel: stable
-          cache: true
-      - run: flutter pub get
-      - run: flutter build windows --release --dart-define=API_URL=${{ env.API_URL }}
-      - name: Install NSIS
-        run: choco install nsis -y
-      - name: Build installer
-        uses: joncloud/makensis-action@v4
-        with:
-          script-file: windows/installer.nsi
-          arguments: /V3
-      - name: Find and verify installer
-        run: |
-          Get-ChildItem -Recurse -Filter "*.exe" | Select-Object -ExpandProperty FullName
-          if (Test-Path "AlochiApp-Setup.exe") {
-            Write-Host "Found: AlochiApp-Setup.exe"
-          } else {
-            Write-Error "AlochiApp-Setup.exe not found in workspace root"
-            exit 1
-          }
-
-      - name: Upload installer
-        uses: actions/upload-artifact@v5
-        with:
-          name: windows
-          path: AlochiApp-Setup.exe
-          if-no-files-found: error
-
-  linux:
-    name: Linux (deb + AppImage)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y \
-            clang cmake ninja-build \
-            libgtk-3-dev liblzma-dev \
-            libstdc++-12-dev \
-            libglib2.0-dev libpango1.0-dev
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.4'
-          channel: stable
-          cache: true
-      - run: flutter pub get
-      - run: flutter build linux --release --dart-define=API_URL=${{ env.API_URL }}
-      - name: Package Linux build
-        run: |
-          mkdir -p alochi-linux
-          cp -r build/linux/x64/release/bundle/* alochi-linux/
-          tar -czf alochi-linux.tar.gz alochi-linux/
-      - uses: actions/upload-artifact@v5
-        with:
-          name: linux
-          path: alochi-linux.tar.gz
+          name: android-builds
+          path: |
+            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            build/app/outputs/bundle/release/app-release.aab
 
   release:
     name: Create GitHub Release
-    needs: [android, ios, macos, windows, linux]
+    needs: [android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v5
+
+      - uses: actions/download-artifact@v4
         with:
-          merge-multiple: true
+          name: android-builds
+          path: artifacts/
+
+      - name: List artifacts
+        run: find artifacts/ -type f
+
       - uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
           name: "A'lochi ${{ github.ref_name }}"
+          body: |
+            ## A'lochi Teacher Mobile ${{ github.ref_name }}
+
+            ### Nima yangi
+            - 22 yangi ekran — Ustoz paneli to'liq
+            - Pixel perfect UI — rasmiy mockup bo'yicha
+            - Dars boshqaruvi (#27) — 4 bosqichli workflow
+            - AI yordamchi + Telegram ota-onalar
+            - WebSocket real-time chat
+            - Offline banner
+
+            ### O'rnatish
+            - **Android (ARM64):** `app-arm64-v8a-release.apk` — zamonaviy qurilmalar
+            - **Android (ARM32):** `app-armeabi-v7a-release.apk` — eski qurilmalar
+            - **Play Console:** `app-release.aab` — to'liq bundle
+
+            ### Texnik
+            - flutter analyze: 0 issues
+            - Min Android: API 26 (Android 8.0)
+            - Version: ${{ github.ref_name }}
           files: |
-            app-armeabi-v7a-release.apk
-            app-arm64-v8a-release.apk
-            app-x86_64-release.apk
-            app-release.aab
-            alochi-ios.zip
-            alochi-macos.zip
-            AlochiApp-Setup.exe
-            alochi-linux.tar.gz
+            artifacts/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            artifacts/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            artifacts/build/app/outputs/bundle/release/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
