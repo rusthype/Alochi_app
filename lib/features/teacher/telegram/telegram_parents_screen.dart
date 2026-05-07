@@ -154,6 +154,12 @@ class _GroupsList extends ConsumerWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.l),
       children: [
+        _TelegramSummaryCard(
+          totalGroups: groups.length,
+          totalParents: groups.fold(0, (s, g) => s + g.totalParents),
+          linkedParents: groups.fold(0, (s, g) => s + g.linkedCount),
+        ),
+        const SizedBox(height: AppSpacing.l),
         const _ExplainerBanner(),
         const SizedBox(height: AppSpacing.l),
         ...groups.map((group) => _GroupCard(
@@ -161,6 +167,94 @@ class _GroupsList extends ConsumerWidget {
               onTap: () => context
                   .push('/teacher/telegram/groups/${group.groupId}/unlinked'),
             )),
+      ],
+    );
+  }
+}
+
+class _TelegramSummaryCard extends StatelessWidget {
+  final int totalGroups;
+  final int totalParents;
+  final int linkedParents;
+
+  const _TelegramSummaryCard({
+    required this.totalGroups,
+    required this.totalParents,
+    required this.linkedParents,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final percent = totalParents > 0 ? linkedParents / totalParents : 0.0;
+    final statusColor = percent >= 0.75
+        ? AppColors.success
+        : percent >= 0.5
+            ? AppColors.warning
+            : AppColors.danger;
+
+    return AlochiCard(
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _StatTile(
+                label: "Guruhlar",
+                value: totalGroups.toString(),
+              ),
+              _StatTile(
+                label: "Ota-onalar",
+                value: totalParents.toString(),
+              ),
+              _StatTile(
+                label: "Ulangan",
+                value: "${(percent * 100).round()}%",
+                valueColor: statusColor,
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.l),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadii.round),
+            child: LinearProgressIndicator(
+              value: percent,
+              minHeight: 8,
+              backgroundColor: const Color(0xFFE5E7EB),
+              valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  const _StatTile({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: AppTextStyles.titleL.copyWith(
+            color: valueColor ?? AppColors.ink,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: AppTextStyles.bodyS.copyWith(color: AppColors.inkMuted),
+        ),
       ],
     );
   }
