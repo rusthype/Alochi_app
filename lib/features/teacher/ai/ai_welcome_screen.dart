@@ -35,9 +35,9 @@ class AiWelcomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         title: Text(
           'AI Yordamchi',
           style: AppTextStyles.titleM.copyWith(color: AppColors.accent),
@@ -170,7 +170,7 @@ class _FeatureCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.l),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),

@@ -350,7 +350,7 @@ class _StudentAttendanceRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
@@ -386,9 +386,9 @@ class _StickySaveButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final canSave = state.canSave;
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 30),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      padding: EdgeInsets.fromLTRB(14, 14, 14, 30),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
             color: Colors.black12,

@@ -34,7 +34,7 @@ class WelcomeIntroScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       body: SafeArea(
         child: Stack(
           children: [

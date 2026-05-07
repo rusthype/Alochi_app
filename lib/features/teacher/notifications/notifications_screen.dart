@@ -171,9 +171,14 @@ class _NotificationCard extends ConsumerWidget {
               .read(notificationActionProvider.notifier)
               .markAsRead(notification.id);
         }
-        if (notification.actionUrl != null &&
-            notification.actionUrl!.isNotEmpty) {
-          context.push(notification.actionUrl!);
+        final url = notification.actionUrl;
+        if (url != null && url.isNotEmpty) {
+          // Only push known internal routes to avoid crash
+          try {
+            context.push(url);
+          } catch (_) {
+            // Unknown route — ignore silently
+          }
         }
       },
       child: AlochiCard(

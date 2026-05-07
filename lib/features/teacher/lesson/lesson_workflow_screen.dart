@@ -1015,7 +1015,7 @@ class _Step4State extends ConsumerState<_Step4FinishContent> {
             hintText: 'Mavzu...',
             hintStyle: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).cardColor,
             contentPadding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.m, vertical: 12),
             border: OutlineInputBorder(

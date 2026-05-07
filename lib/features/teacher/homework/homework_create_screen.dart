@@ -308,7 +308,7 @@ class _GroupDropdown extends StatelessWidget {
         const SizedBox(height: AppSpacing.s),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(AppRadii.m),
             border: Border.all(color: const Color(0xFFE5E7EB)),
           ),
@@ -393,7 +393,7 @@ class _DeadlinePicker extends StatelessWidget {
               vertical: AppSpacing.m,
             ),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(AppRadii.m),
               border: Border.all(color: const Color(0xFFE5E7EB)),
             ),
@@ -454,7 +454,7 @@ class _MultilineInput extends StatelessWidget {
             hintText: hintText,
             hintStyle: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: Theme.of(context).cardColor,
             contentPadding: const EdgeInsets.all(AppSpacing.m),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadii.m),

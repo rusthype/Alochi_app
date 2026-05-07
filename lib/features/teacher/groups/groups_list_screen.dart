@@ -111,7 +111,7 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
                               onSelected: (v) {
                                 if (v) setState(() => _filter = f);
                               },
-                              backgroundColor: Colors.white,
+                              backgroundColor: Theme.of(context).cardColor,
                               selectedColor: const Color(0xFF111827),
                               labelStyle: AppTextStyles.label.copyWith(
                                 color: isSelected
@@ -351,7 +351,7 @@ class _SkeletonCard extends StatelessWidget {
       height: 110,
       padding: const EdgeInsets.all(AppSpacing.l),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),

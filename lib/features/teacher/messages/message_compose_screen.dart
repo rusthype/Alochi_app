@@ -37,7 +37,7 @@ class MessageComposeScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       appBar: AlochiAppBar(
         title: 'Yangi xabar',
         leading: TextButton(

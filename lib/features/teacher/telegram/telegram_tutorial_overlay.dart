@@ -47,9 +47,9 @@ class _TelegramTutorialOverlayState extends State<TelegramTutorialOverlay> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.l),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      padding: EdgeInsets.all(AppSpacing.l),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xl)),
       ),
       child: Column(

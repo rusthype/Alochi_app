@@ -179,8 +179,8 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
               top: AppSpacing.m,
               bottom: MediaQuery.of(context).padding.bottom + AppSpacing.m,
             ),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
               border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
             ),
             child: AlochiButton.primary(

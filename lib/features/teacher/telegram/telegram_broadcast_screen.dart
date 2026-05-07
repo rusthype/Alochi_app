@@ -104,9 +104,9 @@ class _TelegramBroadcastScreenState
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
               color: AppColors.ink, size: 20),
@@ -141,7 +141,7 @@ class _TelegramBroadcastScreenState
               data: (groups) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.m),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(AppRadii.m),
                   border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
@@ -241,7 +241,7 @@ class _TelegramBroadcastScreenState
               style: AppTextStyles.body,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Theme.of(context).cardColor,
                 hintText: "Xabarni shu yerga yozing...",
                 contentPadding: const EdgeInsets.all(AppSpacing.m),
                 border: OutlineInputBorder(
@@ -317,7 +317,7 @@ class _TypeChip extends StatelessWidget {
           color: selected ? AppColors.brand : const Color(0xFFE5E7EB),
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       showCheckmark: false,
     );
   }

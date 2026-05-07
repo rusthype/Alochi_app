@@ -112,9 +112,9 @@ class _AiChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).cardColor,
       elevation: 0,
-      surfaceTintColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_ios_new_rounded,
             color: AppColors.ink, size: 20),
@@ -434,7 +434,7 @@ class _AiTypingIndicatorState extends State<_AiTypingIndicator>
             margin: const EdgeInsets.only(top: 2, bottom: 2),
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18),
                 topRight: Radius.circular(18),
@@ -535,8 +535,8 @@ class _AiComposerState extends State<_AiComposer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
       ),
       padding: EdgeInsets.only(

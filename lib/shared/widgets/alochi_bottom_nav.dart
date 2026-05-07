@@ -16,7 +16,7 @@ class AlochiBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         border: Border(
           top: BorderSide(color: Colors.black.withValues(alpha: 0.05)),
         ),

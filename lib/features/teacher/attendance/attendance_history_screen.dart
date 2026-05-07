@@ -42,6 +42,7 @@ class _AttendanceHistoryScreenState
           ),
           Expanded(
             child: historyAsync.when(
+              skipLoadingOnRefresh: false,
               data: (data) => RefreshIndicator(
                 onRefresh: () async {
                   ref.invalidate(attendanceHistoryProvider);
@@ -174,7 +175,7 @@ class _SummaryCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFEFEFEF)),
       ),
@@ -279,7 +280,7 @@ class _AttendanceChartCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFEFEFEF)),
       ),
@@ -368,7 +369,7 @@ class _LowAttendanceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFFFCEBEB)),
       ),

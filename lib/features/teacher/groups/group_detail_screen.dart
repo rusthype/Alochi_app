@@ -259,7 +259,7 @@ class _MetricCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: AppColors.line),
       ),
@@ -298,7 +298,7 @@ class _AttendanceBarChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: AppColors.line),
       ),
@@ -400,7 +400,7 @@ class _GradeLineChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: AppColors.line),
       ),
@@ -603,7 +603,7 @@ class _RankingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: AppColors.line),
       ),
@@ -1101,7 +1101,7 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.line),
       ),

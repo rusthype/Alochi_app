@@ -39,9 +39,9 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
-        surfaceTintColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded,
               color: AppColors.ink, size: 20),
@@ -141,8 +141,8 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
               ),
               if (parents.isNotEmpty)
                 Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
                     border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
                   ),
                   padding: EdgeInsets.only(
@@ -387,7 +387,7 @@ class _ParentRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppRadii.l),
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
