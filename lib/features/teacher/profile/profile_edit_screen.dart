@@ -7,6 +7,7 @@ import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
+import '../../../shared/widgets/alochi_avatar_upload.dart';
 import '../../../shared/widgets/alochi_input.dart';
 import '../../../core/models/teacher_profile_model.dart';
 import '../../../core/utils/validators.dart';
@@ -128,7 +129,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
 
 // ─── Edit body (with profile pre-filled) ─────────────────────────────────────
 
-class _EditBody extends StatelessWidget {
+class _EditBody extends ConsumerWidget {
   final GlobalKey<FormState> formKey;
   final TeacherProfileModel profile;
   final TextEditingController nameCtrl;
@@ -146,7 +147,7 @@ class _EditBody extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
         Expanded(
@@ -157,36 +158,31 @@ class _EditBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Avatar with camera icon (upload deferred to V1.2)
                   Center(
-                    child: Stack(
-                      children: [
-                        AlochiAvatar(name: profile.name, size: 80),
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: AppColors.brand,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                    child: AlochiAvatarWithUpload(
+                      name: profile.name,
+                      size: 84,
+                      editable: true,
+                      onTap: () async {
+                        final ok = await ref
+                            .read(localAvatarProvider.notifier)
+                            .pickAndSave();
+                        if (ok && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Rasm yangilandi'),
+                              backgroundColor: Color(0xFF0F9A6E),
+                              behavior: SnackBarBehavior.floating,
                             ),
-                            child: const Icon(
-                              Icons.camera_alt_outlined,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
+                          );
+                        }
+                      },
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.s),
+                  const SizedBox(height: AppSpacing.xs),
                   Center(
                     child: Text(
-                      'Rasm o\'zgartirish V1.2 da',
+                      'Rasmni o\'zgartirish uchun bosing',
                       style: AppTextStyles.caption
                           .copyWith(color: AppColors.brandMuted),
                     ),

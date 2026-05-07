@@ -8,6 +8,7 @@ import '../../../theme/radii.dart';
 import '../../../features/auth/auth_provider.dart';
 import '../../../core/api/teacher_api.dart';
 import '../../../app/theme_provider.dart';
+import '../../../shared/widgets/alochi_avatar_upload.dart';
 import 'profile_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -121,18 +122,9 @@ class _ProfileContent extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 36,
-                  backgroundColor: AppColors.brand,
-                  child: Text(
-                    profile.name.isNotEmpty
-                        ? profile.name[0].toUpperCase()
-                        : 'U',
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700),
-                  ),
+                AlochiAvatarWithUpload(
+                  name: profile.name.isNotEmpty ? profile.name : 'Ustoz',
+                  size: 72,
                 ),
                 const SizedBox(height: 14),
                 Text(

@@ -24,25 +24,39 @@ class HomeworkStats {
 class HomeworkSubmission {
   final String studentId;
   final String studentName;
+  final String initials;
+  final String color;
+  final String status; // "pending" | "submitted" | "late"
   final String submittedAt;
-  final bool isOnTime;
-  final String? comment;
+  final String? fileUrl;
 
   const HomeworkSubmission({
     required this.studentId,
     required this.studentName,
+    required this.initials,
+    required this.color,
+    required this.status,
     required this.submittedAt,
-    required this.isOnTime,
-    this.comment,
+    this.fileUrl,
   });
 
+  bool get hasSubmitted => status == 'submitted' || status == 'late';
+  bool get isOnTime => status == 'submitted';
+  bool get isPending => status == 'pending';
+
   factory HomeworkSubmission.fromJson(Map<String, dynamic> json) {
+    final st = json['submitted_at']?.toString() ?? '';
+    final status = json['status']?.toString() ?? 'pending';
     return HomeworkSubmission(
       studentId: json['student_id']?.toString() ?? '',
-      studentName: json['student_name']?.toString() ?? '',
-      submittedAt: json['submitted_at']?.toString() ?? '',
-      isOnTime: json['is_on_time'] == true,
-      comment: json['comment']?.toString(),
+      // Backend returns 'name', older version might return 'student_name'
+      studentName:
+          json['name']?.toString() ?? json['student_name']?.toString() ?? '',
+      initials: json['initials']?.toString() ?? '',
+      color: json['color']?.toString() ?? '#1F6F65',
+      status: status,
+      submittedAt: st,
+      fileUrl: json['file_url']?.toString(),
     );
   }
 }
@@ -58,6 +72,8 @@ class HomeworkModel {
   final bool isActive;
   final HomeworkStats? stats;
   final List<HomeworkSubmission> submissions;
+  final int totalCount;
+  final int submittedCount;
 
   const HomeworkModel({
     required this.id,
@@ -70,16 +86,19 @@ class HomeworkModel {
     required this.isActive,
     this.stats,
     this.submissions = const [],
+    this.totalCount = 0,
+    this.submittedCount = 0,
   });
 
   factory HomeworkModel.fromJson(Map<String, dynamic> json) {
-    // Determine active from deadline
+    // Backend returns 'due_date', older might return 'deadline'
+    final dl =
+        json['due_date']?.toString() ?? json['deadline']?.toString() ?? '';
+
     bool active = true;
-    final dl = json['deadline']?.toString() ?? '';
     if (dl.isNotEmpty) {
       try {
-        final deadlineDate = DateTime.parse(dl);
-        active = deadlineDate.isAfter(DateTime.now());
+        active = DateTime.parse(dl).isAfter(DateTime.now());
       } catch (_) {}
     }
     final isActiveParsed = json['is_active'];
@@ -97,8 +116,12 @@ class HomeworkModel {
           json['class_name']?.toString() ??
           '',
       deadline: dl,
-      responseCount: (json['response_count'] as num?)?.toInt() ?? 0,
+      responseCount: (json['response_count'] as num?)?.toInt() ??
+          (json['submitted_count'] as num?)?.toInt() ??
+          0,
       isActive: active,
+      totalCount: (json['total_count'] as num?)?.toInt() ?? 0,
+      submittedCount: (json['submitted_count'] as num?)?.toInt() ?? 0,
       stats: rawStats != null ? HomeworkStats.fromJson(rawStats) : null,
       submissions: rawSubmissions
           .map((e) => HomeworkSubmission.fromJson(e as Map<String, dynamic>))
