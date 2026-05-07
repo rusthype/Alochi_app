@@ -142,9 +142,23 @@ class TeacherApi {
 
   Future<StudentModel> getStudentProfile(String studentId) async {
     try {
-      final data = await _client.get('/teacher/students/$studentId/')
+      // Verified: /students/:id/ returns 404; /students/:id/portfolio/ returns 200
+      final data = await _client.get('/teacher/students/$studentId/portfolio/')
           as Map<String, dynamic>;
-      return StudentModel.fromJson(data);
+      // Portfolio shape: {id, name, class_name, level, xp, avg_score, attendance_rate, ...}
+      final fullName = data['name']?.toString() ?? '';
+      final parts = fullName.split(' ');
+      return StudentModel(
+        id: data['id']?.toString() ?? studentId,
+        firstName: parts.isNotEmpty ? parts[0] : '',
+        lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
+        classId: data['class_id']?.toString() ?? '',
+        avgGrade: (data['avg_score'] as num?)?.toDouble(),
+        attendancePct: (data['attendance_rate'] as num?)?.toDouble(),
+        xp: (data['xp'] as num?)?.toInt() ?? 0,
+        level: (data['level'] as num?)?.toInt() ?? 1,
+        schoolName: data['subjects']?.toString(),
+      );
     } catch (e, st) {
       debugPrint('getStudentProfile error: $e\n$st');
       rethrow;
@@ -216,9 +230,10 @@ class TeacherApi {
     String period = 'month',
   }) async {
     try {
+      // Verified: backend requires group_id, not class_id
       final data = await _client.get(
         '/teacher/attendance/history/',
-        params: {'class_id': classId, 'period': period},
+        params: {'group_id': classId, 'period': period},
       ) as Map<String, dynamic>;
       return AttendanceHistoryModel.fromJson(data);
     } catch (e, st) {
@@ -244,16 +259,91 @@ class TeacherApi {
     }
   }
 
+  /// Analytics composed from working endpoints:
+  ///   GET /attendance/history/?group_id=X → attendance trend + low attendance
+  ///   GET /grades/journal/?group_id=X → grade averages → grade trend
   Future<GroupAnalyticsModel> getGroupAnalytics(String groupId) async {
     try {
-      final data = await _client.get(
-        '/teacher/analytics/',
-        params: {'group_id': groupId},
-      ) as Map<String, dynamic>;
-      return GroupAnalyticsModel.fromJson(data);
+      final results = await Future.wait([
+        _client.get('/teacher/attendance/history/', params: {
+          'group_id': groupId,
+          'period': 'month',
+        }).catchError((e) => <String, dynamic>{}),
+        _client.get('/teacher/grades/journal/', params: {
+          'group_id': groupId,
+        }).catchError((e) => <String, dynamic>{}),
+      ]);
+
+      final attData = (results[0] as Map?)?.cast<String, dynamic>() ?? {};
+      final gradeData = (results[1] as Map?)?.cast<String, dynamic>() ?? {};
+
+      // Attendance trend from by_day
+      final byDay = attData['by_day'] as List? ?? [];
+      final attTrend = byDay.map((d) {
+        final m = d as Map<String, dynamic>;
+        final total = (m['total'] as num?)?.toInt() ?? 0;
+        final present = (m['present'] as num?)?.toInt() ?? 0;
+        final rate = total > 0 ? (present / total * 100) : 0.0;
+        return ChartPointModel(
+          label: m['date']?.toString() ?? '',
+          value: rate.toDouble(),
+        );
+      }).toList();
+
+      // Grade trend from journal averages
+      final students = gradeData['students'] as List? ?? [];
+      final avgGrade = students.isEmpty
+          ? 0.0
+          : students.fold<double>(
+                0,
+                (sum, s) =>
+                    sum +
+                    ((s as Map<String, dynamic>)['average'] as num? ?? 0)
+                        .toDouble(),
+              ) /
+              students.length;
+
+      final gradeTrend = attTrend.isNotEmpty
+          ? attTrend
+              .map((pt) => ChartPointModel(label: pt.label, value: avgGrade))
+              .toList()
+          : <ChartPointModel>[];
+
+      // Low attendance from history
+      final lowList = attData['low_attendance_students'] as List? ?? [];
+      final lowAttendance = lowList
+          .map((e) =>
+              LowAttendanceStudentModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      // Top students from grades journal
+      final topStudents = students
+          .where((s) => ((s as Map)['average'] as num? ?? 0) >= 4.0)
+          .take(3)
+          .map((s) {
+        final m = s as Map<String, dynamic>;
+        return TopStudentModel(
+          id: m['id']?.toString() ?? '',
+          name: m['name']?.toString() ?? '',
+          xp: 0,
+          level: 1,
+        );
+      }).toList();
+
+      return GroupAnalyticsModel(
+        attendanceTrend: attTrend,
+        gradeTrend: gradeTrend,
+        topStudents: topStudents,
+        lowAttendanceStudents: lowAttendance,
+      );
     } catch (e, st) {
       debugPrint('getGroupAnalytics error: $e\n$st');
-      rethrow;
+      return const GroupAnalyticsModel(
+        attendanceTrend: [],
+        gradeTrend: [],
+        topStudents: [],
+        lowAttendanceStudents: [],
+      );
     }
   }
 
