@@ -13,7 +13,7 @@ import '../../../shared/widgets/alochi_search_bar.dart';
 import '../dashboard/dashboard_provider.dart';
 import 'telegram_provider.dart';
 
-enum ParentFilter { all, newOnly, sent }
+enum ParentFilter { all, unlinked, sent }
 
 class UnlinkedParentsScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -78,7 +78,7 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
             if (!matchesSearch) return false;
 
             final isSent = p.sentAt != null || _locallySentIds.contains(p.parentId);
-            if (_selectedFilter == ParentFilter.newOnly) return !isSent;
+            if (_selectedFilter == ParentFilter.unlinked) return !isSent;
             if (_selectedFilter == ParentFilter.sent) return isSent;
             return true;
           }).toList();
@@ -107,10 +107,10 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
                     ),
                     const SizedBox(width: AppSpacing.s),
                     _FilterChip(
-                      label: "Yangi",
-                      isSelected: _selectedFilter == ParentFilter.newOnly,
+                      label: "Bog'lanmagan",
+                      isSelected: _selectedFilter == ParentFilter.unlinked,
                       onTap: () =>
-                          setState(() => _selectedFilter = ParentFilter.newOnly),
+                          setState(() => _selectedFilter = ParentFilter.unlinked),
                     ),
                     const SizedBox(width: AppSpacing.s),
                     _FilterChip(
@@ -180,6 +180,7 @@ class _UnlinkedParentsScreenState extends ConsumerState<UnlinkedParentsScreen> {
       ),
     );
   }
+
 
   Future<void> _sendReminder(String parentId, String parentName) async {
     if (_sending.contains(parentId)) return;

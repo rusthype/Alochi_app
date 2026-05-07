@@ -9,6 +9,7 @@ import '../../../core/models/teacher_dashboard.dart';
 import '../../../core/models/lesson_model.dart';
 import '../notifications/notifications_provider.dart';
 import '../profile/profile_provider.dart';
+import '../telegram/telegram_provider.dart';
 import 'dashboard_provider.dart';
 
 class TeacherDashboardScreen extends ConsumerWidget {
@@ -34,6 +35,25 @@ class TeacherDashboardScreen extends ConsumerWidget {
                   const SizedBox(height: 6),
                   _TodayLessonsSection(lessons: summary.todayLessons),
                   const SizedBox(height: 14),
+                  Consumer(builder: (context, ref, child) {
+                    final telegramGroupsAsync = ref.watch(telegramGroupsProvider);
+                    return telegramGroupsAsync.when(
+                      data: (groups) {
+                        if (groups.isEmpty) return const SizedBox.shrink();
+                        final totalParents = groups.fold(0, (s, g) => s + g.totalParents);
+                        final linkedParents = groups.fold(0, (s, g) => s + g.linkedCount);
+                        final percent = totalParents > 0 ? linkedParents / totalParents : 0.0;
+                        return Column(
+                          children: [
+                            _TelegramStatusMini(linkedPercent: percent),
+                            const SizedBox(height: 14),
+                          ],
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
+                    );
+                  }),
                   _ConcernsSection(concerns: summary.concerns),
                   const SizedBox(height: AppSpacing.xxl),
                 ],
@@ -488,6 +508,76 @@ class _ConcernsSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _TelegramStatusMini extends StatelessWidget {
+  final double linkedPercent;
+
+  const _TelegramStatusMini({required this.linkedPercent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: () => context.push('/teacher/profile/telegram'),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8F0FE),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.telegram_rounded,
+                        color: Color(0xFF0088CC),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "${(linkedPercent * 100).round()}% ota-onalar ulangan",
+                        style: AppTextStyles.bodyS.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF), size: 18),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    value: linkedPercent,
+                    minHeight: 4,
+                    backgroundColor: const Color(0xFFE5E7EB),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0088CC)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
