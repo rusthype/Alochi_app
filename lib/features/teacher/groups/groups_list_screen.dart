@@ -28,19 +28,19 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
     final groupsAsync = ref.watch(groupsListProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
       appBar: AlochiAppBar(
         titleWidget: Text(
           'Guruhlar',
           style: AppTextStyles.displayM.copyWith(
             fontSize: 28,
-            color: AppColors.ink,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         showBackButton: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.search_rounded, color: AppColors.ink),
+            icon: Icon(Icons.search_rounded,
+                color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {}, // Handled by inline search bar below
           ),
         ],
@@ -149,6 +149,7 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
                         onRefresh: () => ref.refresh(groupsListProvider.future),
                         color: AppColors.brand,
                         child: ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.l,
                             vertical: AppSpacing.m,

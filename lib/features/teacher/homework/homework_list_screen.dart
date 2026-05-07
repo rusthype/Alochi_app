@@ -6,6 +6,7 @@ import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/models/homework_model.dart';
 import 'homework_provider.dart';
 
@@ -24,7 +25,6 @@ class _HomeworkListScreenState extends ConsumerState<HomeworkListScreen> {
     final hwAsync = ref.watch(homeworkListProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surface,
       appBar: const AlochiAppBar(title: 'Vazifalar'),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/teacher/homework/create'),
@@ -42,9 +42,7 @@ class _HomeworkListScreenState extends ConsumerState<HomeworkListScreen> {
             data: data,
             filter: _filter,
             onFilterChanged: (f) => setState(() => _filter = f)),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.brand),
-        ),
+        loading: () => const _HomeworkLoadingSkeleton(),
         error: (err, _) => AlochiEmptyState(
           icon: Icons.error_outline_rounded,
           iconColor: AppColors.danger,
@@ -338,6 +336,36 @@ class _Badge extends StatelessWidget {
           fontSize: 10,
         ),
       ),
+    );
+  }
+}
+
+class _HomeworkLoadingSkeleton extends StatelessWidget {
+  const _HomeworkLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(14),
+      children: const [
+        AlochiSkeletonCard(height: 80),
+        SizedBox(height: 20),
+        Row(
+          children: [
+            AlochiSkeleton(width: 80, height: 32),
+            SizedBox(width: 8),
+            AlochiSkeleton(width: 60, height: 32),
+            SizedBox(width: 8),
+            AlochiSkeleton(width: 60, height: 32),
+          ],
+        ),
+        SizedBox(height: 14),
+        AlochiSkeletonCard(height: 100),
+        SizedBox(height: 12),
+        AlochiSkeletonCard(height: 100),
+        SizedBox(height: 12),
+        AlochiSkeletonCard(height: 100),
+      ],
     );
   }
 }

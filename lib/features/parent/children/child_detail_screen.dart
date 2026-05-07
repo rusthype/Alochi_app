@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../theme/colors.dart';
-import '../../../theme/typography.dart';
 import '../../../shared/widgets/alochi_app_bar.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_avatar.dart';
@@ -31,7 +30,13 @@ class ChildDetailScreen extends ConsumerWidget {
       body: async.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(16),
-          child: AlochiSkeleton(height: 200, repeat: 2),
+          child: Column(
+            children: [
+              AlochiSkeleton(height: 200),
+              SizedBox(height: 16),
+              AlochiSkeleton(height: 200),
+            ],
+          ),
         ),
         error: (e, _) => AlochiEmptyState(
           icon: Icons.error_outline_rounded,
@@ -422,12 +427,6 @@ class _Stat extends StatelessWidget {
             style: const TextStyle(
                 color: AppColors.darkInk,
                 fontWeight: FontWeight.w700,
-                fontSize: 18)),
-        Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
-      ],
-    );
-  }
-}
                 fontSize: 18)),
         Text(label, style: const TextStyle(color: AppColors.darkMuted, fontSize: 11)),
       ],

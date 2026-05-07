@@ -271,21 +271,21 @@ class _NotificationsSkeleton extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.m),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child: AlochiSkeleton(height: 16)),
+                      const Expanded(child: AlochiSkeleton(height: 16)),
                       const SizedBox(width: 40),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  AlochiSkeleton(height: 14),
+                  const AlochiSkeleton(height: 14),
                   const SizedBox(height: 4),
-                  AlochiSkeleton(width: 100, height: 12),
+                  const AlochiSkeleton(width: 100, height: 12),
                 ],
               ),
             ),

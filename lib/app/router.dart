@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../features/auth/auth_provider.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/forgot_password_screen.dart';
+import '../features/landing/landing_screen.dart';
 import '../features/student/shell/student_shell.dart';
 import '../features/student/dashboard/student_dashboard_screen.dart';
 import '../features/student/tests/test_list_screen.dart';
@@ -62,33 +63,22 @@ final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
 
   return GoRouter(
-    initialLocation: '/teacher/auth/login',
+    initialLocation: '/',
     redirect: (context, state) {
       final isAuth = authState.user != null;
       final role = authState.user?.role;
       final loc = state.uri.toString();
 
-      // Teacher app public routes
+      // Public routes
       final publicRoutes = [
+        '/',
         '/teacher/auth/login',
         '/forgot-password',
-        // Legacy public routes kept for backward compat
-        '/',
         '/login',
       ];
-      final isPublic = publicRoutes.contains(loc);
+      final isPublic = publicRoutes.any((r) => loc == r || loc.startsWith('$r?'));
 
-      // Any non-/teacher/* route goes to teacher login
-      if (!loc.startsWith('/teacher') &&
-          !loc.startsWith('/student') &&
-          !loc.startsWith('/parent') &&
-          loc != '/forgot-password' &&
-          loc != '/login' &&
-          loc != '/') {
-        return '/teacher/auth/login';
-      }
-
-      if (!isAuth && !isPublic) return '/teacher/auth/login';
+      if (!isAuth && !isPublic) return '/';
 
       if (isAuth) {
         // Show onboarding for first-time teacher logins
@@ -125,6 +115,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const LandingScreen(),
+      ),
       // Teacher auth routes
       GoRoute(
         path: '/teacher/auth/login',
@@ -397,10 +391,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // Legacy routes — kept registered, redirect to appropriate destinations
-      GoRoute(
-        path: '/',
-        redirect: (ctx, st) => '/teacher/auth/login',
-      ),
       GoRoute(
         path: '/login',
         redirect: (ctx, st) => '/teacher/auth/login',

@@ -26,20 +26,23 @@ class AlochiAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+
     return AppBar(
       title: titleWidget ?? (title != null ? Text(title!) : null),
-      titleTextStyle: AppTextStyles.titleL.copyWith(color: AppColors.ink),
+      titleTextStyle: AppTextStyles.titleL.copyWith(color: onSurface),
       centerTitle: centerTitle,
-      backgroundColor: backgroundColor ?? Colors.white,
+      backgroundColor: backgroundColor, // Use theme default if null
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: leading ?? (showBackButton && Navigator.of(context).canPop()
-          ? IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new,
-                  size: 20, color: AppColors.ink),
-              onPressed: onBack ?? () => Navigator.of(context).pop(),
-            )
-          : null),
+      leading: leading ??
+          (showBackButton && Navigator.of(context).canPop()
+              ? IconButton(
+                  icon: Icon(Icons.arrow_back_ios_new, size: 20, color: onSurface),
+                  onPressed: onBack ?? () => Navigator.of(context).pop(),
+                )
+              : null),
       actions: actions,
     );
   }

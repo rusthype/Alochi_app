@@ -9,6 +9,7 @@ import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/api/teacher_api.dart';
 import 'homework_provider.dart';
 import '../dashboard/dashboard_provider.dart';
@@ -25,16 +26,48 @@ class HomeworkDetailScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: const AlochiAppBar(title: 'Vazifa'),
-      body: hwAsync.when(
-        data: (hw) => _HomeworkDetailBody(hw: hw, hwId: hwId),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.brand),
-        ),
-        error: (err, _) => AlochiEmptyState(
-          title: 'Yuklab bo\'lmadi',
-          subtitle: err.toString(),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(homeworkDetailProvider(hwId));
+          await ref.read(homeworkDetailProvider(hwId).future);
+        },
+        color: AppColors.brand,
+        child: hwAsync.when(
+          data: (hw) => _HomeworkDetailBody(hw: hw, hwId: hwId),
+          loading: () => const _HomeworkDetailSkeleton(),
+          error: (err, _) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.7,
+              child: AlochiEmptyState(
+                title: 'Yuklab bo\'lmadi',
+                subtitle: err.toString(),
+              ),
+            ),
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _HomeworkDetailSkeleton extends StatelessWidget {
+  const _HomeworkDetailSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        AlochiSkeleton(height: 100),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeleton(height: 60),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeleton(height: 40),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeletonCard(height: 80),
+        AlochiSkeletonCard(height: 80),
+      ],
     );
   }
 }

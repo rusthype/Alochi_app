@@ -8,6 +8,7 @@ import '../../../shared/widgets/alochi_avatar.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_pill.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import '../../../core/models/student_model.dart';
 import 'student_provider.dart';
 
@@ -31,16 +32,59 @@ class StudentProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: studentAsync.when(
-        data: (student) => _StudentProfileBody(student: student),
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.brand),
-        ),
-        error: (err, _) => AlochiEmptyState(
-          title: "Ma'lumot topilmadi",
-          subtitle: err.toString(),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(studentProfileProvider(studentId));
+          await ref.read(studentProfileProvider(studentId).future);
+        },
+        color: AppColors.brand,
+        child: studentAsync.when(
+          data: (student) => _StudentProfileBody(student: student),
+          loading: () => const _StudentProfileSkeleton(),
+          error: (err, _) => SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.7,
+              child: AlochiEmptyState(
+                title: "Ma'lumot topilmadi",
+                subtitle: err.toString(),
+              ),
+            ),
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _StudentProfileSkeleton extends StatelessWidget {
+  const _StudentProfileSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        Center(child: AlochiSkeleton(height: 84, width: 84, borderRadius: 100)),
+        SizedBox(height: AppSpacing.m),
+        Center(child: AlochiSkeleton(width: 200, height: 24)),
+        SizedBox(height: AppSpacing.s),
+        Center(child: AlochiSkeleton(width: 150, height: 16)),
+        SizedBox(height: AppSpacing.l),
+        Row(
+          children: [
+            Expanded(child: AlochiSkeletonCard(height: 80)),
+            SizedBox(width: 10),
+            Expanded(child: AlochiSkeletonCard(height: 80)),
+            SizedBox(width: 10),
+            Expanded(child: AlochiSkeletonCard(height: 80)),
+          ],
+        ),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeletonCard(height: 120),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeletonCard(height: 100),
+      ],
     );
   }
 }
@@ -53,6 +97,7 @@ class _StudentProfileBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
