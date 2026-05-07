@@ -2,10 +2,20 @@ import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 import '../storage/storage.dart';
 
-const _baseUrl = String.fromEnvironment(
+/// Base URL: only the host, WITHOUT /api/v1 suffix.
+/// The /api/v1 prefix is appended below in BaseOptions.
+/// dart-define should be: --dart-define=API_URL=https://api.alochi.org
+const _baseHost = String.fromEnvironment(
   'API_URL',
   defaultValue: 'https://api.alochi.org',
 );
+
+// Strip any trailing /api/v1 if accidentally included in dart-define
+final _baseUrl = _baseHost.endsWith('/api/v1')
+    ? _baseHost.substring(0, _baseHost.length - 7)
+    : _baseHost.endsWith('/api/v1/')
+        ? _baseHost.substring(0, _baseHost.length - 8)
+        : _baseHost;
 
 final _logger = Logger();
 
@@ -47,10 +57,8 @@ class ApiClient {
           }
         }
 
-        // Log error with descriptive message
         final message = _getErrorMessage(error);
         _logger.e('API Error [${error.requestOptions.path}]: $message');
-
         handler.next(error);
       },
     ));
@@ -93,7 +101,6 @@ class ApiClient {
       final oldRefresh = await AppStorage.getRefreshToken();
       if (oldRefresh == null) return false;
 
-      // Use a separate Dio instance for refresh to avoid interceptor loops
       final response = await Dio().post(
         '$_baseUrl/api/v1/auth/token/refresh/',
         data: {'refresh': oldRefresh},
