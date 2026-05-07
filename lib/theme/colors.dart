@@ -35,13 +35,13 @@ abstract final class AppColors {
   static const Color line = Color(0xFFE5E7EB);
   static const Color lineSoft = Color(0xFFF4F5F7);
 
-  // --- V1.2 Dark Mode Tokens ---
-  static const Color darkBg = Color(0xFF0E1514);
-  static const Color darkSurface = Color(0xFF1A2422);
-  static const Color darkCard = Color(0xFF1F2D2B);
-  static const Color darkBorder = Color(0xFF2A3D3A);
-  static const Color darkInk = Color(0xFFF0F4F3);
-  static const Color darkMuted = Color(0xFF8BA8A3);
+  // --- Dark Mode Tokens (neutral blue-grey, not greenish) ---
+  static const Color darkBg = Color(0xFF111318);
+  static const Color darkSurface = Color(0xFF1C1E26);
+  static const Color darkCard = Color(0xFF232630);
+  static const Color darkBorder = Color(0xFF2E3240);
+  static const Color darkInk = Color(0xFFF0F2FF);
+  static const Color darkMuted = Color(0xFF8B90A8);
 
   // Dark mode brand variants
   static const Color brandSoftDark = Color(0xFF1A3D38);

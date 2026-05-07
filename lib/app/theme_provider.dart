@@ -10,7 +10,8 @@ final themeModeProvider =
 });
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier() : super(ThemeMode.system) {
+  // Default: light mode always. User can switch to dark in Profile.
+  ThemeModeNotifier() : super(ThemeMode.light) {
     _load();
   }
 
@@ -18,20 +19,15 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
     final saved = await AppStorage.readKey(_kThemeModeKey);
     if (saved == 'dark') {
       state = ThemeMode.dark;
-    } else if (saved == 'light') {
-      state = ThemeMode.light;
     } else {
-      state = ThemeMode.system;
+      // Default to light (includes null / 'light' / 'system')
+      state = ThemeMode.light;
     }
   }
 
   Future<void> setMode(ThemeMode mode) async {
     state = mode;
-    final val = mode == ThemeMode.dark
-        ? 'dark'
-        : mode == ThemeMode.light
-            ? 'light'
-            : 'system';
+    final val = mode == ThemeMode.dark ? 'dark' : 'light';
     await AppStorage.writeKey(_kThemeModeKey, val);
   }
 
@@ -40,10 +36,11 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
     await setMode(next);
   }
 
-  bool isDark(BuildContext context) {
-    if (state == ThemeMode.system) {
-      return MediaQuery.platformBrightnessOf(context) == Brightness.dark;
-    }
-    return state == ThemeMode.dark;
+  /// Called on logout — resets to light mode
+  Future<void> resetToLight() async {
+    state = ThemeMode.light;
+    await AppStorage.writeKey(_kThemeModeKey, 'light');
   }
+
+  bool isDark(BuildContext context) => state == ThemeMode.dark;
 }

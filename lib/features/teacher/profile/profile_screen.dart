@@ -310,6 +310,8 @@ class _ProfileContent extends ConsumerWidget {
     );
     if (confirmed == true && context.mounted) {
       await ref.read(authProvider.notifier).logout();
+      // Reset theme to light on logout
+      await ref.read(themeModeProvider.notifier).resetToLight();
       if (context.mounted) context.go('/teacher/auth/login');
     }
   }

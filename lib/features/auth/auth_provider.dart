@@ -75,6 +75,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         // Register FCM token
         _registerFCM();
       }
+      // Mark first login complete immediately so onboarding is shown only once
+      if (needsOnboarding) {
+        await AppStorage.writeKey('first_login_complete', 'true');
+      }
       state = AuthState(user: user, needsOnboarding: needsOnboarding);
     } catch (_) {
       state = state.copyWith(
