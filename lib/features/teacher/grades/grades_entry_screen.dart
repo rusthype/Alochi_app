@@ -13,6 +13,7 @@ import '../../../core/models/attendance_model.dart';
 import '../../../core/models/student_model.dart';
 import '../attendance/attendance_provider.dart';
 import '../dashboard/dashboard_provider.dart';
+import '../groups/groups_provider.dart';
 
 class GradesEntryScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -63,38 +64,7 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
             avgGrade: _averageGrade,
           ),
           Expanded(
-            child: attAsync.when(
-              data: (state) {
-                final students = state.students.where((s) {
-                  final status = state.statuses[s.id];
-                  return status == AttendanceStatus.present ||
-                      status == AttendanceStatus.late;
-                }).toList();
-
-                if (students.isEmpty) {
-                  return const Center(
-                    child: Text('Darsda o\'quvchilar yo\'q',
-                        style: AppTextStyles.body),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(AppSpacing.m),
-                  itemCount: students.length,
-                  itemBuilder: (context, index) {
-                    final s = students[index];
-                    return _GradeEntryRow(
-                      student: s,
-                      grade: _grades[s.id] ?? 0,
-                      onChanged: (val) => setState(() => _grades[s.id] = val),
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(
-                  child: CircularProgressIndicator(color: AppColors.brand)),
-              error: (err, _) => Center(child: Text(err.toString())),
-            ),
+            child: _buildStudentList(attAsync),
           ),
           _BottomAction(
             onSave: _save,
@@ -102,6 +72,72 @@ class _GradesEntryScreenState extends ConsumerState<GradesEntryScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStudentList(AsyncValue<AttendanceMarkingState> attAsync) {
+    // If attendance taken → show present+late only
+    // If attendance not taken → load all group students from attendance endpoint
+    return attAsync.when(
+      data: (state) {
+        final hasAttendance = state.markedCount > 0;
+        final students = hasAttendance
+            ? state.students.where((s) {
+                final st = state.statuses[s.id];
+                return st == AttendanceStatus.present ||
+                    st == AttendanceStatus.late;
+              }).toList()
+            : state.students; // show all if no attendance taken
+
+        if (students.isEmpty) {
+          return Consumer(builder: (ctx, ref, _) {
+            final allAsync = ref.watch(groupStudentsProvider(widget.groupId));
+            return allAsync.when(
+              data: (all) => all.isEmpty
+                  ? const Center(child: Text("O'quvchilar yo'q"))
+                  : _studentList(all),
+              loading: () => const Center(
+                  child: CircularProgressIndicator(color: AppColors.brand)),
+              error: (_, __) =>
+                  const Center(child: Text("O'quvchilar yuklanmadi")),
+            );
+          });
+        }
+        return _studentList(students);
+      },
+      loading: () => Consumer(builder: (ctx, ref, _) {
+        final allAsync = ref.watch(groupStudentsProvider(widget.groupId));
+        return allAsync.when(
+          data: (all) => _studentList(all),
+          loading: () => const Center(
+              child: CircularProgressIndicator(color: AppColors.brand)),
+          error: (_, __) => const Center(child: Text("Yuklanmadi")),
+        );
+      }),
+      error: (err, _) => Consumer(builder: (ctx, ref, _) {
+        final allAsync = ref.watch(groupStudentsProvider(widget.groupId));
+        return allAsync.when(
+          data: (all) => _studentList(all),
+          loading: () => const Center(
+              child: CircularProgressIndicator(color: AppColors.brand)),
+          error: (_, __) => const Center(child: Text("Yuklanmadi")),
+        );
+      }),
+    );
+  }
+
+  Widget _studentList(List<StudentModel> students) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(AppSpacing.m),
+      itemCount: students.length,
+      itemBuilder: (context, index) {
+        final s = students[index];
+        return _GradeEntryRow(
+          student: s,
+          grade: _grades[s.id] ?? 0,
+          onChanged: (val) => setState(() => _grades[s.id] = val),
+        );
+      },
     );
   }
 

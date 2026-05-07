@@ -14,7 +14,9 @@ import '../groups/groups_provider.dart';
 import 'homework_provider.dart';
 
 class HomeworkCreateScreen extends ConsumerStatefulWidget {
-  const HomeworkCreateScreen({super.key});
+  final String? preselectedGroupId;
+
+  const HomeworkCreateScreen({super.key, this.preselectedGroupId});
 
   @override
   ConsumerState<HomeworkCreateScreen> createState() =>
@@ -22,6 +24,14 @@ class HomeworkCreateScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeworkCreateScreenState extends ConsumerState<HomeworkCreateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.preselectedGroupId != null) {
+      _selectedGroupId = widget.preselectedGroupId;
+    }
+  }
+
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _formKey = GlobalKey<FormState>();

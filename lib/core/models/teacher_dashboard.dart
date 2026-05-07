@@ -86,14 +86,39 @@ class TeacherDashboardSummary {
 
     final concerns = <ConcernModel>[];
 
-    // 2. Handle pending homework (can be count or list)
+    // 2. Concerns from available backend fields
+    // avg_score low → alert
+    final avgScore = (dashData['avg_score'] as num?)?.toDouble() ?? 0;
+    if (avgScore > 0 && avgScore < 60) {
+      concerns.add(const ConcernModel(
+        type: 'avg_score',
+        title: "O'rtacha ball past",
+        count: '',
+        route: '/teacher/groups',
+      ));
+    }
+
+    // attendance_today rate low → alert
+    final attToday = dashData['attendance_today'] as Map<String, dynamic>?;
+    if (attToday != null) {
+      final absent = (attToday['absent'] as num?)?.toInt() ?? 0;
+      if (absent > 0) {
+        concerns.add(ConcernModel(
+          type: 'attendance',
+          title: "Bugun $absent o'quvchi yo'q",
+          count: '$absent',
+          route: '/teacher/groups',
+        ));
+      }
+    }
+
+    // pending_homework from backend (if exists)
     int homeworkCount = 0;
     if (dashData['homework_pending_count'] != null) {
       homeworkCount = (dashData['homework_pending_count'] as num).toInt();
     } else if (dashData['pending_homework'] is List) {
       homeworkCount = (dashData['pending_homework'] as List).length;
     }
-
     if (homeworkCount > 0) {
       concerns.add(ConcernModel(
         type: 'homework',
@@ -103,14 +128,13 @@ class TeacherDashboardSummary {
       ));
     }
 
-    // 3. Handle unread messages
+    // unread messages
     int messagesCount = 0;
     if (dashData['unread_messages_count'] != null) {
       messagesCount = (dashData['unread_messages_count'] as num).toInt();
     } else if (dashData['unread_messages'] is List) {
       messagesCount = (dashData['unread_messages'] as List).length;
     }
-
     if (messagesCount > 0) {
       concerns.add(ConcernModel(
         type: 'messages',

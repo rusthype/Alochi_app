@@ -166,7 +166,10 @@ class TeacherApi {
         id: data['id']?.toString() ?? studentId,
         firstName: parts.isNotEmpty ? parts[0] : '',
         lastName: parts.length > 1 ? parts.sublist(1).join(' ') : '',
-        classId: data['class_id']?.toString() ?? '',
+        // Backend returns class_name, not class_id — use it as classId
+        classId: data['class_id']?.toString() ??
+            data['class_name']?.toString() ??
+            '',
         avgGrade: (data['avg_score'] as num?)?.toDouble(),
         attendancePct: (data['attendance_rate'] as num?)?.toDouble(),
         xp: (data['xp'] as num?)?.toInt() ?? 0,

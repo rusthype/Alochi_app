@@ -294,7 +294,9 @@ class _HeroSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               AlochiPill(
-                  label: '${student.classId} Guruh',
+                  label: student.classId.isNotEmpty
+                      ? '${student.classId} Guruh'
+                      : student.schoolName ?? 'Guruh',
                   variant: AlochiPillVariant.brand),
               if (student.schoolName != null) ...[
                 const SizedBox(width: 8),

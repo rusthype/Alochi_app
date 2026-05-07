@@ -196,7 +196,8 @@ class _LessonDetailBody extends StatelessWidget {
           AlochiButton.secondary(
             label: 'Vazifa berish',
             icon: Icons.assignment_outlined,
-            onPressed: () => context.push('/teacher/homework/create'),
+            onPressed: () => context
+                .push('/teacher/homework/create', extra: {'groupId': groupId}),
           ),
           const SizedBox(height: AppSpacing.m),
           AlochiButton.secondary(

@@ -67,6 +67,9 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
+      // Wait for auth to initialize before redirecting
+      if (authState.isLoading) return null;
+
       final isAuth = authState.user != null;
       final role = authState.user?.role;
       final loc = state.uri.toString();
@@ -227,8 +230,14 @@ final routerProvider = Provider<GoRouter>((ref) {
               path: '/teacher/homework',
               builder: (_, __) => const HomeworkListScreen()),
           GoRoute(
-              path: '/teacher/homework/create',
-              builder: (_, __) => const HomeworkCreateScreen()),
+            path: '/teacher/homework/create',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              final preselectedGroupId = extra?['groupId']?.toString();
+              return HomeworkCreateScreen(
+                  preselectedGroupId: preselectedGroupId);
+            },
+          ),
           GoRoute(
             path: '/teacher/homework/:id',
             builder: (context, state) =>
