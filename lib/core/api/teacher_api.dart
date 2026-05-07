@@ -140,6 +140,20 @@ class TeacherApi {
     }
   }
 
+  /// Raw attendance data for a group — verified working endpoint.
+  /// Returns {lesson_id, date, group: {id, name, subject}, students: [...], stats: {...}}
+  Future<Map<String, dynamic>> getGroupAttendanceRaw(String groupId) async {
+    try {
+      final data =
+          await _client.get('/teacher/panel/groups/$groupId/attendance/');
+      if (data is Map<String, dynamic>) return data;
+      return {};
+    } catch (e, st) {
+      debugPrint('getGroupAttendanceRaw error: $e\n$st');
+      rethrow;
+    }
+  }
+
   Future<StudentModel> getStudentProfile(String studentId) async {
     try {
       // Verified: /students/:id/ returns 404; /students/:id/portfolio/ returns 200

@@ -62,14 +62,20 @@ class LessonDetailScreen extends ConsumerWidget {
         loading: () => lesson != null
             ? _LessonDetailBodyFromModel(lesson: lesson!)
             : const _LessonDetailLoadingSkeleton(),
-        error: (err, __) => AlochiEmptyState(
-          icon: Icons.error_outline_rounded,
-          iconColor: AppColors.danger,
-          title: 'Yuklab bo\'lmadi',
-          subtitle: 'Qayta urinib ko\'ring',
-          actionLabel: 'Yangilash',
-          onAction: () => ref.invalidate(lessonDetailProvider(lessonId)),
-        ),
+        error: (err, __) {
+          // /lessons/:id/ not available in backend — use passed LessonModel
+          if (lesson != null) {
+            return _LessonDetailBodyFromModel(lesson: lesson!);
+          }
+          return AlochiEmptyState(
+            icon: Icons.error_outline_rounded,
+            iconColor: AppColors.danger,
+            title: 'Yuklab bo\'lmadi',
+            subtitle: 'Qayta urinib ko\'ring',
+            actionLabel: 'Yangilash',
+            onAction: () => ref.invalidate(lessonDetailProvider(lessonId)),
+          );
+        },
       ),
     );
   }
@@ -196,7 +202,17 @@ class _LessonDetailBody extends StatelessWidget {
           AlochiButton.secondary(
             label: 'Darsni boshlash',
             icon: Icons.play_arrow_outlined,
-            onPressed: () => context.push('/teacher/lesson/${lesson.id}'),
+            onPressed: () => context.push(
+              '/teacher/lesson/$groupId',
+              extra: {
+                'groupId': groupId,
+                'groupName': groupName,
+                'subject': subject,
+                'startTime': startTime,
+                'endTime': endTime,
+                'isNow': isNow,
+              },
+            ),
           ),
         ],
       ),
