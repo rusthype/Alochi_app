@@ -7,6 +7,7 @@ import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
+import '../../../shared/widgets/alochi_skeleton.dart';
 import 'telegram_provider.dart';
 
 class TelegramParentsScreen extends ConsumerWidget {
@@ -51,11 +52,16 @@ class TelegramParentsScreen extends ConsumerWidget {
               subtitle: "Telegram orqali bog'lanish uchun guruhda kod ulashing",
             );
           }
-          return _GroupsList(groups: groups);
+          return RefreshIndicator(
+            onRefresh: () async {
+              ref.invalidate(telegramGroupsProvider);
+              await ref.read(telegramGroupsProvider.future);
+            },
+            color: AppColors.brand,
+            child: _GroupsList(groups: groups),
+          );
         },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.brand),
-        ),
+        loading: () => const _TelegramLoadingSkeleton(),
         error: (err, _) {
           return AlochiEmptyState(
             icon: Icons.error_outline_rounded,
@@ -67,6 +73,26 @@ class TelegramParentsScreen extends ConsumerWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class _TelegramLoadingSkeleton extends StatelessWidget {
+  const _TelegramLoadingSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.l),
+      children: const [
+        AlochiSkeleton(height: 60),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeletonCard(height: 120),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 120),
+        SizedBox(height: AppSpacing.m),
+        AlochiSkeletonCard(height: 120),
+      ],
     );
   }
 }
@@ -113,6 +139,7 @@ class _GroupsList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.l),
       children: [
         const _ExplainerBanner(),

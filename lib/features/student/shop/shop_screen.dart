@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:confetti/confetti.dart';
-import '../../../shared/constants/colors.dart';
+import '../../../theme/colors.dart';
+import '../../../theme/typography.dart';
+import '../../../theme/spacing.dart';
 import '../../../shared/widgets/loading_widget.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../core/api/student_api.dart';
@@ -45,35 +47,33 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kBgCard,
-        title:
-            const Text('Sotib olish?', style: TextStyle(color: kTextPrimary)),
+        title: const Text('Sotib olish?'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(item.name,
-                style: const TextStyle(
-                    color: kTextPrimary, fontWeight: FontWeight.w700)),
+                style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             Row(
               children: [
                 const Icon(Icons.monetization_on_rounded,
-                    color: kYellow, size: 16),
+                    color: AppColors.accent, size: 16),
                 const SizedBox(width: 4),
                 Text('${item.price} tanga',
-                    style: const TextStyle(color: kYellow)),
+                    style: const TextStyle(
+                        color: AppColors.accent, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 4),
             Text('Qoladi: ${balance - item.price} tanga',
-                style: const TextStyle(color: kTextMuted, fontSize: 12)),
+                style: const TextStyle(color: AppColors.gray, fontSize: 12)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Bekor', style: TextStyle(color: kTextSecondary)),
+            child: const Text('Bekor'),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -87,17 +87,18 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
         await StudentApi().purchaseItem(item.slug);
         _confetti.play();
         ref.invalidate(_walletProvider);
+        ref.invalidate(_shopItemsProvider);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('${item.name} muvaffaqiyatli sotib olindi!'),
-            backgroundColor: kGreen,
+            backgroundColor: AppColors.success,
           ));
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Xatolik: $e'),
-            backgroundColor: kRed,
+            backgroundColor: AppColors.danger,
           ));
         }
       }
@@ -111,44 +112,50 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
     final selectedCat = ref.watch(_selectedCategoryProvider);
 
     return Scaffold(
-      backgroundColor: kBgMain,
       appBar: AppBar(title: const Text("Do'kon")),
       body: Stack(
         children: [
           Column(
             children: [
               walletAsync.when(
-                loading: () => const SizedBox(height: 80),
+                loading: () => const SizedBox(height: 100),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (wallet) {
                   final coins = wallet['coins'] ?? wallet['balance'] ?? 0;
                   return Container(
-                    margin: const EdgeInsets.all(16),
-                    padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.all(AppSpacing.l),
+                    padding: const EdgeInsets.all(AppSpacing.xl),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                        kYellow.withValues(alpha: 0.2),
-                        kOrange.withValues(alpha: 0.2)
-                      ]),
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.brand,
+                          AppColors.brand.withValues(alpha: 0.8),
+                        ],
+                      ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: kYellow.withValues(alpha: 0.3)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.brand.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Row(
                       children: [
                         const Icon(Icons.monetization_on_rounded,
-                            color: kYellow, size: 40),
+                            color: Colors.white, size: 48),
                         const SizedBox(width: 16),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('$coins',
-                                style: const TextStyle(
-                                    color: kYellow,
-                                    fontSize: 32,
+                                style: AppTextStyles.displayM.copyWith(
+                                    color: Colors.white,
                                     fontWeight: FontWeight.w900)),
-                            const Text('tanga',
-                                style: TextStyle(
-                                    color: kTextSecondary, fontSize: 14)),
+                            Text('tanga',
+                                style: AppTextStyles.caption.copyWith(
+                                    color: Colors.white.withValues(alpha: 0.8))),
                           ],
                         ),
                       ],
@@ -162,29 +169,34 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: FilterChip(
-                        label: const Text('Barchasi'),
-                        selected: selectedCat == null,
-                        onSelected: (_) => ref
-                            .read(_selectedCategoryProvider.notifier)
-                            .state = null,
-                        selectedColor: kOrange,
-                      ),
+                    _CategoryChip(
+                      label: 'Hammasi',
+                      value: null,
+                      selected: selectedCat == null,
+                      onSelected: (v) =>
+                          ref.read(_selectedCategoryProvider.notifier).state = v,
                     ),
-                    ...['badge', 'avatar', 'boost', 'decoration']
-                        .map((c) => Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: FilterChip(
-                                label: Text(c),
-                                selected: selectedCat == c,
-                                onSelected: (_) => ref
-                                    .read(_selectedCategoryProvider.notifier)
-                                    .state = c,
-                                selectedColor: kOrange,
-                              ),
-                            )),
+                    _CategoryChip(
+                      label: 'Avatarlar',
+                      value: 'avatar',
+                      selected: selectedCat == 'avatar',
+                      onSelected: (v) =>
+                          ref.read(_selectedCategoryProvider.notifier).state = v,
+                    ),
+                    _CategoryChip(
+                      label: 'Ramkalar',
+                      value: 'frame',
+                      selected: selectedCat == 'frame',
+                      onSelected: (v) =>
+                          ref.read(_selectedCategoryProvider.notifier).state = v,
+                    ),
+                    _CategoryChip(
+                      label: 'Badgelar',
+                      value: 'badge',
+                      selected: selectedCat == 'badge',
+                      onSelected: (v) =>
+                          ref.read(_selectedCategoryProvider.notifier).state = v,
+                    ),
                   ],
                 ),
               ),
@@ -194,7 +206,7 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                   loading: () => const LoadingWidget(),
                   error: (e, _) => Center(
                       child: Text('Xatolik: $e',
-                          style: const TextStyle(color: kRed))),
+                          style: const TextStyle(color: AppColors.danger))),
                   data: (items) {
                     if (items.isEmpty) {
                       return const AlochiEmptyState(
@@ -206,10 +218,10 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                     return LayoutBuilder(builder: (ctx, constraints) {
                       final cols = constraints.maxWidth > 600 ? 3 : 2;
                       return GridView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppSpacing.l),
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: cols,
-                          childAspectRatio: 0.85,
+                          childAspectRatio: 0.75,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
                         ),
@@ -218,6 +230,12 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
                           item: items[i],
                           balance: balance,
                           onPurchase: () => _purchase(items[i], balance),
+                          onSelect: () {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text('${items[i].name} tanlandi!'),
+                              backgroundColor: AppColors.brand,
+                            ));
+                          },
                         ),
                       );
                     });
@@ -231,10 +249,54 @@ class _ShopScreenState extends ConsumerState<ShopScreen> {
             child: ConfettiWidget(
               confettiController: _confetti,
               blastDirectionality: BlastDirectionality.explosive,
-              colors: const [kOrange, kGreen, kYellow, kPurple, kBlue],
+              colors: const [
+                AppColors.accent,
+                AppColors.brand,
+                AppColors.success,
+                AppColors.info
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  final String label;
+  final String? value;
+  final bool selected;
+  final Function(String?) onSelected;
+
+  const _CategoryChip({
+    required this.label,
+    required this.value,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        label: Text(label),
+        selected: selected,
+        onSelected: (_) => onSelected(value),
+        selectedColor: AppColors.brand,
+        checkmarkColor: Colors.white,
+        labelStyle: TextStyle(
+          color: selected ? Colors.white : AppColors.ink,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.normal,
+        ),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(100),
+          side: BorderSide(
+            color: selected ? AppColors.brand : AppColors.line,
+          ),
+        ),
       ),
     );
   }
@@ -244,78 +306,149 @@ class _ShopItemCard extends StatelessWidget {
   final ShopItem item;
   final int balance;
   final VoidCallback onPurchase;
-  const _ShopItemCard(
-      {required this.item, required this.balance, required this.onPurchase});
+  final VoidCallback onSelect;
+
+  const _ShopItemCard({
+    required this.item,
+    required this.balance,
+    required this.onPurchase,
+    required this.onSelect,
+  });
 
   @override
   Widget build(BuildContext context) {
     final canAfford = balance >= item.price;
+    final isOwned = item.isOwned;
+
     return Container(
       decoration: BoxDecoration(
-        color: kBgCard,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kBgBorder),
+        border: Border.all(
+          color: isOwned ? AppColors.brand : AppColors.line,
+          width: isOwned ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
           Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: kBgMain,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-              child: item.imageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: item.imageUrl!,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2)),
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.broken_image, size: 24),
-                    )
-                  : const Center(
-                      child: Icon(Icons.card_giftcard_rounded,
-                          size: 48, color: kTextMuted),
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF9FAFB),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(16)),
+                  ),
+                  child: item.imageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: item.imageUrl!,
+                          fit: BoxFit.contain,
+                          placeholder: (context, url) => const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.broken_image, size: 24),
+                        )
+                      : const Center(
+                          child: Icon(Icons.card_giftcard_rounded,
+                              size: 40, color: AppColors.gray2),
+                        ),
+                ),
+                if (isOwned)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColors.brand,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check,
+                          color: Colors.white, size: 12),
                     ),
+                  ),
+              ],
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               children: [
-                Text(item.name,
-                    style: const TextStyle(
-                        color: kTextPrimary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis),
+                Text(
+                  item.name,
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.ink,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.monetization_on_rounded,
-                        color: kYellow, size: 14),
+                        color: AppColors.accent, size: 14),
                     const SizedBox(width: 4),
-                    Text('${item.price}',
-                        style: const TextStyle(
-                            color: kYellow, fontWeight: FontWeight.w700)),
+                    Text(
+                      '${item.price}',
+                      style: AppTextStyles.label.copyWith(
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: canAfford ? onPurchase : null,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      textStyle: const TextStyle(fontSize: 12),
-                    ),
-                    child: const Text('Sotib olish'),
-                  ),
+                  child: isOwned
+                      ? ElevatedButton(
+                          onPressed: onSelect,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            minimumSize: const Size(0, 36),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: const Text('Tanlash'),
+                        )
+                      : ElevatedButton(
+                          onPressed: canAfford ? onPurchase : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: canAfford
+                                ? AppColors.brand
+                                : AppColors.gray3,
+                            foregroundColor:
+                                canAfford ? Colors.white : AppColors.gray,
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            minimumSize: const Size(0, 36),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text(
+                            canAfford ? 'Sotib olish' : 'Yetarli XP yo\'q',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
                 ),
               ],
             ),

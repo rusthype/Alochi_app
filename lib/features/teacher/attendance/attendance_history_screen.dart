@@ -138,6 +138,7 @@ class _HistoryBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(14),
       children: [
         _SummaryCard(

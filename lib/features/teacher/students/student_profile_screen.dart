@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:confetti/confetti.dart';
+import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
@@ -89,39 +91,165 @@ class _StudentProfileSkeleton extends StatelessWidget {
   }
 }
 
-class _StudentProfileBody extends StatelessWidget {
+class _StudentProfileBody extends StatefulWidget {
   final StudentModel student;
 
   const _StudentProfileBody({required this.student});
 
   @override
+  State<_StudentProfileBody> createState() => _StudentProfileBodyState();
+}
+
+class _StudentProfileBodyState extends State<_StudentProfileBody> {
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isBirthdayToday()) {
+        _confettiController.play();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  bool _isBirthdayToday() {
+    if (widget.student.birthday == null) return false;
+    try {
+      final birthday = DateTime.parse(widget.student.birthday!);
+      final now = DateTime.now();
+      return birthday.day == now.day && birthday.month == now.month;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_isBirthdayToday()) _BirthdayBanner(student: widget.student),
+              _HeroSection(student: widget.student),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: AppSpacing.m),
+                    _ThreeStatTiles(student: widget.student),
+                    const SizedBox(height: 16),
+                    _TodayActivityCard(student: widget.student),
+                    const SizedBox(height: 24),
+                    if (widget.student.parents.isNotEmpty) ...[
+                      _ParentContactSection(parents: widget.student.parents),
+                      const SizedBox(height: 24),
+                    ],
+                    _AttendanceCalendarSection(
+                        days: widget.student.recentAttendance),
+                    const SizedBox(height: 24),
+                    _TeacherNotesSection(student: widget.student),
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            shouldLoop: false,
+            colors: const [
+              AppColors.brand,
+              AppColors.accent,
+              AppColors.success,
+              AppColors.warning,
+              Colors.blue,
+              Colors.pink,
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _BirthdayBanner extends StatelessWidget {
+  final StudentModel student;
+
+  const _BirthdayBanner({required this.student});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.brand.withValues(alpha: 0.1),
+        border: const Border(
+          bottom: BorderSide(color: AppColors.brand, width: 0.5),
+        ),
+      ),
+      child: Row(
         children: [
-          _HeroSection(student: student),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+          const Text('🎂', style: TextStyle(fontSize: 24)),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: AppSpacing.m),
-                _ThreeStatTiles(student: student),
-                const SizedBox(height: 16),
-                _TodayActivityCard(student: student),
-                const SizedBox(height: 24),
-                if (student.parents.isNotEmpty) ...[
-                  _ParentContactSection(parents: student.parents),
-                  const SizedBox(height: 24),
-                ],
-                _AttendanceCalendarSection(days: student.recentAttendance),
-                const SizedBox(height: 24),
-                _TeacherNotesSection(student: student),
-                const SizedBox(height: 40),
+                Text(
+                  "Bugun ${student.firstName}ning tug'ilgan kuni!",
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.brand,
+                  ),
+                ),
+                Text(
+                  "Ustoz sifatida tabriklashni unutmang!",
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.brand,
+                  ),
+                ),
               ],
             ),
+          ),
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: () {
+              context.push(
+                '/teacher/messages/compose',
+                extra: {
+                  'recipientId': student.id,
+                  'recipientName': student.fullName,
+                  'initialMessage':
+                      "Assalomu alaykum, ${student.firstName}! Tug'ilgan kuningiz muborak bo'lsin! 🎂 Kelajakda ulkan zafarlar tilayman.",
+                },
+              );
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: AppColors.brand,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Tabriklash', style: TextStyle(fontSize: 12)),
           ),
         ],
       ),

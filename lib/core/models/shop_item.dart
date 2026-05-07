@@ -6,6 +6,7 @@ class ShopItem {
   final int price;
   final String? imageUrl;
   final String? category;
+  final bool isOwned;
 
   const ShopItem({
     required this.id,
@@ -15,6 +16,7 @@ class ShopItem {
     required this.price,
     this.imageUrl,
     this.category,
+    this.isOwned = false,
   });
 
   factory ShopItem.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class ShopItem {
       price: json['price'] ?? 0,
       imageUrl: json['image'],
       category: json['category'],
+      isOwned: json['is_owned'] == true,
     );
   }
 }

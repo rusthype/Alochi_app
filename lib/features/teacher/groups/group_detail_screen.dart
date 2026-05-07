@@ -66,8 +66,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
               ),
               Text(
                 "${group.studentsCount} o'quvchi",
-                style:
-                    AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
+                style: AppTextStyles.caption.copyWith(color: AppColors.gray),
               ),
             ],
           ),
@@ -94,7 +93,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
           TabBar(
             controller: _tabController,
             labelColor: AppColors.brand,
-            unselectedLabelColor: const Color(0xFF6B7280),
+            unselectedLabelColor: AppColors.gray,
             indicatorColor: AppColors.brand,
             indicatorWeight: 2,
             indicatorSize: TabBarIndicatorSize.tab,
@@ -144,11 +143,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen>
                     ),
                   ),
                 ),
-                // Attendance tab
                 _AttendanceTab(groupId: widget.groupId),
-                // Grades tab
                 _GradesJournalBody(groupId: widget.groupId),
-                // Analytics tab
                 _AnalyticsTab(groupId: widget.groupId),
               ],
             ),
@@ -173,19 +169,16 @@ class _AnalyticsTab extends ConsumerWidget {
         padding: const EdgeInsets.all(AppSpacing.l),
         child: Column(
           children: [
-            _TrendChart(
+            _SummaryStatsGrid(analytics: analytics),
+            const SizedBox(height: AppSpacing.l),
+            _AttendanceBarChart(
               title: 'DAVOMAT TRENDI (4 HAFTA)',
               points: analytics.attendanceTrend,
-              color: AppColors.success,
-              suffix: '%',
             ),
             const SizedBox(height: AppSpacing.l),
-            _TrendChart(
-              title: 'BAHOLAR TRENDI (4 HAFTA)',
+            _GradeLineChart(
+              title: 'O\'RTACHA BAHO TRENDI (4 HAFTA)',
               points: analytics.gradeTrend,
-              color: AppColors.brand,
-              minY: 2,
-              maxY: 5,
             ),
             const SizedBox(height: AppSpacing.l),
             _RankingsSection(
@@ -209,22 +202,91 @@ class _AnalyticsTab extends ConsumerWidget {
   }
 }
 
-class _TrendChart extends StatelessWidget {
+class _SummaryStatsGrid extends StatelessWidget {
+  final GroupAnalyticsModel analytics;
+
+  const _SummaryStatsGrid({required this.analytics});
+
+  @override
+  Widget build(BuildContext context) {
+    final latestGrade = analytics.gradeTrend.isNotEmpty ? analytics.gradeTrend.last.value : 0.0;
+    final gradeColor = latestGrade >= 4.5
+        ? AppColors.success
+        : (latestGrade >= 4.0 ? AppColors.brand : AppColors.warning);
+
+    return Row(
+      children: [
+        Expanded(
+          child: _MetricCard(
+            label: 'Bugungi o\'rtacha',
+            value: latestGrade > 0 ? latestGrade.toStringAsFixed(1) : '--',
+            valueColor: gradeColor,
+            subtitle: 'Baholar o\'rtachasi',
+          ),
+        ),
+        const SizedBox(width: AppSpacing.m),
+        Expanded(
+          child: _MetricCard(
+            label: 'Davomat',
+            value: analytics.attendanceTrend.isNotEmpty
+                ? '${analytics.attendanceTrend.last.value.toInt()}%'
+                : '--',
+            valueColor: AppColors.ink,
+            subtitle: 'Oxirgi hafta',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color valueColor;
+  final String subtitle;
+
+  const _MetricCard({
+    required this.label,
+    required this.value,
+    required this.valueColor,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.m),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        border: Border.all(color: AppColors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.gray)),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: AppTextStyles.displayM.copyWith(
+              color: valueColor,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(subtitle, style: AppTextStyles.caption.copyWith(fontSize: 10, color: AppColors.gray2)),
+        ],
+      ),
+    );
+  }
+}
+
+class _AttendanceBarChart extends StatelessWidget {
   final String title;
   final List<ChartPointModel> points;
-  final Color color;
-  final String suffix;
-  final double? minY;
-  final double? maxY;
 
-  const _TrendChart({
-    required this.title,
-    required this.points,
-    required this.color,
-    this.suffix = '',
-    this.minY,
-    this.maxY,
-  });
+  const _AttendanceBarChart({required this.title, required this.points});
 
   @override
   Widget build(BuildContext context) {
@@ -233,18 +295,110 @@ class _TrendChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.m),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(color: AppColors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.gray2,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              _TrendBadge(points: points),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 140,
+            child: BarChart(
+              BarChartData(
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      getTitlesWidget: (value, meta) => Text(
+                        '${value.toInt()}%',
+                        style: const TextStyle(fontSize: 9, color: AppColors.gray2),
+                      ),
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      getTitlesWidget: (value, meta) {
+                        final index = value.toInt();
+                        if (index < 0 || index >= points.length) return const SizedBox.shrink();
+                        return Text(
+                          points[index].label.split('-').last,
+                          style: const TextStyle(fontSize: 9, color: AppColors.gray2),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                minY: 0,
+                maxY: 100,
+                barGroups: points.asMap().entries.map((e) {
+                  return BarChartGroupData(
+                    x: e.key,
+                    barRods: [
+                      BarChartRodData(
+                        toY: e.value.value,
+                        color: e.value.value < 75 ? AppColors.warning : AppColors.success,
+                        width: 16,
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GradeLineChart extends StatelessWidget {
+  final String title;
+  final List<ChartPointModel> points;
+
+  const _GradeLineChart({required this.title, required this.points});
+
+  @override
+  Widget build(BuildContext context) {
+    if (points.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.m),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        border: Border.all(color: AppColors.line),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
+            style: AppTextStyles.caption.copyWith(
+              fontWeight: FontWeight.w700,
               color: AppColors.gray2,
               letterSpacing: 0.5,
             ),
@@ -258,12 +412,20 @@ class _TrendChart extends StatelessWidget {
                 titlesData: FlTitlesData(
                   rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      getTitlesWidget: (value, meta) => Text(
+                        '${value.toInt()}',
+                        style: const TextStyle(fontSize: 10, color: AppColors.gray2),
+                      ),
+                    ),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       reservedSize: 22,
-                      interval: 1,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
                         if (index < 0 || index >= points.length) return const SizedBox.shrink();
@@ -278,33 +440,72 @@ class _TrendChart extends StatelessWidget {
                 borderData: FlBorderData(show: false),
                 minX: 0,
                 maxX: (points.length - 1).toDouble(),
-                minY: minY ?? 0,
-                maxY: maxY ?? 100,
+                minY: 2,
+                maxY: 5,
                 lineBarsData: [
                   LineChartBarData(
                     spots: points.asMap().entries.map((e) {
                       return FlSpot(e.key.toDouble(), e.value.value);
                     }).toList(),
                     isCurved: true,
-                    color: color,
+                    color: AppColors.brand,
                     barWidth: 3,
                     isStrokeCapRound: true,
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
-                        radius: 3,
+                        radius: 4,
                         color: Colors.white,
                         strokeWidth: 2,
-                        strokeColor: color,
+                        strokeColor: AppColors.brand,
                       ),
                     ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: color.withValues(alpha: 0.1),
+                      color: AppColors.brand.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrendBadge extends StatelessWidget {
+  final List<ChartPointModel> points;
+
+  const _TrendBadge({required this.points});
+
+  @override
+  Widget build(BuildContext context) {
+    if (points.length < 2) return const SizedBox.shrink();
+    final latest = points.last.value;
+    final previous = points[points.length - 2].value;
+    final isUp = latest >= previous;
+    final color = isUp ? AppColors.success : AppColors.danger;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(isUp ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+              size: 12, color: color),
+          const SizedBox(width: 4),
+          Text(
+            '${(latest - previous).abs().toStringAsFixed(1)}%',
+            style: TextStyle(
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -328,20 +529,21 @@ class _RankingsSection extends StatelessWidget {
       children: [
         if (topStudents.isNotEmpty) ...[
           _RankingCard(
-            title: 'ENG FAOL O\'QUVCHILAR',
+            title: 'ENG FAOL 3 O\'QUVCHI',
             icon: Icons.emoji_events_rounded,
             iconColor: AppColors.warning,
-            items: topStudents.map((s) => _RankingItem(
+            items: topStudents.take(3).map((s) => _RankingItem(
               name: s.name,
               value: '${s.xp} XP',
               subValue: '${s.level}-daraja',
+              level: s.level,
             )).toList(),
           ),
           const SizedBox(height: AppSpacing.l),
         ],
         if (lowAttendanceStudents.isNotEmpty)
           _RankingCard(
-            title: 'PAST DAVOMAT',
+            title: 'DIQQAT TALAB (PAST DAVOMAT)',
             icon: Icons.warning_amber_rounded,
             iconColor: AppColors.danger,
             items: lowAttendanceStudents.map((s) => _RankingItem(
@@ -349,6 +551,10 @@ class _RankingsSection extends StatelessWidget {
               value: '${s.attendancePct.toStringAsFixed(0)}%',
               subValue: '${s.missedLessons} kun qoldirgan',
               valueColor: AppColors.danger,
+              showAction: true,
+              onAction: () {
+                // messages compose screen logic would go here
+              },
             )).toList(),
           ),
       ],
@@ -373,9 +579,9 @@ class _RankingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: Theme.of(context).dividerColor),
+        border: Border.all(color: AppColors.line),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,9 +594,8 @@ class _RankingCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyles.caption.copyWith(
+                    fontWeight: FontWeight.w700,
                     color: AppColors.gray2,
                     letterSpacing: 0.5,
                   ),
@@ -411,24 +616,30 @@ class _RankingItem extends StatelessWidget {
   final String value;
   final String subValue;
   final Color? valueColor;
+  final int? level;
+  final bool showAction;
+  final VoidCallback? onAction;
 
   const _RankingItem({
     required this.name,
     required this.value,
     required this.subValue,
     this.valueColor,
+    this.level,
+    this.showAction = false,
+    this.onAction,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: AppColors.line)),
       ),
       child: Row(
         children: [
-          AlochiAvatar(name: name, size: 36),
+          AlochiAvatar(name: name, size: 38),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -438,24 +649,38 @@ class _RankingItem extends StatelessWidget {
                   name,
                   style: AppTextStyles.titleM.copyWith(
                     fontSize: 14,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: AppColors.ink,
                   ),
                 ),
                 Text(
                   subValue,
-                  style: const TextStyle(fontSize: 11, color: AppColors.gray2),
+                  style: AppTextStyles.caption.copyWith(color: AppColors.gray2),
                 ),
               ],
             ),
           ),
-          Text(
-            value,
-            style: AppTextStyles.titleM.copyWith(
-              color: valueColor ?? AppColors.brand,
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
+          if (showAction)
+            TextButton(
+              onPressed: onAction,
+              style: TextButton.styleFrom(
+                backgroundColor: AppColors.brand.withValues(alpha: 0.1),
+                foregroundColor: AppColors.brand,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+              ),
+              child: const Text('Yozish', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+            )
+          else
+            Text(
+              value,
+              style: AppTextStyles.titleM.copyWith(
+                color: valueColor ?? AppColors.brand,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -470,11 +695,13 @@ class _AnalyticsLoadingSkeleton extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.l),
       children: const [
-        AlochiSkeletonCard(height: 180),
+        AlochiSkeleton(height: 100, borderRadius: BorderRadius.all(Radius.circular(16))),
         SizedBox(height: AppSpacing.l),
-        AlochiSkeletonCard(height: 180),
+        AlochiSkeleton(height: 180, borderRadius: BorderRadius.all(Radius.circular(16))),
         SizedBox(height: AppSpacing.l),
-        AlochiSkeletonCard(height: 240),
+        AlochiSkeleton(height: 180, borderRadius: BorderRadius.all(Radius.circular(16))),
+        SizedBox(height: AppSpacing.l),
+        AlochiSkeleton(height: 240, borderRadius: BorderRadius.all(Radius.circular(16))),
       ],
     );
   }
@@ -497,7 +724,7 @@ class _GroupStatsRow extends StatelessWidget {
           const Expanded(
             child: _StatTile(
               label: "DAVOMAT",
-              value: "28/32", // Mockup specific or calculated
+              value: "28/32", 
               valueColor: AppColors.ink,
             ),
           ),
@@ -513,8 +740,8 @@ class _GroupStatsRow extends StatelessWidget {
           const Expanded(
             child: _StatTile(
               label: 'BAJARISH',
-              value: '87%', // Mockup specific placeholder
-              valueColor: Color(0xFF0F9A6E),
+              value: '87%', 
+              valueColor: AppColors.success,
             ),
           ),
         ],
@@ -539,7 +766,7 @@ class _StatTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F5F7),
+        color: AppColors.lineSoft,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -558,7 +785,7 @@ class _StatTile extends StatelessWidget {
           Text(
             label.toUpperCase(),
             style: AppTextStyles.caption.copyWith(
-              color: const Color(0xFF6B7280),
+              color: AppColors.gray,
               fontWeight: FontWeight.w500,
               fontSize: 10,
             ),
@@ -625,7 +852,7 @@ class _StudentsTabState extends State<_StudentsTab> {
                   itemCount: filteredStudents.length,
                   separatorBuilder: (_, __) => const Divider(
                     height: 1,
-                    color: Color(0xFFF3F4F6),
+                    color: AppColors.lineSoft,
                   ),
                   itemBuilder: (context, index) => _StudentRow(
                     student: filteredStudents[index],
@@ -677,8 +904,8 @@ class _StudentRow extends StatelessWidget {
                     _buildSubtitle(attPct, avgGrade),
                     style: AppTextStyles.caption.copyWith(
                       color: isLowAtt
-                          ? const Color(0xFFD97706)
-                          : const Color(0xFF6B7280),
+                          ? AppColors.warning
+                          : AppColors.gray,
                       fontSize: 11,
                     ),
                   ),
@@ -702,8 +929,6 @@ class _StudentRow extends StatelessWidget {
     return parts.join(' · ');
   }
 }
-
-// ─── Attendance Tab ──────────────────────────────────────────────────────────
 
 class _AttendanceTab extends StatelessWidget {
   final String groupId;
@@ -767,8 +992,6 @@ class _AttendanceTab extends StatelessWidget {
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 }
-
-// ─── Grades Tab ───────────────────────────────────────────────────────────────
 
 class _GradesJournalBody extends ConsumerWidget {
   final String groupId;
@@ -842,7 +1065,7 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFEFEFEF)),
+        border: Border.all(color: AppColors.line),
       ),
       child: Row(
         children: [
@@ -864,7 +1087,7 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
                 ),
                 Text(
                   'O\'rtacha: ${widget.student.average.toStringAsFixed(1)}',
-                  style: AppTextStyles.caption.copyWith(color: const Color(0xFF6B7280)),
+                  style: AppTextStyles.caption.copyWith(color: AppColors.gray),
                 ),
               ],
             ),
@@ -880,14 +1103,14 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
                   height: 34,
                   margin: const EdgeInsets.only(left: 6),
                   decoration: BoxDecoration(
-                    color: isSelected ? _gradeColor(grade) : const Color(0xFFF4F5F7),
+                    color: isSelected ? _gradeColor(grade) : AppColors.lineSoft,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
                     child: Text(
                       '$grade',
                       style: AppTextStyles.label.copyWith(
-                        color: isSelected ? Colors.white : const Color(0xFF9CA3AF),
+                        color: isSelected ? Colors.white : AppColors.gray2,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -902,10 +1125,10 @@ class _StudentGradeRowState extends ConsumerState<_StudentGradeRow> {
   }
 
   Color _gradeColor(int grade) {
-    if (grade == 5) return const Color(0xFF0F9A6E);
-    if (grade == 4) return const Color(0xFF1F6F65);
-    if (grade == 3) return const Color(0xFFD97706);
-    return const Color(0xFFDC2626);
+    if (grade == 5) return AppColors.success;
+    if (grade == 4) return AppColors.brand;
+    if (grade == 3) return AppColors.warning;
+    return AppColors.danger;
   }
 
   Future<void> _setGrade(int grade, String date) async {
@@ -968,7 +1191,7 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.l),
       itemCount: 6,
       separatorBuilder: (_, __) =>
-          const Divider(height: 1, color: Color(0xFFF3F4F6)),
+          const Divider(height: 1, color: AppColors.lineSoft),
       itemBuilder: (_, __) => Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
         child: Row(
@@ -977,7 +1200,7 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: const BoxDecoration(
-                color: Color(0xFFF3F4F6),
+                color: AppColors.lineSoft,
                 shape: BoxShape.circle,
               ),
             ),
@@ -987,10 +1210,10 @@ class _StudentsLoadingSkeleton extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                      height: 14, width: 140, color: const Color(0xFFF3F4F6)),
+                      height: 14, width: 140, color: AppColors.lineSoft),
                   const SizedBox(height: 6),
                   Container(
-                      height: 11, width: 100, color: const Color(0xFFF3F4F6)),
+                      height: 11, width: 100, color: AppColors.lineSoft),
                 ],
               ),
             ),
