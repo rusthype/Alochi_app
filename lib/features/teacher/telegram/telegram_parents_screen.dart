@@ -406,6 +406,21 @@ class _GroupCard extends StatelessWidget {
   }
 }
 
+// Top-level function for Telegram chooser
+Future<void> _openTelegramWithChoice(
+    BuildContext context, String deepLink, String groupName) async {
+  await showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) => _TelegramAccountChooser(
+      deepLink: deepLink,
+      groupName: groupName,
+    ),
+  );
+}
+
 class _QrBottomSheet extends StatelessWidget {
   final TelegramGroupStatusData group;
 
@@ -500,12 +515,8 @@ class _QrBottomSheet extends StatelessWidget {
               _ActionButton(
                 icon: Icons.telegram_rounded,
                 label: "Telegram",
-                onTap: () async {
-                  final uri = Uri.parse(_deepLink);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
+                onTap: () => _openTelegramWithChoice(
+                    context, _deepLink, group.groupName),
               ),
             ],
           ),
@@ -553,6 +564,172 @@ class _ActionButton extends StatelessWidget {
             const SizedBox(height: AppSpacing.s),
             Text(label,
                 style: AppTextStyles.label.copyWith(color: AppColors.ink)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Telegram account chooser ─────────────────────────────────────────────────
+
+class _TelegramAccountChooser extends StatefulWidget {
+  final String deepLink;
+  final String groupName;
+
+  const _TelegramAccountChooser({
+    required this.deepLink,
+    required this.groupName,
+  });
+
+  @override
+  State<_TelegramAccountChooser> createState() =>
+      _TelegramAccountChooserState();
+}
+
+class _TelegramAccountChooserState extends State<_TelegramAccountChooser> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + AppSpacing.xl,
+        top: AppSpacing.l,
+        left: AppSpacing.l,
+        right: AppSpacing.l,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE5E7EB),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.l),
+
+          Text(
+            'Qaysi Telegram bilan ochish?',
+            style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+          ),
+          const SizedBox(height: AppSpacing.s),
+          Text(
+            widget.groupName,
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
+          ),
+          const SizedBox(height: AppSpacing.l),
+
+          // Option 1: system default (shows Android chooser)
+          _ChoiceRow(
+            icon: Icons.open_in_new_rounded,
+            label: 'Standart Telegram',
+            subtitle: "Telefonimdagi asosiy Telegram",
+            onTap: () => _launch(LaunchMode.externalApplication),
+          ),
+
+          const Divider(height: AppSpacing.l),
+
+          // Option 2: system chooser (shows all Telegram apps)
+          _ChoiceRow(
+            icon: Icons.apps_rounded,
+            label: "Ilovani tanlash",
+            subtitle: "Telegram, Telegram X, parallel akkaunt...",
+            onTap: () => _launch(LaunchMode.platformDefault),
+          ),
+
+          const Divider(height: AppSpacing.l),
+
+          // Option 3: copy link (user pastes manually)
+          _ChoiceRow(
+            icon: Icons.copy_rounded,
+            label: "Havolani nusxalash",
+            subtitle: "O'zim tanlagan Telegramga joylashaman",
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: widget.deepLink));
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      "Havola nusxalandi — Telegramga yopishtirib yuboring"),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: AppSpacing.m),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _launch(LaunchMode mode) async {
+    Navigator.pop(context);
+    final uri = Uri.parse(widget.deepLink);
+    try {
+      await launchUrl(uri, mode: mode);
+    } catch (_) {
+      // Fallback: share sheet
+      Share.share('A\'lochi botga ulaning: ${widget.deepLink}');
+    }
+  }
+}
+
+class _ChoiceRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ChoiceRow({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadii.m),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.m),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F4FB),
+                borderRadius: BorderRadius.circular(AppRadii.s),
+              ),
+              child: Icon(icon, color: const Color(0xFF0088CC), size: 22),
+            ),
+            const SizedBox(width: AppSpacing.m),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
+                  ),
+                  Text(
+                    subtitle,
+                    style: AppTextStyles.bodyS
+                        .copyWith(color: AppColors.brandMuted),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded,
+                color: AppColors.brandMuted),
           ],
         ),
       ),
