@@ -142,6 +142,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WelcomeReadyScreen(),
       ),
 
+      GoRoute(
+        path: '/invite',
+        redirect: (ctx, state) {
+          final groupId = state.uri.queryParameters['group'];
+          if (groupId != null) {
+            return '/teacher/telegram/groups/$groupId/unlinked';
+          }
+          return '/teacher/dashboard';
+        },
+      ),
+
       // Teacher shell
       ShellRoute(
         builder: (context, state, child) => TeacherShell(child: child),

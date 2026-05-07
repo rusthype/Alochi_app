@@ -12,13 +12,42 @@ import '../../../theme/radii.dart';
 import '../../../shared/widgets/alochi_card.dart';
 import '../../../shared/widgets/alochi_empty_state.dart';
 import '../../../shared/widgets/alochi_skeleton.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'telegram_broadcast_screen.dart';
 import 'telegram_provider.dart';
+import 'telegram_tutorial_overlay.dart';
 
-class TelegramParentsScreen extends ConsumerWidget {
+class TelegramParentsScreen extends ConsumerStatefulWidget {
   const TelegramParentsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TelegramParentsScreen> createState() => _TelegramParentsScreenState();
+}
+
+class _TelegramParentsScreenState extends ConsumerState<TelegramParentsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowTutorial();
+    });
+  }
+
+  Future<void> _checkAndShowTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool('telegram_tutorial_seen') ?? false;
+    if (!seen && mounted) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => const TelegramTutorialOverlay(),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final groupsAsync = ref.watch(telegramGroupsProvider);
 
     return Scaffold(
@@ -253,7 +282,7 @@ class _StatTile extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: AppTextStyles.bodyS.copyWith(color: AppColors.inkMuted),
+          style: AppTextStyles.bodyS.copyWith(color: AppColors.gray),
         ),
       ],
     );
@@ -308,6 +337,18 @@ class _GroupCard extends StatelessWidget {
                           ),
                       ],
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.send_rounded,
+                        color: Color(0xFF0088CC), size: 20),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const TelegramBroadcastScreen(),
+                        ),
+                      );
+                    },
+                    tooltip: "Xabar yuborish",
                   ),
                   IconButton(
                     icon: const Icon(Icons.qr_code_rounded,
@@ -405,7 +446,7 @@ class _QrBottomSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppRadii.l),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -470,7 +511,7 @@ class _QrBottomSheet extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl),
           Text(
             "QR kod 24 soat amal qiladi",
-            style: AppTextStyles.bodyS.copyWith(color: AppColors.inkMuted),
+            style: AppTextStyles.bodyS.copyWith(color: AppColors.gray),
           ),
           const SizedBox(height: AppSpacing.m),
         ],

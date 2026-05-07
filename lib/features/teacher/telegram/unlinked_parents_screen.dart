@@ -492,13 +492,13 @@ class _StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: isSent
             ? AppColors.warning.withValues(alpha: 0.1)
-            : AppColors.success.withValues(alpha: 0.1),
+            : AppColors.brand.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        isSent ? "Yuborilgan" : "Yangi",
+        isSent ? "Eslatildi" : "Yangi",
         style: TextStyle(
-          color: isSent ? AppColors.warning : AppColors.success,
+          color: isSent ? AppColors.warning : AppColors.brand,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
@@ -530,7 +530,7 @@ class _NoResultsState extends StatelessWidget {
             const SizedBox(height: AppSpacing.m),
             Text(
               isSearch ? "Natija topilmadi" : "Bu filtr bo'yicha ma'lumot yo'q",
-              style: AppTextStyles.bodyL.copyWith(color: AppColors.brandMuted),
+              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
               textAlign: TextAlign.center,
             ),
           ],
