@@ -58,13 +58,18 @@ jobs:
             --release \
             --dart-define=API_URL=https://api.alochi.org/api/v1
 
+      - name: Copy artifacts to flat dir
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk   dist/app-arm64-v8a-release.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk dist/app-armeabi-v7a-release.apk
+          cp build/app/outputs/bundle/release/app-release.aab           dist/app-release.aab
+          ls -lh dist/
+
       - uses: actions/upload-artifact@v4
         with:
           name: android-builds
-          path: |
-            build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            build/app/outputs/bundle/release/app-release.aab
+          path: dist/
 
   release:
     name: Create GitHub Release
@@ -76,10 +81,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: android-builds
-          path: artifacts/
+          path: dist/
 
       - name: List artifacts
-        run: find artifacts/ -type f
+        run: ls -lh dist/
 
       - uses: softprops/action-gh-release@v2
         with:
@@ -105,8 +110,8 @@ jobs:
             - Min Android: API 26 (Android 8.0)
             - Version: ${{ github.ref_name }}
           files: |
-            artifacts/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            artifacts/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            artifacts/build/app/outputs/bundle/release/app-release.aab
+            dist/app-arm64-v8a-release.apk
+            dist/app-armeabi-v7a-release.apk
+            dist/app-release.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
