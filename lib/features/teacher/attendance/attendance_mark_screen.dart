@@ -17,11 +17,13 @@ import 'attendance_provider.dart';
 class AttendanceMarkScreen extends ConsumerWidget {
   final String classId;
   final String date;
+  final String groupName;
 
   const AttendanceMarkScreen({
     super.key,
     required this.classId,
     required this.date,
+    this.groupName = '',
   });
 
   @override
@@ -73,7 +75,7 @@ class AttendanceMarkScreen extends ConsumerWidget {
       body: stateAsync.when(
         data: (state) => Column(
           children: [
-            _ClassDatePills(classId: classId, date: date),
+            _ClassDatePills(classId: classId, date: date, groupName: groupName),
             _LiveStatsRow(state: state),
             if (state.unmarkedCount == state.students.length &&
                 state.students.isNotEmpty)
@@ -144,8 +146,13 @@ class _AttendanceLoadingSkeleton extends StatelessWidget {
 class _ClassDatePills extends StatelessWidget {
   final String classId;
   final String date;
+  final String groupName;
 
-  const _ClassDatePills({required this.classId, required this.date});
+  const _ClassDatePills({
+    required this.classId,
+    required this.date,
+    this.groupName = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +170,10 @@ class _ClassDatePills extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(classId,
+                Text(
+                    groupName.isNotEmpty
+                        ? groupName
+                        : (classId.length > 20 ? 'Guruh' : classId),
                     style: AppTextStyles.label.copyWith(
                         color: AppColors.brand, fontWeight: FontWeight.w600)),
                 const SizedBox(width: 4),

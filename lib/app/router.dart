@@ -201,7 +201,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               final extra = state.extra as Map<String, dynamic>? ?? {};
               final classId = extra['classId']?.toString() ?? lessonId;
               final date = extra['date']?.toString() ?? todayIsoString();
-              return AttendanceMarkScreen(classId: classId, date: date);
+              final groupName = extra['groupName']?.toString() ?? '';
+              return AttendanceMarkScreen(
+                  classId: classId, date: date, groupName: groupName);
             },
           ),
           GoRoute(

@@ -959,13 +959,24 @@ class _StudentRow extends StatelessWidget {
   }
 }
 
-class _AttendanceTab extends StatelessWidget {
+class _AttendanceTab extends ConsumerWidget {
   final String groupId;
 
   const _AttendanceTab({required this.groupId});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final groupName =
+        ref.watch(groupDetailProvider(groupId)).valueOrNull?.code ?? '';
+    final now = DateTime.now();
+    final today =
+        // ignore: prefer_interpolation_to_compose_strings
+        now.year.toString() +
+            '-' +
+            now.month.toString().padLeft(2, '0') +
+            '-' +
+            now.day.toString().padLeft(2, '0');
+
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.l),
       child: Column(
@@ -1004,21 +1015,19 @@ class _AttendanceTab extends StatelessWidget {
             label: 'Bugungi davomatni belgilash',
             icon: Icons.how_to_reg_rounded,
             onPressed: () {
-              final today = _todayString();
               context.push(
                 '/teacher/lesson/$groupId/attendance',
-                extra: {'classId': groupId, 'date': today},
+                extra: {
+                  'classId': groupId,
+                  'date': today,
+                  'groupName': groupName,
+                },
               );
             },
           ),
         ],
       ),
     );
-  }
-
-  String _todayString() {
-    final now = DateTime.now();
-    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/user.dart';
 import '../../core/api/auth_api.dart';
@@ -46,16 +48,46 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> _init() async {
     try {
       final token = await AppStorage.getAccessToken();
-      if (token != null) {
-        final user = await _api.me();
-        state = AuthState(user: user);
-
-        // Register FCM if authenticated as teacher
-        if (user.role == 'teacher') {
-          _registerFCM();
-        }
-      } else {
+      if (token == null) {
         state = const AuthState();
+        return;
+      }
+
+      // Load cached user for offline fallback
+      UserModel? cachedUser;
+      try {
+        final cachedJson = await AppStorage.getUserData();
+        if (cachedJson != null) {
+          cachedUser = UserModel.fromJson(
+              jsonDecode(cachedJson) as Map<String, dynamic>);
+        }
+      } catch (_) {}
+
+      try {
+        final user = await _api.me();
+        // Persist user to cache
+        await AppStorage.saveUserData(jsonEncode(user.toJson()));
+        state = AuthState(user: user);
+        if (user.role == 'teacher') _registerFCM();
+      } catch (e) {
+        final msg = e.toString();
+        final isAuthError = msg.contains('Kirish huquqi') ||
+            msg.contains('401') ||
+            msg.contains('403') ||
+            msg.contains('Ruxsat yo');
+        if (isAuthError) {
+          // Token expired or revoked — force login
+          await AppStorage.clearAll();
+          state = const AuthState();
+        } else {
+          // Network/server error — keep logged in with cached user
+          debugPrint('_init: me() failed ($msg), using cached user');
+          if (cachedUser != null) {
+            state = AuthState(user: cachedUser);
+          } else {
+            state = const AuthState();
+          }
+        }
       }
     } catch (_) {
       state = const AuthState();
@@ -79,6 +111,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
       if (needsOnboarding) {
         await AppStorage.writeKey('first_login_complete', 'true');
       }
+      // Cache user for offline fallback
+      try {
+        await AppStorage.saveUserData(jsonEncode(user.toJson()));
+      } catch (_) {}
       state = AuthState(user: user, needsOnboarding: needsOnboarding);
     } catch (_) {
       state = state.copyWith(
