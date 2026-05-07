@@ -30,6 +30,7 @@ import '../features/teacher/dashboard/dashboard_screen.dart';
 import '../features/teacher/groups/groups_list_screen.dart';
 import '../features/teacher/groups/group_detail_screen.dart';
 import '../features/teacher/students/student_profile_screen.dart';
+import '../features/teacher/students/birthdays_screen.dart';
 import '../features/teacher/lesson/lesson_workflow_screen.dart';
 import '../features/teacher/attendance/attendance_mark_screen.dart';
 import '../features/teacher/attendance/attendance_history_screen.dart';
@@ -70,36 +71,37 @@ final routerProvider = Provider<GoRouter>((ref) {
       final role = authState.user?.role;
       final loc = state.uri.toString();
 
-      // Public routes
       final publicRoutes = [
         '/',
         '/teacher/auth/login',
         '/forgot-password',
-        '/login',
+        '/login'
       ];
       final isPublic =
           publicRoutes.any((r) => loc == r || loc.startsWith('$r?'));
 
-      if (!isAuth && !isPublic) return '/';
+      if (!isAuth && !isPublic) {
+        return '/';
+      }
 
       if (isAuth) {
-        // Show onboarding for first-time teacher logins
         if (role == 'teacher' &&
             authState.needsOnboarding &&
             !loc.startsWith('/teacher/onboarding/')) {
           return '/teacher/onboarding/intro';
         }
-        // If on teacher login while authenticated as teacher, go to dashboard
         if (loc == '/teacher/auth/login' && role == 'teacher') {
           return '/teacher/dashboard';
         }
-        // Redirect away from legacy public routes
         if (isPublic && (loc == '/' || loc == '/login')) {
-          if (role == 'parent') return '/parent/dashboard';
-          if (role == 'teacher') return '/teacher/dashboard';
+          if (role == 'parent') {
+            return '/parent/dashboard';
+          }
+          if (role == 'teacher') {
+            return '/teacher/dashboard';
+          }
           return '/student/dashboard';
         }
-        // Role-based restrictions for student/parent routes
         if (role == 'student' &&
             (loc.startsWith('/parent') || loc.startsWith('/teacher'))) {
           return '/student/dashboard';
@@ -113,36 +115,24 @@ final routerProvider = Provider<GoRouter>((ref) {
           return '/teacher/dashboard';
         }
       }
-
       return null;
     },
     routes: [
+      GoRoute(path: '/', builder: (_, __) => const LandingScreen()),
       GoRoute(
-        path: '/',
-        builder: (context, state) => const LandingScreen(),
-      ),
-      // Teacher auth routes
+          path: '/teacher/auth/login', builder: (_, __) => const LoginScreen()),
       GoRoute(
-        path: '/teacher/auth/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+          path: '/forgot-password',
+          builder: (_, __) => const ForgotPasswordScreen()),
       GoRoute(
-        path: '/forgot-password',
-        builder: (context, state) => const ForgotPasswordScreen(),
-      ),
+          path: '/teacher/onboarding/intro',
+          builder: (_, __) => const WelcomeIntroScreen()),
       GoRoute(
-        path: '/teacher/onboarding/intro',
-        builder: (context, state) => const WelcomeIntroScreen(),
-      ),
+          path: '/teacher/onboarding/features',
+          builder: (_, __) => const WelcomeFeaturesScreen()),
       GoRoute(
-        path: '/teacher/onboarding/features',
-        builder: (context, state) => const WelcomeFeaturesScreen(),
-      ),
-      GoRoute(
-        path: '/teacher/onboarding/ready',
-        builder: (context, state) => const WelcomeReadyScreen(),
-      ),
-
+          path: '/teacher/onboarding/ready',
+          builder: (_, __) => const WelcomeReadyScreen()),
       GoRoute(
         path: '/invite',
         redirect: (ctx, state) {
@@ -153,19 +143,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           return '/teacher/dashboard';
         },
       ),
-
-      // Teacher shell
       ShellRoute(
         builder: (context, state, child) => TeacherShell(child: child),
         routes: [
           GoRoute(
-            path: '/teacher/dashboard',
-            builder: (context, state) => const TeacherDashboardScreen(),
-          ),
+              path: '/teacher/dashboard',
+              builder: (_, __) => const TeacherDashboardScreen()),
           GoRoute(
-            path: '/teacher/timetable',
-            builder: (context, state) => const WeekTimetableScreen(),
-          ),
+              path: '/teacher/timetable',
+              builder: (_, __) => const WeekTimetableScreen()),
           GoRoute(
             path: '/teacher/lessons/:lessonId',
             builder: (context, state) {
@@ -175,36 +161,30 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
           GoRoute(
-            path: '/teacher/groups',
-            builder: (context, state) => const GroupsListScreen(),
-          ),
+              path: '/teacher/groups',
+              builder: (_, __) => const GroupsListScreen()),
           GoRoute(
             path: '/teacher/groups/:id',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return GroupDetailScreen(groupId: id);
-            },
+            builder: (context, state) =>
+                GroupDetailScreen(groupId: state.pathParameters['id'] ?? ''),
           ),
           GoRoute(
             path: '/teacher/groups/:id/attendance-history',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return AttendanceHistoryScreen(groupId: id);
-            },
+            builder: (context, state) => AttendanceHistoryScreen(
+                groupId: state.pathParameters['id'] ?? ''),
           ),
           GoRoute(
             path: '/teacher/students/:id',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return StudentProfileScreen(studentId: id);
-            },
+            builder: (context, state) => StudentProfileScreen(
+                studentId: state.pathParameters['id'] ?? ''),
           ),
           GoRoute(
+              path: '/teacher/birthdays',
+              builder: (_, __) => const BirthdaysScreen()),
+          GoRoute(
             path: '/teacher/lesson/:id',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return LessonWorkflowScreen(lessonId: id);
-            },
+            builder: (context, state) => LessonWorkflowScreen(
+                lessonId: state.pathParameters['id'] ?? ''),
           ),
           GoRoute(
             path: '/teacher/lesson/:id/attendance',
@@ -219,231 +199,164 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/groups/:id/grades',
             builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              final subject = extra['subject']?.toString() ?? '';
-              final groupName = extra['groupName']?.toString() ?? '';
               return GradesScreen(
-                groupId: id,
-                groupName: groupName,
-                subject: subject,
+                groupId: state.pathParameters['id'] ?? '',
+                groupName: extra['groupName']?.toString() ?? '',
+                subject: extra['subject']?.toString() ?? '',
               );
             },
           ),
           GoRoute(
             path: '/teacher/groups/:id/grades-entry',
             builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
               final extra = state.extra as Map<String, dynamic>? ?? {};
-              final subject = extra['subject']?.toString() ?? '';
-              final groupName = extra['groupName']?.toString() ?? '';
               return GradesEntryScreen(
-                groupId: id,
-                groupName: groupName,
-                subject: subject,
+                groupId: state.pathParameters['id'] ?? '',
+                groupName: extra['groupName']?.toString() ?? '',
+                subject: extra['subject']?.toString() ?? '',
               );
             },
           ),
           GoRoute(
-            path: '/teacher/homework',
-            builder: (context, state) => const HomeworkListScreen(),
-          ),
+              path: '/teacher/homework',
+              builder: (_, __) => const HomeworkListScreen()),
           GoRoute(
-            path: '/teacher/homework/create',
-            builder: (context, state) => const HomeworkCreateScreen(),
-          ),
+              path: '/teacher/homework/create',
+              builder: (_, __) => const HomeworkCreateScreen()),
           GoRoute(
             path: '/teacher/homework/:id',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return HomeworkDetailScreen(hwId: id);
-            },
+            builder: (context, state) =>
+                HomeworkDetailScreen(hwId: state.pathParameters['id'] ?? ''),
           ),
           GoRoute(
-            path: '/teacher/messages',
-            builder: (context, state) => const MessagesListScreen(),
-          ),
+              path: '/teacher/messages',
+              builder: (_, __) => const MessagesListScreen()),
           GoRoute(
-            path: '/teacher/messages/compose',
-            builder: (context, state) => const MessageComposeScreen(),
-          ),
+              path: '/teacher/messages/compose',
+              builder: (_, __) => const MessageComposeScreen()),
           GoRoute(
             path: '/teacher/messages/:id',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return ChatThreadScreen(conversationId: id);
-            },
+            builder: (context, state) => ChatThreadScreen(
+                conversationId: state.pathParameters['id'] ?? ''),
           ),
           GoRoute(
-            path: '/teacher/notifications',
-            builder: (context, state) => const NotificationsScreen(),
-          ),
+              path: '/teacher/notifications',
+              builder: (_, __) => const NotificationsScreen()),
           GoRoute(
-            path: '/teacher/profile',
-            builder: (context, state) => const teacher_profile.ProfileScreen(),
-          ),
+              path: '/teacher/profile',
+              builder: (_, __) => const teacher_profile.ProfileScreen()),
           GoRoute(
-            path: '/teacher/profile/telegram',
-            builder: (context, state) => const TelegramParentsScreen(),
-          ),
+              path: '/teacher/profile/telegram',
+              builder: (_, __) => const TelegramParentsScreen()),
           GoRoute(
-            path: '/teacher/profile/edit',
-            builder: (context, state) => const ProfileEditScreen(),
-          ),
+              path: '/teacher/profile/edit',
+              builder: (_, __) => const ProfileEditScreen()),
           GoRoute(
-            path: '/teacher/profile/password',
-            builder: (context, state) => const PasswordChangeScreen(),
-          ),
+              path: '/teacher/profile/password',
+              builder: (_, __) => const PasswordChangeScreen()),
           GoRoute(
-            path: '/teacher/about',
-            builder: (context, state) => const AboutScreen(),
-          ),
+              path: '/teacher/about', builder: (_, __) => const AboutScreen()),
           GoRoute(
-            path: '/teacher/ai',
-            builder: (context, state) => const AiWelcomeScreen(),
-          ),
+              path: '/teacher/ai', builder: (_, __) => const AiWelcomeScreen()),
           GoRoute(
-            path: '/teacher/ai/chat',
-            builder: (context, state) => const AiChatScreen(),
-          ),
+              path: '/teacher/ai/chat',
+              builder: (_, __) => const AiChatScreen()),
           GoRoute(
             path: '/teacher/telegram/groups/:id/unlinked',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? '';
-              return UnlinkedParentsScreen(groupId: id);
-            },
+            builder: (context, state) => UnlinkedParentsScreen(
+                groupId: state.pathParameters['id'] ?? ''),
           ),
           GoRoute(
-            path: '/teacher/telegram/broadcast',
-            builder: (context, state) => const TelegramBroadcastScreen(),
-          ),
+              path: '/teacher/telegram/broadcast',
+              builder: (_, __) => const TelegramBroadcastScreen()),
         ],
       ),
-
-      // Student shell with nested routes
       ShellRoute(
         builder: (context, state, child) => StudentShell(child: child),
         routes: [
           GoRoute(
-            path: '/student/dashboard',
-            builder: (context, state) => const StudentDashboardScreen(),
-          ),
+              path: '/student/dashboard',
+              builder: (_, __) => const StudentDashboardScreen()),
           GoRoute(
-            path: '/student/tests',
-            builder: (context, state) => const TestListScreen(),
-          ),
+              path: '/student/tests',
+              builder: (_, __) => const TestListScreen()),
           GoRoute(
             path: '/student/tests/:id/play',
-            builder: (context, state) {
-              final id = state.pathParameters['id']!;
-              return TestPlayScreen(id: id);
-            },
+            builder: (context, state) =>
+                TestPlayScreen(id: state.pathParameters['id']!),
           ),
           GoRoute(
             path: '/student/tests/:id/result',
-            builder: (context, state) {
-              final id = state.pathParameters['id']!;
-              final result = state.extra as TestResultModel?;
-              return TestResultScreen(id: id, result: result);
-            },
+            builder: (context, state) => TestResultScreen(
+              id: state.pathParameters['id']!,
+              result: state.extra as TestResultModel?,
+            ),
           ),
           GoRoute(
-            path: '/student/leaderboard',
-            builder: (context, state) => const LeaderboardScreen(),
-          ),
+              path: '/student/leaderboard',
+              builder: (_, __) => const LeaderboardScreen()),
           GoRoute(
-            path: '/student/vocabulary',
-            builder: (context, state) => const VocabularyScreen(),
-          ),
+              path: '/student/vocabulary',
+              builder: (_, __) => const VocabularyScreen()),
           GoRoute(
             path: '/student/vocabulary/:topicId/flashcards',
-            builder: (context, state) {
-              final topicId = state.pathParameters['topicId']!;
-              return FlashcardScreen(topicId: topicId);
-            },
+            builder: (context, state) =>
+                FlashcardScreen(topicId: state.pathParameters['topicId']!),
           ),
           GoRoute(
             path: '/student/vocabulary/:topicId/quiz',
-            builder: (context, state) {
-              final topicId = state.pathParameters['topicId']!;
-              return QuizScreen(topicId: topicId);
-            },
+            builder: (context, state) =>
+                QuizScreen(topicId: state.pathParameters['topicId']!),
           ),
           GoRoute(
-            path: '/student/shop',
-            builder: (context, state) => const ShopScreen(),
-          ),
+              path: '/student/shop', builder: (_, __) => const ShopScreen()),
           GoRoute(
-            path: '/student/purchases',
-            builder: (context, state) => const PurchasesScreen(),
-          ),
+              path: '/student/purchases',
+              builder: (_, __) => const PurchasesScreen()),
           GoRoute(
-            path: '/student/homework',
-            builder: (context, state) => const HomeworkScreen(),
-          ),
+              path: '/student/homework',
+              builder: (_, __) => const HomeworkScreen()),
           GoRoute(
-            path: '/student/profile',
-            builder: (context, state) => const student_profile.ProfileScreen(),
-          ),
+              path: '/student/profile',
+              builder: (_, __) => const student_profile.ProfileScreen()),
           GoRoute(
-            path: '/student/profile/edit',
-            builder: (context, state) => const EditProfileScreen(),
-          ),
+              path: '/student/profile/edit',
+              builder: (_, __) => const EditProfileScreen()),
           GoRoute(
-            path: '/student/journey',
-            builder: (context, state) => const JourneyScreen(),
-          ),
+              path: '/student/journey',
+              builder: (_, __) => const JourneyScreen()),
           GoRoute(
-            path: '/student/challenge',
-            builder: (context, state) => const ChallengeScreen(),
-          ),
+              path: '/student/challenge',
+              builder: (_, __) => const ChallengeScreen()),
           GoRoute(
             path: '/student/challenge/result',
-            builder: (context, state) {
-              final data = state.extra as Map<String, dynamic>? ?? {};
-              return ChallengeResultScreen(data: data);
-            },
+            builder: (context, state) => ChallengeResultScreen(
+                data: state.extra as Map<String, dynamic>? ?? {}),
           ),
         ],
       ),
-
-      // Legacy routes — kept registered, redirect to appropriate destinations
+      GoRoute(path: '/login', redirect: (_, __) => '/teacher/auth/login'),
+      GoRoute(path: '/dashboard', redirect: (_, __) => '/teacher/dashboard'),
       GoRoute(
-        path: '/login',
-        redirect: (ctx, st) => '/teacher/auth/login',
-      ),
-      GoRoute(
-        path: '/dashboard',
-        redirect: (ctx, st) => '/teacher/dashboard',
-      ),
-      GoRoute(
-        path: '/leaderboard',
-        redirect: (ctx, st) => '/student/leaderboard',
-      ),
-
-      // Parent shell with nested routes
+          path: '/leaderboard', redirect: (_, __) => '/student/leaderboard'),
       ShellRoute(
         builder: (context, state, child) => ParentShell(child: child),
         routes: [
           GoRoute(
-            path: '/parent/dashboard',
-            builder: (context, state) => const ParentDashboardScreen(),
-          ),
+              path: '/parent/dashboard',
+              builder: (_, __) => const ParentDashboardScreen()),
           GoRoute(
-            path: '/parent/children',
-            builder: (context, state) => const ParentDashboardScreen(),
-          ),
+              path: '/parent/children',
+              builder: (_, __) => const ParentDashboardScreen()),
           GoRoute(
             path: '/parent/children/:id',
-            builder: (context, state) {
-              final id = state.pathParameters['id']!;
-              return ChildDetailScreen(childId: id);
-            },
+            builder: (context, state) =>
+                ChildDetailScreen(childId: state.pathParameters['id']!),
           ),
           GoRoute(
-            path: '/parent/notifications',
-            builder: (context, state) => const ParentNotificationsScreen(),
-          ),
+              path: '/parent/notifications',
+              builder: (_, __) => const ParentNotificationsScreen()),
         ],
       ),
     ],

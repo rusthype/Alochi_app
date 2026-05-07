@@ -7,6 +7,7 @@ import '../../../theme/spacing.dart';
 import '../../../theme/radii.dart';
 import '../../../features/auth/auth_provider.dart';
 import '../../../core/api/teacher_api.dart';
+import '../../../app/theme_provider.dart';
 import 'profile_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -45,7 +46,6 @@ class ProfileScreen extends ConsumerWidget {
             child: CircularProgressIndicator(color: AppColors.brand),
           ),
           error: (err, _) {
-            // Fall back to user data from auth state
             final user = authState.user;
             if (user != null) {
               final fallback = TeacherProfileModel(
@@ -55,9 +55,7 @@ class ProfileScreen extends ConsumerWidget {
                 phone: '',
               );
               return _ProfileContent(
-                profile: fallback,
-                schoolName: user.school,
-              );
+                  profile: fallback, schoolName: user.school);
             }
             return Center(
               child: Padding(
@@ -68,26 +66,20 @@ class ProfileScreen extends ConsumerWidget {
                     const Icon(Icons.error_outline_rounded,
                         color: AppColors.danger, size: 40),
                     const SizedBox(height: AppSpacing.m),
-                    Text(
-                      "Profilni yuklashda xato",
-                      style:
-                          AppTextStyles.titleM.copyWith(color: AppColors.ink),
-                    ),
+                    Text("Profilni yuklashda xato",
+                        style: AppTextStyles.titleM
+                            .copyWith(color: AppColors.ink)),
                     const SizedBox(height: AppSpacing.s),
-                    Text(
-                      err.toString(),
-                      style: AppTextStyles.bodyS
-                          .copyWith(color: AppColors.brandMuted),
-                      textAlign: TextAlign.center,
-                    ),
+                    Text(err.toString(),
+                        style: AppTextStyles.bodyS
+                            .copyWith(color: AppColors.brandMuted),
+                        textAlign: TextAlign.center),
                     const SizedBox(height: AppSpacing.l),
                     TextButton(
                       onPressed: () => ref.invalidate(teacherProfileProvider),
-                      child: Text(
-                        'Qayta urinish',
-                        style:
-                            AppTextStyles.body.copyWith(color: AppColors.brand),
-                      ),
+                      child: Text('Qayta urinish',
+                          style: AppTextStyles.body
+                              .copyWith(color: AppColors.brand)),
                     ),
                   ],
                 ),
@@ -100,26 +92,26 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ─── Profile content ──────────────────────────────────────────────────────────
-
 class _ProfileContent extends ConsumerWidget {
   final TeacherProfileModel profile;
   final String? schoolName;
 
-  const _ProfileContent({
-    required this.profile,
-    this.schoolName,
-  });
+  const _ProfileContent({required this.profile, this.schoolName});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark ||
+        (themeMode == ThemeMode.system &&
+            MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // User info card
+          // Avatar card
           Container(
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
             decoration: BoxDecoration(
@@ -137,50 +129,42 @@ class _ProfileContent extends ConsumerWidget {
                         ? profile.name[0].toUpperCase()
                         : 'U',
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w700,
-                    ),
+                        color: Colors.white,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700),
                   ),
                 ),
                 const SizedBox(height: 14),
                 Text(
                   profile.name.isEmpty ? 'Ustoz' : profile.name,
                   style: AppTextStyles.displayM.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 4),
-                if (profile.username.isNotEmpty)
-                  Text(
-                    '@${profile.username}',
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.brand,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                if (profile.username.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text('@${profile.username}',
+                      style: AppTextStyles.body.copyWith(
+                          color: AppColors.brand,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500),
+                      textAlign: TextAlign.center),
+                ],
                 if (profile.phone.isNotEmpty) ...[
                   const SizedBox(height: 2),
-                  Text(
-                    profile.phone,
-                    style: AppTextStyles.bodyS.copyWith(
-                      color: const Color(0xFF6B7280),
-                      fontSize: 13,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                  Text(profile.phone,
+                      style: AppTextStyles.bodyS
+                          .copyWith(color: AppColors.gray, fontSize: 13),
+                      textAlign: TextAlign.center),
                 ],
               ],
             ),
           ),
           const SizedBox(height: 20),
 
-          // Settings list
+          // Main settings
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
@@ -201,7 +185,7 @@ class _ProfileContent extends ConsumerWidget {
                     color: Theme.of(context).dividerColor),
                 _SettingsRow(
                   icon: Icons.edit_outlined,
-                  iconBg: const Color(0xFF1F6F65),
+                  iconBg: AppColors.brand,
                   label: 'Profilni tahrirlash',
                   onTap: () => context.push('/teacher/profile/edit'),
                 ),
@@ -211,9 +195,58 @@ class _ProfileContent extends ConsumerWidget {
                     color: Theme.of(context).dividerColor),
                 _SettingsRow(
                   icon: Icons.lock_outline_rounded,
-                  iconBg: const Color(0xFFD97706),
+                  iconBg: AppColors.warning,
                   label: "Parolni o'zgartirish",
                   onTap: () => context.push('/teacher/profile/password'),
+                ),
+                Divider(
+                    height: 1,
+                    indent: 64,
+                    color: Theme.of(context).dividerColor),
+                // Dark mode toggle
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.l, vertical: AppSpacing.m),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1A2422)
+                              : const Color(0xFF374151),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          isDark
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.m),
+                      Expanded(
+                        child: Text(
+                          "Qorong'i rejim",
+                          style: AppTextStyles.body.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface),
+                        ),
+                      ),
+                      Switch.adaptive(
+                        value: isDark,
+                        onChanged: (_) async {
+                          final next =
+                              isDark ? ThemeMode.light : ThemeMode.dark;
+                          await ref
+                              .read(themeModeProvider.notifier)
+                              .setMode(next);
+                        },
+                        activeTrackColor: AppColors.brand,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -229,14 +262,14 @@ class _ProfileContent extends ConsumerWidget {
             ),
             child: _SettingsRow(
               icon: Icons.info_outline_rounded,
-              iconBg: const Color(0xFF0EA5E9),
+              iconBg: AppColors.info,
               label: 'Ilova haqida',
               onTap: () => context.push('/teacher/about'),
             ),
           ),
           const SizedBox(height: 12),
 
-          // Logout card
+          // Logout
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
@@ -245,9 +278,9 @@ class _ProfileContent extends ConsumerWidget {
             ),
             child: _SettingsRow(
               icon: Icons.logout_rounded,
-              iconBg: const Color(0xFFDC2626),
+              iconBg: AppColors.danger,
               label: 'Tizimdan chiqish',
-              labelColor: const Color(0xFFDC2626),
+              labelColor: AppColors.danger,
               showChevron: false,
               onTap: () => _showLogoutDialog(context, ref),
             ),
@@ -265,44 +298,30 @@ class _ProfileContent extends ConsumerWidget {
         backgroundColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadii.l)),
-        title: Text(
-          'Tizimdan chiqish',
-          style: AppTextStyles.titleM
-              .copyWith(color: Theme.of(context).colorScheme.onSurface),
-        ),
-        content: Text(
-          "Haqiqatdan ham tizimdan chiqmoqchimisiz?",
-          style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
-        ),
+        title: Text('Tizimdan chiqish',
+            style: AppTextStyles.titleM
+                .copyWith(color: Theme.of(context).colorScheme.onSurface)),
+        content: Text("Haqiqatdan ham tizimdan chiqmoqchimisiz?",
+            style: AppTextStyles.body.copyWith(color: AppColors.brandMuted)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(
-              'Bekor qilish',
-              style: AppTextStyles.body.copyWith(color: AppColors.brandMuted),
-            ),
-          ),
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text('Bekor qilish',
+                  style: AppTextStyles.body
+                      .copyWith(color: AppColors.brandMuted))),
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              'Chiqish',
-              style: AppTextStyles.body.copyWith(color: AppColors.danger),
-            ),
-          ),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text('Chiqish',
+                  style: AppTextStyles.body.copyWith(color: AppColors.danger))),
         ],
       ),
     );
-
     if (confirmed == true && context.mounted) {
       await ref.read(authProvider.notifier).logout();
-      if (context.mounted) {
-        context.go('/teacher/auth/login');
-      }
+      if (context.mounted) context.go('/teacher/auth/login');
     }
   }
 }
-
-// ─── Settings row ─────────────────────────────────────────────────────────────
 
 class _SettingsRow extends StatelessWidget {
   final IconData icon;
@@ -335,9 +354,7 @@ class _SettingsRow extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: iconBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
+                  color: iconBg, borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: Colors.white, size: 20),
             ),
             const SizedBox(width: AppSpacing.m),

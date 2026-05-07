@@ -16,9 +16,7 @@ class WelcomeFeaturesScreen extends ConsumerWidget {
   Future<void> _skip(BuildContext context, WidgetRef ref) async {
     await markOnboardingComplete();
     await ref.read(authProvider.notifier).clearOnboardingFlag();
-    if (context.mounted) {
-      context.go('/teacher/dashboard');
-    }
+    if (context.mounted) context.go('/teacher/dashboard');
   }
 
   @override
@@ -28,7 +26,6 @@ class WelcomeFeaturesScreen extends ConsumerWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Skip button top-right
             Positioned(
               top: AppSpacing.s,
               right: AppSpacing.l,
@@ -36,83 +33,49 @@ class WelcomeFeaturesScreen extends ConsumerWidget {
                 onPressed: () => _skip(context, ref),
                 child: Text(
                   "O'tkazib yuborish",
-                  style: AppTextStyles.bodyS.copyWith(
-                    color: AppColors.brandMuted,
-                  ),
+                  style:
+                      AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
                 ),
               ),
             ),
-
-            // Main content
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: AppSpacing.l),
-                  const OnboardingPageIndicator(activeIndex: 1, totalPages: 3),
+                  const OnboardingEntrance(
+                    child:
+                        OnboardingPageIndicator(activeIndex: 1, totalPages: 3),
+                  ),
                   const SizedBox(height: AppSpacing.xl),
-
-                  Text(
-                    'Asosiy imkoniyatlar',
-                    style: AppTextStyles.displayM.copyWith(
-                      color: AppColors.ink,
+                  OnboardingEntrance(
+                    delay: const Duration(milliseconds: 80),
+                    child: Text(
+                      'Asosiy imkoniyatlar',
+                      style:
+                          AppTextStyles.displayM.copyWith(color: AppColors.ink),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.s),
-                  Text(
-                    "A'lochi Ustoz bilan ishingiz tezroq va samaraliroq",
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.brandMuted,
+                  OnboardingEntrance(
+                    delay: const Duration(milliseconds: 120),
+                    child: Text(
+                      "A'lochi Ustoz bilan ishingiz tezroq va samaraliroq",
+                      style: AppTextStyles.body
+                          .copyWith(color: AppColors.brandMuted),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
-
-                  const Expanded(
-                    child: SingleChildScrollView(
-                      physics: BouncingScrollPhysics(),
-                      child: Column(
-                        children: [
-                          _FeatureCard(
-                            icon: Icons.dashboard_outlined,
-                            title: 'Dars boshqaruvi',
-                            subtitle:
-                                'Davomat, baholar, vazifalar — hammasi bir joyda',
-                          ),
-                          SizedBox(height: AppSpacing.m),
-                          _FeatureCard(
-                            icon: Icons.group_outlined,
-                            title: "O'quvchi profillari",
-                            subtitle:
-                                "Har bir o'quvchi natijalari va chuqur statistikasi",
-                          ),
-                          SizedBox(height: AppSpacing.m),
-                          _FeatureCard(
-                            icon: Icons.psychology_outlined,
-                            title: 'AI yordamchi',
-                            subtitle:
-                                'Test va savollar yarating bir tugma orqali',
-                          ),
-                          SizedBox(height: AppSpacing.m),
-                          _FeatureCard(
-                            icon: Icons.send_outlined,
-                            title: 'Telegram aloqa',
-                            subtitle:
-                                'Ota-onalar bilan tezda bog\'lanish imkoni',
-                          ),
-                          SizedBox(height: AppSpacing.l),
-                        ],
-                      ),
-                    ),
-                  ),
-
+                  const Expanded(child: _AnimatedFeatureCards()),
                   const SizedBox(height: AppSpacing.l),
-
-                  // CTA
-                  AlochiButton.primary(
-                    label: 'Davom etish',
-                    icon: Icons.arrow_forward_rounded,
-                    onPressed: () => context.go('/teacher/onboarding/ready'),
+                  OnboardingEntrance(
+                    delay: const Duration(milliseconds: 500),
+                    child: AlochiButton.primary(
+                      label: 'Davom etish',
+                      icon: Icons.arrow_forward_rounded,
+                      onPressed: () => context.go('/teacher/onboarding/ready'),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.l),
                 ],
@@ -120,6 +83,53 @@ class WelcomeFeaturesScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AnimatedFeatureCards extends StatelessWidget {
+  const _AnimatedFeatureCards();
+
+  @override
+  Widget build(BuildContext context) {
+    const features = [
+      (
+        Icons.dashboard_outlined,
+        'Dars boshqaruvi',
+        'Davomat, baholar, vazifalar — hammasi bir joyda'
+      ),
+      (
+        Icons.group_outlined,
+        "O'quvchi profillari",
+        "Har bir o'quvchi natijalari va chuqur statistikasi"
+      ),
+      (
+        Icons.psychology_outlined,
+        'AI yordamchi',
+        'Test va savollar yarating bir tugma orqali'
+      ),
+      (
+        Icons.send_outlined,
+        'Telegram aloqa',
+        "Ota-onalar bilan tezda bog'lanish imkoni"
+      ),
+    ];
+
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        children: features.indexed.map((entry) {
+          final (i, f) = entry;
+          return OnboardingStaggerItem(
+            index: i,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  bottom: i < features.length - 1 ? AppSpacing.m : 0),
+              child: _FeatureCard(icon: f.$1, title: f.$2, subtitle: f.$3),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -147,9 +157,7 @@ class _FeatureCard extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: const BoxDecoration(
-                color: AppColors.brandSoft,
-                shape: BoxShape.circle,
-              ),
+                  color: AppColors.brandSoft, shape: BoxShape.circle),
               child: Icon(icon, color: AppColors.brand, size: 24),
             ),
             const SizedBox(width: AppSpacing.m),
@@ -157,20 +165,13 @@ class _FeatureCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppTextStyles.titleM.copyWith(
-                      color: AppColors.ink,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  Text(title,
+                      style: AppTextStyles.titleM
+                          .copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: AppTextStyles.bodyS.copyWith(
-                      color: AppColors.brandMuted,
-                    ),
-                  ),
+                  Text(subtitle,
+                      style: AppTextStyles.bodyS
+                          .copyWith(color: AppColors.brandMuted)),
                 ],
               ),
             ),

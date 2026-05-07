@@ -10,6 +10,7 @@ import '../../../core/models/lesson_model.dart';
 import '../notifications/notifications_provider.dart';
 import '../profile/profile_provider.dart';
 import '../telegram/telegram_provider.dart';
+import 'birthday_banner_widget.dart';
 import 'dashboard_provider.dart';
 
 class TeacherDashboardScreen extends ConsumerWidget {
@@ -33,6 +34,8 @@ class TeacherDashboardScreen extends ConsumerWidget {
                 children: [
                   const _GreetingHeader(),
                   const SizedBox(height: 6),
+                  // Birthday banner — V1.2
+                  const BirthdayDashboardBanner(),
                   _TodayLessonsSection(lessons: summary.todayLessons),
                   const SizedBox(height: 14),
                   Consumer(builder: (context, ref, child) {
@@ -96,74 +99,60 @@ class _GreetingHeader extends ConsumerWidget {
               Text(
                 'Assalomu alaykum,',
                 style: AppTextStyles.bodyS.copyWith(
-                  color: AppColors.gray,
-                  fontWeight: FontWeight.w500,
-                ),
+                    color: AppColors.gray, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 2),
               Text(
                 displayName,
                 style: AppTextStyles.displayM.copyWith(
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.5,
-                  color: AppColors.ink,
-                ),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.5,
+                    color: AppColors.ink),
               ),
             ],
           ),
           Material(
             color: Colors.transparent,
-            child: Tooltip(
-              message: 'Bildirishnomalar',
-              child: InkWell(
-                onTap: () => context.push('/teacher/notifications'),
-                borderRadius: BorderRadius.circular(20),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF4F5F7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.notifications_none_rounded,
-                        color: AppColors.ink,
-                        size: 20,
-                      ),
-                    ),
-                    Consumer(builder: (ctx, ref, _) {
-                      final count =
-                          ref.watch(unreadCountProvider).valueOrNull ?? 0;
-                      if (count == 0) return const SizedBox.shrink();
-                      return Positioned(
-                        right: -2,
-                        top: -2,
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: AppColors.danger,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: Center(
-                            child: Text(
-                              count > 9 ? '9+' : '$count',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
+            child: InkWell(
+              onTap: () => context.push('/teacher/notifications'),
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                        color: Color(0xFFF4F5F7), shape: BoxShape.circle),
+                    child: const Icon(Icons.notifications_none_rounded,
+                        color: AppColors.ink, size: 20),
+                  ),
+                  Consumer(builder: (ctx, ref, _) {
+                    final count =
+                        ref.watch(unreadCountProvider).valueOrNull ?? 0;
+                    if (count == 0) return const SizedBox.shrink();
+                    return Positioned(
+                      right: -2,
+                      top: -2,
+                      child: Container(
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: AppColors.danger,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
                         ),
-                      );
-                    }),
-                  ],
-                ),
+                        child: Center(
+                          child: Text(count > 9 ? '9+' : '$count',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700)),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
               ),
             ),
           ),
@@ -175,7 +164,6 @@ class _GreetingHeader extends ConsumerWidget {
 
 class _TodayLessonsSection extends StatelessWidget {
   final List<DashboardLessonModel> lessons;
-
   const _TodayLessonsSection({required this.lessons});
 
   @override
@@ -190,27 +178,20 @@ class _TodayLessonsSection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                'BUGUNGI DARSLARIM · ${lessons.length}',
-                style: AppTextStyles.caption.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.gray2,
-                  letterSpacing: 0.5,
-                ),
-              ),
+              Text('BUGUNGI DARSLARIM · ${lessons.length}',
+                  style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.gray2,
+                      letterSpacing: 0.5)),
               InkWell(
                 onTap: () => context.go('/teacher/groups'),
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text(
-                    'Hammasi',
-                    style: AppTextStyles.label.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.brand,
-                    ),
-                  ),
+                  child: Text('Hammasi',
+                      style: AppTextStyles.label.copyWith(
+                          fontWeight: FontWeight.w600, color: AppColors.brand)),
                 ),
               ),
             ],
@@ -227,10 +208,9 @@ class _TodayLessonsSection extends StatelessWidget {
               itemCount: lessons.length,
               itemBuilder: (context, index) {
                 final lesson = lessons[index];
-                if (lesson.isActive) {
-                  return _ActiveLessonCard(lesson: lesson);
-                }
-                return _InactiveLessonCard(lesson: lesson);
+                return lesson.isActive
+                    ? _ActiveLessonCard(lesson: lesson)
+                    : _InactiveLessonCard(lesson: lesson);
               },
             ),
           ),
@@ -241,7 +221,6 @@ class _TodayLessonsSection extends StatelessWidget {
 
 class _ActiveLessonCard extends StatelessWidget {
   final DashboardLessonModel lesson;
-
   const _ActiveLessonCard({required this.lesson});
 
   @override
@@ -251,80 +230,55 @@ class _ActiveLessonCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 10),
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 13),
       decoration: BoxDecoration(
-        color: AppColors.heroDark,
-        borderRadius: BorderRadius.circular(18),
-      ),
+          color: AppColors.heroDark, borderRadius: BorderRadius.circular(18)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
+          Row(children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+              decoration: BoxDecoration(
                   color: AppColors.brand,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  'HOZIR',
+                  borderRadius: BorderRadius.circular(6)),
+              child: Text('HOZIR',
                   style: AppTextStyles.caption.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                lesson.time,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.3)),
+            ),
+            const SizedBox(width: 6),
+            Text(lesson.time,
                 style: AppTextStyles.caption.copyWith(
-                  color: AppColors.gray2,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+                    color: AppColors.gray2, fontWeight: FontWeight.w500)),
+          ]),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
+          Row(children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
                   color: const Color(0x521F6F65),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  lesson.className,
+                  borderRadius: BorderRadius.circular(6)),
+              child: Text(lesson.className,
                   style: AppTextStyles.caption.copyWith(
-                    color: const Color(0xFFA8D5CD),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  lesson.subject,
+                      color: const Color(0xFFA8D5CD),
+                      fontWeight: FontWeight.w700)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(lesson.subject,
                   style: AppTextStyles.body.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      color: Colors.white, fontWeight: FontWeight.w600),
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
+                  overflow: TextOverflow.ellipsis),
+            ),
+          ]),
           const SizedBox(height: 6),
           Text(
-            '${lesson.studentCount} o\'quvchi${lesson.topic.isNotEmpty ? ' · ${lesson.topic}' : ''}',
-            style: AppTextStyles.label.copyWith(
-              color: AppColors.gray2,
-              height: 1.5,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+              "${lesson.studentCount} o'quvchi${lesson.topic.isNotEmpty ? ' · ${lesson.topic}' : ''}",
+              style: AppTextStyles.label
+                  .copyWith(color: AppColors.gray2, height: 1.5),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
           const Spacer(),
           Material(
             color: AppColors.brand,
@@ -354,21 +308,16 @@ class _ActiveLessonCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(11),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.brand.withValues(alpha: 0.5),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
-                      spreadRadius: -4,
-                    ),
+                        color: AppColors.brand.withValues(alpha: 0.5),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                        spreadRadius: -4)
                   ],
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  'Darsni ochish ›',
-                  style: AppTextStyles.bodyS.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: Text('Darsni ochish ›',
+                    style: AppTextStyles.bodyS.copyWith(
+                        color: Colors.white, fontWeight: FontWeight.w600)),
               ),
             ),
           ),
@@ -380,7 +329,6 @@ class _ActiveLessonCard extends StatelessWidget {
 
 class _InactiveLessonCard extends StatelessWidget {
   final DashboardLessonModel lesson;
-
   const _InactiveLessonCard({required this.lesson});
 
   @override
@@ -390,76 +338,53 @@ class _InactiveLessonCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.line),
-      ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.line)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            lesson.time,
-            style: AppTextStyles.caption.copyWith(
-              color: AppColors.gray2,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          Text(lesson.time,
+              style: AppTextStyles.caption.copyWith(
+                  color: AppColors.gray2, fontWeight: FontWeight.w500)),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
+          Row(children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
                   color: const Color(0xFFE8F2EF),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  lesson.className,
+                  borderRadius: BorderRadius.circular(6)),
+              child: Text(lesson.className,
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.brand,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  lesson.subject,
+                      color: AppColors.brand, fontWeight: FontWeight.w700)),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(lesson.subject,
                   style: AppTextStyles.body.copyWith(
-                    color: AppColors.ink,
-                    fontWeight: FontWeight.w600,
-                  ),
+                      color: AppColors.ink, fontWeight: FontWeight.w600),
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
+                  overflow: TextOverflow.ellipsis),
+            ),
+          ]),
           const SizedBox(height: 6),
           Text(
-            '${lesson.studentCount} o\'quvchi${lesson.timeStatus.isNotEmpty ? ' · ${lesson.timeStatus}' : ''}',
-            style: AppTextStyles.label.copyWith(
-              color: AppColors.gray,
-              height: 1.5,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+              "${lesson.studentCount} o'quvchi${lesson.timeStatus.isNotEmpty ? ' · ${lesson.timeStatus}' : ''}",
+              style: AppTextStyles.label
+                  .copyWith(color: AppColors.gray, height: 1.5),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis),
           const Spacer(),
           Container(
             padding: const EdgeInsets.all(9),
             decoration: BoxDecoration(
-              color: AppColors.lineSoft,
-              borderRadius: BorderRadius.circular(11),
-            ),
+                color: AppColors.lineSoft,
+                borderRadius: BorderRadius.circular(11)),
             alignment: Alignment.center,
-            child: Text(
-              'Tayyorlanish',
-              style: AppTextStyles.label.copyWith(
-                color: const Color(0xFF6B7280),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: Text('Tayyorlanish',
+                style: AppTextStyles.label.copyWith(
+                    color: const Color(0xFF6B7280),
+                    fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -467,65 +392,8 @@ class _InactiveLessonCard extends StatelessWidget {
   }
 }
 
-class _ConcernsSection extends StatelessWidget {
-  final List<ConcernModel> concerns;
-
-  const _ConcernsSection({required this.concerns});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                'DIQQAT TALAB',
-                style: AppTextStyles.caption.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.gray2,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              InkWell(
-                onTap: () {}, // All concerns
-                borderRadius: BorderRadius.circular(4),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text(
-                    'Hammasi',
-                    style: AppTextStyles.label.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.brand,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: concerns
-                .map((concern) => _ConcernItem(concern: concern))
-                .toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _TelegramStatusMini extends StatelessWidget {
   final double linkedPercent;
-
   const _TelegramStatusMini({required this.linkedPercent});
 
   @override
@@ -541,40 +409,30 @@ class _TelegramStatusMini extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFE5E7EB))),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
+                Row(children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
                         color: const Color(0xFFE8F0FE),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.telegram_rounded,
-                        color: Color(0xFF0088CC),
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
+                        borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.telegram_rounded,
+                        color: Color(0xFF0088CC), size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
                         "${(linkedPercent * 100).round()}% ota-onalar ulangan",
                         style: AppTextStyles.bodyS.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: Color(0xFF9CA3AF), size: 18),
-                  ],
-                ),
+                            fontWeight: FontWeight.w600, color: AppColors.ink)),
+                  ),
+                  const Icon(Icons.chevron_right_rounded,
+                      color: Color(0xFF9CA3AF), size: 18),
+                ]),
                 const SizedBox(height: 10),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(2),
@@ -595,9 +453,54 @@ class _TelegramStatusMini extends StatelessWidget {
   }
 }
 
+class _ConcernsSection extends StatelessWidget {
+  final List<ConcernModel> concerns;
+  const _ConcernsSection({required this.concerns});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text('DIQQAT TALAB',
+                  style: AppTextStyles.caption.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.gray2,
+                      letterSpacing: 0.5)),
+              InkWell(
+                onTap: () {},
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text('Hammasi',
+                      style: AppTextStyles.label.copyWith(
+                          fontWeight: FontWeight.w600, color: AppColors.brand)),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: concerns.map((c) => _ConcernItem(concern: c)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ConcernItem extends StatelessWidget {
   final ConcernModel concern;
-
   const _ConcernItem({required this.concern});
 
   @override
@@ -612,7 +515,7 @@ class _ConcernItem extends StatelessWidget {
         iconBg = const Color(0xFFFCEBEB);
         iconColor = AppColors.danger;
         iconText = '!';
-        subtitle = 'Vazifa muddati o\'tdi · ${concern.count} ta qoldi';
+        subtitle = "Vazifa muddati o'tdi · ${concern.count} ta qoldi";
         break;
       case 'messages':
         iconBg = const Color(0xFFE8F2EF);
@@ -640,7 +543,6 @@ class _ConcernItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: () {
-            // Navigate based on concern type
             switch (concern.type) {
               case 'homework':
                 context.push('/teacher/homework');
@@ -657,54 +559,38 @@ class _ConcernItem extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(11).copyWith(right: 13),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.line),
-            ),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.line)),
             child: Row(
               children: [
                 Container(
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                    color: iconBg,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                      color: iconBg, borderRadius: BorderRadius.circular(8)),
                   alignment: Alignment.center,
-                  child: Text(
-                    iconText,
-                    style: AppTextStyles.bodyS.copyWith(
-                      color: iconColor,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  child: Text(iconText,
+                      style: AppTextStyles.bodyS.copyWith(
+                          color: iconColor, fontWeight: FontWeight.w700)),
                 ),
                 const SizedBox(width: 11),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        concern.title,
-                        style: AppTextStyles.bodyS.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.ink,
-                        ),
-                      ),
-                      Text(
-                        subtitle,
-                        style: AppTextStyles.caption.copyWith(
-                          color: const Color(0xFF9CA3AF),
-                        ),
-                      ),
+                      Text(concern.title,
+                          style: AppTextStyles.bodyS.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.ink)),
+                      Text(subtitle,
+                          style: AppTextStyles.caption
+                              .copyWith(color: const Color(0xFF9CA3AF))),
                     ],
                   ),
                 ),
-                Text(
-                  '›',
-                  style: AppTextStyles.titleM.copyWith(
-                    color: const Color(0xFF9CA3AF),
-                  ),
-                ),
+                Text('›',
+                    style: AppTextStyles.titleM
+                        .copyWith(color: const Color(0xFF9CA3AF))),
               ],
             ),
           ),
@@ -723,28 +609,21 @@ class _EmptyLessonsPlaceholder extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.line),
-      ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.line)),
       child: Center(
         child: Column(
           children: [
             const Icon(Icons.calendar_today_outlined,
                 color: Color(0xFFD1D5DB), size: 32),
             const SizedBox(height: 12),
-            Text(
-              'Bugun darsingiz yo\'q',
-              style: AppTextStyles.body.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColors.gray,
-              ),
-            ),
+            Text("Bugun darsingiz yo'q",
+                style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w600, color: AppColors.gray)),
             const SizedBox(height: 4),
-            Text(
-              'Eski guruhlarni ko\'rish',
-              style: AppTextStyles.label.copyWith(color: AppColors.brand),
-            ),
+            Text("Eski guruhlarni ko'rish",
+                style: AppTextStyles.label.copyWith(color: AppColors.brand)),
           ],
         ),
       ),
@@ -754,7 +633,6 @@ class _EmptyLessonsPlaceholder extends StatelessWidget {
 
 class _ErrorState extends StatelessWidget {
   final VoidCallback onRetry;
-
   const _ErrorState({required this.onRetry});
 
   @override
@@ -766,14 +644,13 @@ class _ErrorState extends StatelessWidget {
           const Icon(Icons.wifi_off_rounded,
               size: 48, color: Color(0xFFD1D5DB)),
           const SizedBox(height: 16),
-          const Text('Yuklab bo\'lmadi', style: AppTextStyles.titleM),
+          const Text("Yuklab bo'lmadi", style: AppTextStyles.titleM),
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: onRetry,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.brand,
-              foregroundColor: Colors.white,
-            ),
+                backgroundColor: AppColors.brand,
+                foregroundColor: Colors.white),
             child: const Text('Qayta urinish'),
           ),
         ],

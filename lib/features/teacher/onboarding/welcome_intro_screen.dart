@@ -10,17 +10,14 @@ import '../../../shared/widgets/alochi_button.dart';
 import '../../../core/storage/storage.dart';
 import 'onboarding_widgets.dart';
 
-/// Key written to secure storage after the user completes or skips onboarding.
 const _kFirstLoginKey = 'first_login_complete';
 
-/// Provider that checks whether the user has already seen the onboarding.
 final firstLoginCompletedProvider =
     FutureProvider.autoDispose<bool>((ref) async {
   final val = await AppStorage.readKey(_kFirstLoginKey);
   return val == 'true';
 });
 
-/// Writes the first_login_complete flag so onboarding is skipped on next login.
 Future<void> markOnboardingComplete() async {
   await AppStorage.writeKey(_kFirstLoginKey, 'true');
 }
@@ -31,9 +28,7 @@ class WelcomeIntroScreen extends ConsumerWidget {
   Future<void> _skip(BuildContext context, WidgetRef ref) async {
     await markOnboardingComplete();
     await ref.read(authProvider.notifier).clearOnboardingFlag();
-    if (context.mounted) {
-      context.go('/teacher/dashboard');
-    }
+    if (context.mounted) context.go('/teacher/dashboard');
   }
 
   @override
@@ -43,7 +38,6 @@ class WelcomeIntroScreen extends ConsumerWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // Skip button top-right
             Positioned(
               top: AppSpacing.s,
               right: AppSpacing.l,
@@ -51,92 +45,93 @@ class WelcomeIntroScreen extends ConsumerWidget {
                 onPressed: () => _skip(context, ref),
                 child: Text(
                   "O'tkazib yuborish",
-                  style: AppTextStyles.bodyS.copyWith(
-                    color: AppColors.brandMuted,
-                  ),
+                  style:
+                      AppTextStyles.bodyS.copyWith(color: AppColors.brandMuted),
                 ),
               ),
             ),
-
-            // Main content
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: AppSpacing.l),
-                  const OnboardingPageIndicator(activeIndex: 0, totalPages: 3),
+                  const OnboardingEntrance(
+                    child:
+                        OnboardingPageIndicator(activeIndex: 0, totalPages: 3),
+                  ),
                   const SizedBox(height: AppSpacing.xl),
 
                   // Brand mark
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.brand,
-                          borderRadius: BorderRadius.circular(AppRadii.m),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'A',
-                          style: AppTextStyles.titleL.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
+                  OnboardingEntrance(
+                    delay: const Duration(milliseconds: 80),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.brand,
+                            borderRadius: BorderRadius.circular(AppRadii.m),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'A',
+                            style: AppTextStyles.titleL.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.m),
-                      Text(
-                        "A'lochi Ustoz",
-                        style: AppTextStyles.titleL.copyWith(
-                          color: AppColors.brand,
+                        const SizedBox(width: AppSpacing.m),
+                        Text(
+                          "A'lochi Ustoz",
+                          style: AppTextStyles.titleL.copyWith(
+                            color: AppColors.brand,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // Tree illustration placeholder
-                  Expanded(
-                    child: Center(
-                      child: _TreeIllustration(),
+                      ],
                     ),
                   ),
 
+                  const SizedBox(height: AppSpacing.xl),
+                  const Expanded(child: _AnimatedTreeIllustration()),
                   const SizedBox(height: AppSpacing.l),
 
-                  // Heading
-                  Text(
-                    'Xush kelibsiz, Ustoz!',
-                    style: AppTextStyles.displayM.copyWith(
-                      color: AppColors.ink,
+                  OnboardingEntrance(
+                    delay: const Duration(milliseconds: 200),
+                    child: Text(
+                      'Xush kelibsiz, Ustoz!',
+                      style:
+                          AppTextStyles.displayM.copyWith(color: AppColors.ink),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.m),
 
-                  // Subtitle
-                  Text(
-                    "A'lochi platformasi sizning ish faoliyatingizni soddalashtiradi",
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.brandMuted,
+                  OnboardingEntrance(
+                    delay: const Duration(milliseconds: 250),
+                    child: Text(
+                      "A'lochi platformasi sizning ish faoliyatingizni soddalashtiradi",
+                      style: AppTextStyles.body
+                          .copyWith(color: AppColors.brandMuted),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
-                  // Feature bullets
-                  const _FeatureBullets(),
+                  const _AnimatedFeatureBullets(),
                   const SizedBox(height: AppSpacing.xl),
 
-                  // CTA
-                  AlochiButton.primary(
-                    label: 'Davom etish',
-                    icon: Icons.arrow_forward_rounded,
-                    onPressed: () => context.go('/teacher/onboarding/features'),
+                  OnboardingEntrance(
+                    delay: const Duration(milliseconds: 450),
+                    child: AlochiButton.primary(
+                      label: 'Davom etish',
+                      icon: Icons.arrow_forward_rounded,
+                      onPressed: () =>
+                          context.go('/teacher/onboarding/features'),
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.l),
                 ],
@@ -149,63 +144,97 @@ class WelcomeIntroScreen extends ConsumerWidget {
   }
 }
 
-// ─── Tree illustration ────────────────────────────────────────────────────────
+// ─── Animated tree illustration ───────────────────────────────────────────────
 
-class _TreeIllustration extends StatelessWidget {
+class _AnimatedTreeIllustration extends StatefulWidget {
+  const _AnimatedTreeIllustration();
+
   @override
-  Widget build(BuildContext context) {
-    // SVG asset rendered as a simple placeholder using Material icon
-    // Full SVG rendering requires flutter_svg which may not be in pubspec.
-    // Using branded container with tree icon as a safe fallback.
-    return const _TreePlaceholder();
-  }
+  State<_AnimatedTreeIllustration> createState() =>
+      _AnimatedTreeIllustrationState();
 }
 
-class _TreePlaceholder extends StatelessWidget {
-  const _TreePlaceholder();
+class _AnimatedTreeIllustrationState extends State<_AnimatedTreeIllustration>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _scale;
+  late Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      duration: const Duration(milliseconds: 700),
+      vsync: this,
+    );
+    _scale = Tween<double>(begin: 0.7, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.elasticOut),
+    );
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeIn);
+    Future.delayed(const Duration(milliseconds: 150), () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      height: 200,
-      decoration: const BoxDecoration(
-        color: AppColors.brandSoft,
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(
-        Icons.park_rounded,
-        size: 96,
-        color: AppColors.brand,
+    return FadeTransition(
+      opacity: _fade,
+      child: ScaleTransition(
+        scale: _scale,
+        child: Center(
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: const BoxDecoration(
+              color: AppColors.brandSoft,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.park_rounded,
+              size: 96,
+              color: AppColors.brand,
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-// ─── Feature bullets ──────────────────────────────────────────────────────────
+// ─── Animated feature bullets ─────────────────────────────────────────────────
 
-class _FeatureBullets extends StatelessWidget {
-  const _FeatureBullets();
+class _AnimatedFeatureBullets extends StatelessWidget {
+  const _AnimatedFeatureBullets();
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        _BulletRow(
-          icon: Icons.checklist_rounded,
-          text: 'Davomat va baholarni bir joyda',
-        ),
-        SizedBox(height: AppSpacing.m),
-        _BulletRow(
-          icon: Icons.chat_bubble_outline_rounded,
-          text: "O'quvchilar bilan to'g'ridan-to'g'ri aloqa",
-        ),
-        SizedBox(height: AppSpacing.m),
-        _BulletRow(
-          icon: Icons.auto_awesome_rounded,
-          text: 'AI yordami har qadamda',
-        ),
-      ],
+    const items = [
+      (Icons.checklist_rounded, 'Davomat va baholarni bir joyda'),
+      (
+        Icons.chat_bubble_outline_rounded,
+        "O'quvchilar bilan to'g'ridan-to'g'ri aloqa"
+      ),
+      (Icons.auto_awesome_rounded, 'AI yordami har qadamda'),
+    ];
+    return Column(
+      children: items.indexed.map((entry) {
+        final (i, item) = entry;
+        return OnboardingStaggerItem(
+          index: i + 3,
+          child: Padding(
+            padding: EdgeInsets.only(
+                bottom: i < items.length - 1 ? AppSpacing.m : 0),
+            child: _BulletRow(icon: item.$1, text: item.$2),
+          ),
+        );
+      }).toList(),
     );
   }
 }

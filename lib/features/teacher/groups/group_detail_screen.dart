@@ -347,8 +347,9 @@ class _AttendanceBarChart extends StatelessWidget {
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < 0 || index >= points.length)
+                        if (index < 0 || index >= points.length) {
                           return const SizedBox.shrink();
+                        }
                         return Text(
                           points[index].label.split('-').last,
                           style: const TextStyle(
@@ -442,8 +443,9 @@ class _GradeLineChart extends StatelessWidget {
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < 0 || index >= points.length)
+                        if (index < 0 || index >= points.length) {
                           return const SizedBox.shrink();
+                        }
                         return Text(
                           points[index].label.split('-').last,
                           style: const TextStyle(
