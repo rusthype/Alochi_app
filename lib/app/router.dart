@@ -44,6 +44,7 @@ import '../features/teacher/messages/message_compose_screen.dart';
 import '../features/teacher/ai/ai_welcome_screen.dart';
 import '../features/teacher/ai/ai_chat_screen.dart';
 import '../features/teacher/telegram/telegram_parents_screen.dart';
+import '../features/teacher/telegram/telegram_broadcast_screen.dart';
 import '../features/teacher/telegram/unlinked_parents_screen.dart';
 import '../features/teacher/profile/profile_screen.dart' as teacher_profile;
 import '../features/teacher/profile/profile_edit_screen.dart';
@@ -299,6 +300,10 @@ final routerProvider = Provider<GoRouter>((ref) {
               final id = state.pathParameters['id'] ?? '';
               return UnlinkedParentsScreen(groupId: id);
             },
+          ),
+          GoRoute(
+            path: '/teacher/telegram/broadcast',
+            builder: (context, state) => const TelegramBroadcastScreen(),
           ),
         ],
       ),

@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/teacher_api.dart';
+import '../../../core/api/connectivity_provider.dart';
+import '../../../core/storage/offline_sync.dart';
 import '../../../core/models/attendance_model.dart';
 import '../../../core/models/student_model.dart';
 import '../dashboard/dashboard_provider.dart';
@@ -66,11 +68,13 @@ class AttendanceMarkingNotifier
   final TeacherApi _api;
   final String classId;
   final String date;
+  final Ref ref;
 
   AttendanceMarkingNotifier({
     required TeacherApi api,
     required this.classId,
     required this.date,
+    required this.ref,
   })  : _api = api,
         super(const AsyncValue.loading()) {
     _load();
@@ -123,13 +127,37 @@ class AttendanceMarkingNotifier
   Future<void> save() async {
     final current = state.valueOrNull;
     if (current == null || !current.canSave) return;
+    
+    final isOnline = ref.read(isOnlineProvider);
     state = AsyncValue.data(current.copyWith(isSaving: true, error: null));
+    
     try {
-      await _api.markAttendance(
-        classId: classId,
-        date: date,
-        statuses: current.statuses,
-      );
+      if (isOnline) {
+        await _api.markAttendance(
+          classId: classId,
+          date: date,
+          statuses: current.statuses,
+        );
+      } else {
+        // Offline sinxronizatsiya uchun payload tayyorlash
+        final statusStrings = current.statuses.map(
+          (key, value) => MapEntry(key, AttendanceRecordModel.statusToString(value)),
+        );
+        
+        await OfflineSyncService.enqueue(
+          type: 'attendance',
+          endpoint: '/teacher/attendance/mark/',
+          payload: {
+            'class_id': classId,
+            'date': date,
+            'statuses': statusStrings,
+          },
+        );
+        
+        // Simulyatsiya uchun biroz kutamiz
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
       state = AsyncValue.data(current.copyWith(
         isSaving: false,
         hasUnsavedChanges: false,
@@ -154,6 +182,7 @@ final attendanceMarkingProvider = StateNotifierProvider.autoDispose.family<
     api: api,
     classId: key.classId,
     date: key.date,
+    ref: ref,
   );
 });
 

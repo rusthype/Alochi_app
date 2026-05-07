@@ -54,7 +54,6 @@ class _GreetingHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(teacherProfileProvider);
-    final unreadCount = ref.watch(unreadNotificationsCountProvider);
     final name = profileAsync.valueOrNull?.name.split(' ').first;
     final displayName = name != null && name.isNotEmpty ? '$name Ustoz' : 'Ustoz';
 
@@ -78,7 +77,6 @@ class _GreetingHeader extends ConsumerWidget {
               Text(
                 displayName,
                 style: AppTextStyles.displayM.copyWith(
-                  fontSize: 24,
                   fontWeight: FontWeight.w600,
                   letterSpacing: -0.5,
                   color: AppColors.ink,
@@ -86,39 +84,59 @@ class _GreetingHeader extends ConsumerWidget {
               ),
             ],
           ),
-          GestureDetector(
-            onTap: () => context.push('/teacher/notifications'),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF4F5F7),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: AppColors.ink,
-                    size: 20,
-                  ),
-                ),
-                if (unreadCount > 0)
-                  Positioned(
-                    right: -2,
-                    top: -2,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: AppColors.brand,
+          Material(
+            color: Colors.transparent,
+            child: Tooltip(
+              message: 'Bildirishnomalar',
+              child: InkWell(
+                onTap: () => context.push('/teacher/notifications'),
+                borderRadius: BorderRadius.circular(20),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF4F5F7),
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: AppColors.ink,
+                        size: 20,
                       ),
                     ),
-                  ),
-              ],
+                    Consumer(builder: (ctx, ref, _) {
+                      final count = ref.watch(unreadCountProvider).valueOrNull ?? 0;
+                      if (count == 0) return const SizedBox.shrink();
+                      return Positioned(
+                        right: -2,
+                        top: -2,
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: AppColors.danger,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Center(
+                            child: Text(
+                              count > 9 ? '9+' : '$count',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -152,13 +170,17 @@ class _TodayLessonsSection extends StatelessWidget {
                   letterSpacing: 0.5,
                 ),
               ),
-              GestureDetector(
+              InkWell(
                 onTap: () => context.go('/teacher/groups'),
-                child: Text(
-                  'Hammasi',
-                  style: AppTextStyles.label.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.brand,
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    'Hammasi',
+                    style: AppTextStyles.label.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brand,
+                    ),
                   ),
                 ),
               ),
@@ -214,11 +236,10 @@ class _ActiveLessonCard extends StatelessWidget {
                   color: AppColors.brand,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text(
+                child: Text(
                   'HOZIR',
-                  style: TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: Colors.white,
-                    fontSize: 10,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
                   ),
@@ -245,9 +266,8 @@ class _ActiveLessonCard extends StatelessWidget {
                 ),
                 child: Text(
                   lesson.className,
-                  style: const TextStyle(
-                    color: Color(0xFFA8D5CD),
-                    fontSize: 11,
+                  style: AppTextStyles.caption.copyWith(
+                    color: const Color(0xFFA8D5CD),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -256,9 +276,8 @@ class _ActiveLessonCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   lesson.subject,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: Colors.white,
-                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
@@ -270,9 +289,8 @@ class _ActiveLessonCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '${lesson.studentCount} o\'quvchi${lesson.topic.isNotEmpty ? ' · ${lesson.topic}' : ''}',
-            style: AppTextStyles.caption.copyWith(
+            style: AppTextStyles.label.copyWith(
               color: AppColors.gray2,
-              fontSize: 12,
               height: 1.5,
             ),
             maxLines: 1,
@@ -280,44 +298,47 @@ class _ActiveLessonCard extends StatelessWidget {
           ),
           const Spacer(),
 
-          GestureDetector(
-            onTap: () {
-              final lessonModel = LessonModel(
-                id: lesson.id,
-                groupId: lesson.groupId,
-                groupName: lesson.className,
-                subject: lesson.subject,
-                startTime: lesson.time.split('-').first.trim(),
-                endTime: lesson.time.contains('-') 
-                    ? lesson.time.split('-').last.trim() 
-                    : '',
-                room: '',
-                isNow: lesson.isActive,
-                studentsCount: lesson.studentCount,
-              );
-              context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.brand,
-                borderRadius: BorderRadius.circular(11),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.brand.withValues(alpha: 0.5),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
-                    spreadRadius: -4,
+          Material(
+            color: AppColors.brand,
+            borderRadius: BorderRadius.circular(11),
+            child: InkWell(
+              onTap: () {
+                final lessonModel = LessonModel(
+                  id: lesson.id,
+                  groupId: lesson.groupId,
+                  groupName: lesson.className,
+                  subject: lesson.subject,
+                  startTime: lesson.time.split('-').first.trim(),
+                  endTime: lesson.time.contains('-') 
+                      ? lesson.time.split('-').last.trim() 
+                      : '',
+                  room: '',
+                  isNow: lesson.isActive,
+                  studentsCount: lesson.studentCount,
+                );
+                context.push('/teacher/lessons/${lesson.id}', extra: lessonModel);
+              },
+              borderRadius: BorderRadius.circular(11),
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.brand.withValues(alpha: 0.5),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                      spreadRadius: -4,
+                    ),
+                  ],
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  'Darsni ochish ›',
+                  style: AppTextStyles.bodyS.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: const Text(
-                'Darsni ochish ›',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -365,9 +386,8 @@ class _InactiveLessonCard extends StatelessWidget {
                 ),
                 child: Text(
                   lesson.className,
-                  style: const TextStyle(
+                  style: AppTextStyles.caption.copyWith(
                     color: AppColors.brand,
-                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -376,9 +396,8 @@ class _InactiveLessonCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   lesson.subject,
-                  style: const TextStyle(
+                  style: AppTextStyles.body.copyWith(
                     color: AppColors.ink,
-                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),
                   maxLines: 1,
@@ -390,9 +409,8 @@ class _InactiveLessonCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '${lesson.studentCount} o\'quvchi${lesson.timeStatus.isNotEmpty ? ' · ${lesson.timeStatus}' : ''}',
-            style: AppTextStyles.caption.copyWith(
+            style: AppTextStyles.label.copyWith(
               color: AppColors.gray,
-              fontSize: 12,
               height: 1.5,
             ),
             maxLines: 1,
@@ -407,11 +425,10 @@ class _InactiveLessonCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(11),
             ),
             alignment: Alignment.center,
-            child: const Text(
+            child: Text(
               'Tayyorlanish',
-              style: TextStyle(
-                color: Color(0xFF6B7280),
-                fontSize: 12,
+              style: AppTextStyles.label.copyWith(
+                color: const Color(0xFF6B7280),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -447,13 +464,17 @@ class _ConcernsSection extends StatelessWidget {
                   letterSpacing: 0.5,
                 ),
               ),
-              GestureDetector(
+              InkWell(
                 onTap: () {}, // All concerns
-                child: Text(
-                  'Hammasi',
-                  style: AppTextStyles.label.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.brand,
+                borderRadius: BorderRadius.circular(4),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    'Hammasi',
+                    style: AppTextStyles.label.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.brand,
+                    ),
                   ),
                 ),
               ),
@@ -511,62 +532,80 @@ class _ConcernItem extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(11).copyWith(right: 13),
-      decoration: BoxDecoration(
+      child: Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.line),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 30,
-            height: 30,
+        child: InkWell(
+          onTap: () {
+            // Navigate based on concern type
+            switch (concern.type) {
+              case 'homework':
+                context.push('/teacher/homework');
+                break;
+              case 'messages':
+                context.push('/teacher/messages');
+                break;
+              case 'telegram':
+                context.push('/teacher/telegram/unlinked');
+                break;
+            }
+          },
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.all(11).copyWith(right: 13),
             decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppColors.line),
             ),
-            alignment: Alignment.center,
-            child: Text(
-              iconText,
-              style: TextStyle(
-                color: iconColor,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(width: 11),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  concern.title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.ink,
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: iconBg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    iconText,
+                    style: AppTextStyles.bodyS.copyWith(
+                      color: iconColor,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 11),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        concern.title,
+                        style: AppTextStyles.bodyS.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      Text(
+                        subtitle,
+                        style: AppTextStyles.caption.copyWith(
+                          color: const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF9CA3AF),
+                  '›',
+                  style: AppTextStyles.titleM.copyWith(
+                    color: const Color(0xFF9CA3AF),
                   ),
                 ),
               ],
             ),
           ),
-          const Text(
-            '›',
-            style: TextStyle(
-              color: Color(0xFF9CA3AF),
-              fontSize: 18,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

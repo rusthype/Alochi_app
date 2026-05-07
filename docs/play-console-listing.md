@@ -1,4 +1,4 @@
-# Play Console Listing — A'lochi Ustoz V1.1
+# Play Console Listing — A'lochi Ustoz V1.3
 
 Ushbu hujjat Google Play Console'ga ilovani joylashtirish uchun zarur bo'lgan matnlarni o'z ichiga oladi.
 
@@ -26,11 +26,11 @@ A'lochi Ustoz ilovasi o'qituvchining qog'ozbozlikka sarflaydigan vaqtini tejaydi
 Ilova mutlaqo bepul va O'zbekiston Respublikasi maktablari uchun moslashtirilgan.
 
 **Yangi nima bor (What's new):**
-V1.1 — birinchi ommaviy reliz:
-- Ustozlar uchun yangi dashboard va boshqaruv paneli.
-- AI yordamchi (beta) integratsiyasi.
-- Telegram orqali ota-onalar bilan bog'lanish tizimi.
-- Davomat va baholash funksiyalari.
+V1.3 — Navbatdagi reliz:
+- UI dizaynni to'liq yangilanishi va optimallash.
+- Splash screen va app launch tajribasini yaxshilash.
+- Accessibility (maxsus imkoniyatlar) va typography audit.
+- AI yordamchi va Telegram integratsiyasidagi xatoliklar tuzatildi.
 
 ---
 
@@ -56,11 +56,11 @@ A'lochi Ustoz — это современный и удобный рабочий
 Приложение полностью бесплатное и адаптировано для школ Республики Узбекистан.
 
 **Что нового (What's new):**
-V1.1 — первый публичный релиз:
-- Новый дашборд и панель управления для учителей.
-- Интеграция AI помощника (beta).
-- Система связи с родителями через Telegram.
-- Функции посещаемости и оценивания.
+V1.3 — Следующий релиз:
+- Полное обновление и оптимизация дизайна пользовательского интерфейса.
+- Улучшение заставки и опыта запуска приложения.
+- Аудит специальных возможностей (accessibility) и типографики.
+- Исправлены ошибки в AI помощнике и интеграции с Telegram.
 
 ---
 
@@ -86,11 +86,11 @@ The A'lochi Teacher app saves teachers time spent on paperwork and helps them fo
 The app is completely free and tailored for schools in the Republic of Uzbekistan.
 
 **What's new (What's new):**
-V1.1 — First public release:
-- New dashboard and management panel for teachers.
-- AI assistant (beta) integration.
-- Parent communication system via Telegram.
-- Attendance and grading features.
+V1.3 — Next release:
+- Complete UI design update and optimization.
+- Improved splash screen and app launch experience.
+- Accessibility and typography audit.
+- Bug fixes in AI assistant and Telegram integration.
 
 ---
 

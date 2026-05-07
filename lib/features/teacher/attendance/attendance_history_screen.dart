@@ -191,7 +191,6 @@ class _SummaryCard extends StatelessWidget {
                     Text(
                       '${percent.toStringAsFixed(0)}%',
                       style: AppTextStyles.displayL.copyWith(
-                        fontSize: 32,
                         fontWeight: FontWeight.w700,
                         color:
                             isGood ? const Color(0xFF0F9A6E) : AppColors.brand,
@@ -287,11 +286,10 @@ class _AttendanceChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('KUNLIK DAVOMAT',
-              style: TextStyle(
-                fontSize: 10,
+          Text('KUNLIK DAVOMAT',
+              style: AppTextStyles.caption.copyWith(
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF9CA3AF),
+                color: const Color(0xFF9CA3AF),
                 letterSpacing: 0.5,
               )),
           const SizedBox(height: 20),
@@ -355,7 +353,7 @@ class _BarItem extends StatelessWidget {
         Text(
           data.date.split('-').last,
           style: AppTextStyles.caption
-              .copyWith(fontSize: 9, color: const Color(0xFF9CA3AF)),
+              .copyWith(color: const Color(0xFF9CA3AF)),
         ),
       ],
     );
@@ -392,12 +390,11 @@ class _LowAttendanceSection extends StatelessWidget {
                       size: 16, color: Color(0xFFDC2626)),
                 ),
                 const SizedBox(width: 12),
-                const Text(
+                Text(
                   'Past davomatli o\'quvchilar',
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: AppTextStyles.body.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF111827),
+                    color: const Color(0xFF111827),
                   ),
                 ),
               ],
@@ -433,7 +430,7 @@ class _LowAttendanceRow extends StatelessWidget {
               children: [
                 Text(
                   student.name,
-                  style: AppTextStyles.titleM.copyWith(fontSize: 14),
+                  style: AppTextStyles.titleM,
                 ),
                 Text(
                   "${student.missedLessons} kun qoldirgan",
@@ -445,10 +442,9 @@ class _LowAttendanceRow extends StatelessWidget {
           ),
           Text(
             '${student.attendancePct.toStringAsFixed(0)}%',
-            style: AppTextStyles.titleM.copyWith(
+            style: AppTextStyles.body.copyWith(
               color: const Color(0xFFDC2626),
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

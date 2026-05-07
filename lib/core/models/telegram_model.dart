@@ -33,21 +33,31 @@ class UnlinkedParentData {
   final String parentName;
   final String studentName;
   final String phone;
+  final DateTime? sentAt;
 
   const UnlinkedParentData({
     required this.parentId,
     required this.parentName,
     required this.studentName,
     required this.phone,
+    this.sentAt,
   });
 
   factory UnlinkedParentData.fromJson(Map<String, dynamic> json) {
+    DateTime? sent;
+    if (json['sent_at'] != null) {
+      try {
+        sent = DateTime.parse(json['sent_at'].toString());
+      } catch (_) {}
+    }
+
     return UnlinkedParentData(
       parentId: json['parent_id']?.toString() ?? json['id']?.toString() ?? '',
       parentName:
           json['parent_name']?.toString() ?? json['name']?.toString() ?? '',
       studentName: json['student_name']?.toString() ?? '',
       phone: json['phone']?.toString() ?? '',
+      sentAt: sent,
     );
   }
 }

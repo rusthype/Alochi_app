@@ -73,6 +73,14 @@ class TelegramParentsScreen extends ConsumerWidget {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/teacher/telegram/broadcast'),
+        backgroundColor: AppColors.brand,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.send_rounded),
+        label: const Text("Broadcast"),
+        elevation: 2,
+      ),
     );
   }
 }

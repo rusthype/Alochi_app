@@ -1,61 +1,111 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../api/api_client.dart';
 
-/// Offline Sync Skeleton for A'lochi Teacher v1.1.
-/// Handles queueing of API requests when offline and replaying them when online.
-class OfflineSyncService {
-  static final OfflineSyncService _instance = OfflineSyncService._internal();
-  factory OfflineSyncService() => _instance;
-  OfflineSyncService._internal();
+/// Offline operations that are stored when the device is offline.
+class PendingOperation {
+  final String id;
+  final String type; // 'attendance'|'grade'|'homework'
+  final String endpoint; // '/teacher/attendance/mark/'
+  final Map<String, dynamic> payload;
+  final DateTime createdAt;
+  int retryCount;
 
-  final List<OfflineOp> _queue = [];
+  PendingOperation({
+    required this.id,
+    required this.type,
+    required this.endpoint,
+    required this.payload,
+    required this.createdAt,
+    this.retryCount = 0,
+  });
 
-  /// Adds a operation to the queue.
-  /// If [isOnline] is true, it might attempt immediate execution.
-  Future<void> queueOp(OfflineOp op) async {
-    _queue.add(op);
-    debugPrint('OfflineSync: Queued ${op.type} for ${op.path}');
-    // In a real implementation, we would save this to Hive/sqflite here.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'type': type,
+      'endpoint': endpoint,
+      'payload': payload,
+      'createdAt': createdAt.toIso8601String(),
+      'retryCount': retryCount,
+    };
   }
 
-  /// Attempts to sync all pending operations.
-  Future<void> sync() async {
-    if (_queue.isEmpty) return;
-    debugPrint('OfflineSync: Starting sync of ${_queue.length} operations');
+  factory PendingOperation.fromMap(Map<dynamic, dynamic> map) {
+    return PendingOperation(
+      id: map['id'] as String,
+      type: map['type'] as String,
+      endpoint: map['endpoint'] as String,
+      payload: Map<String, dynamic>.from(map['payload'] as Map),
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      retryCount: (map['retryCount'] as num?)?.toInt() ?? 0,
+    );
+  }
+}
+
+/// Service to handle offline data synchronization.
+class OfflineSyncService {
+  static const _boxName = 'pending_ops';
+
+  /// Adds a new operation to the persistent offline queue.
+  static Future<void> enqueue({
+    required String type,
+    required String endpoint,
+    required Map<String, dynamic> payload,
+  }) async {
+    final box = await Hive.openBox(_boxName);
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final op = PendingOperation(
+      id: id,
+      type: type,
+      endpoint: endpoint,
+      payload: payload,
+      createdAt: DateTime.now(),
+    );
+    await box.put(id, op.toMap());
+    debugPrint('OfflineSync: Navbatga qo\'shildi: $type. Jami: ${box.length}');
+  }
+
+  /// Attempts to send all pending operations to the server.
+  static Future<void> flushQueue(ApiClient client) async {
+    if (!await Hive.boxExists(_boxName)) return;
     
-    final items = List<OfflineOp>.from(_queue);
-    for (final op in items) {
+    final box = await Hive.openBox(_boxName);
+    if (box.isEmpty) return;
+
+    debugPrint('OfflineSync: ${box.length} ta kutilayotgan amal yuborilmoqda...');
+    
+    // Convert keys to list to avoid concurrent modification issues
+    final keys = box.keys.toList();
+
+    for (final key in keys) {
+      final map = box.get(key);
+      if (map == null) continue;
+      
+      final op = PendingOperation.fromMap(map as Map);
+
       try {
-        await _executeOp(op);
-        _queue.remove(op);
+        await client.post(op.endpoint, data: op.payload);
+        await box.delete(key);
+        debugPrint('OfflineSync: Muvaffaqiyatli sinxronlandi: ${op.type}');
       } catch (e) {
-        debugPrint('OfflineSync: Failed to sync ${op.type}: $e');
-        // Stop sync on first error to preserve order
-        break;
+        op.retryCount++;
+        if (op.retryCount >= 3) {
+          await box.delete(key);
+          debugPrint('OfflineSync: 3 marta xatolikdan so\'ng o\'chirildi: ${op.type}');
+        } else {
+          await box.put(key, op.toMap());
+          debugPrint('OfflineSync: Xatolik ${op.type} (urinish: ${op.retryCount})');
+        }
+        // Order is important for many operations, so we stop on first error
+        break; 
       }
     }
   }
 
-  Future<void> _executeOp(OfflineOp op) async {
-    // In real implementation, this would use ApiClient to replay the request
-    await Future.delayed(const Duration(milliseconds: 500));
-    debugPrint('OfflineSync: Successfully executed ${op.type}');
+  /// Returns the number of pending operations.
+  static Future<int> get pendingCount async {
+    final box = await Hive.openBox(_boxName);
+    return box.length;
   }
-
-  int get pendingCount => _queue.length;
-}
-
-enum OfflineOpType { post, put, delete, patch }
-
-class OfflineOp {
-  final OfflineOpType type;
-  final String path;
-  final Map<String, dynamic>? data;
-  final DateTime timestamp;
-
-  OfflineOp({
-    required this.type,
-    required this.path,
-    this.data,
-    DateTime? timestamp,
-  }) : timestamp = timestamp ?? DateTime.now();
 }

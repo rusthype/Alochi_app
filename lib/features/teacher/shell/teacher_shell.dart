@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/alochi_bottom_nav.dart';
 import '../../../shared/widgets/alochi_offline_banner.dart';
 import '../../../core/api/connectivity_provider.dart';
+import '../../../core/api/api_client.dart';
+import '../../../core/storage/offline_sync.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../groups/groups_list_screen.dart';
 import '../homework/homework_list_screen.dart';
@@ -30,6 +32,21 @@ class _TeacherShellState extends ConsumerState<TeacherShell> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(isOnlineProvider, (prev, next) async {
+      if (next == true && (prev == false || prev == null)) {
+        await OfflineSyncService.flushQueue(ApiClient.instance);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Internet tiklandi — ma\'lumotlar sinxronlandi'),
+              backgroundColor: Color(0xFF0F9A6E),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    });
+
     final location = GoRouterState.of(context).uri.toString();
 
     int currentIndex = 0;

@@ -568,6 +568,25 @@ class TeacherApi {
     }
   }
 
+  /// POST /teacher/telegram/broadcast/
+  /// Payload: {group_id: "all"|groupId, message: text, type: "text"|"attendance"|"grades"}
+  Future<void> broadcastTelegramMessage({
+    required String groupId,
+    required String message,
+    required String type,
+  }) async {
+    try {
+      await _client.post('/teacher/telegram/broadcast/', data: {
+        'group_id': groupId,
+        'message': message,
+        'type': type,
+      });
+    } catch (e, st) {
+      debugPrint('broadcastTelegramMessage error: $e\n$st');
+      rethrow;
+    }
+  }
+
   // ───── Teacher profile ───────────────────────────────────────────────────
 
   /// GET /teacher/profile/ → {id, name, username, phone}

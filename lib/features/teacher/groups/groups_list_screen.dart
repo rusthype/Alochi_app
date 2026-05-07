@@ -32,7 +32,7 @@ class _GroupsListScreenState extends ConsumerState<GroupsListScreen> {
         titleWidget: Text(
           'Guruhlar',
           style: AppTextStyles.displayM.copyWith(
-            fontSize: 28,
+            fontWeight: FontWeight.w700,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -194,93 +194,97 @@ class _GroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final attColor = _attendanceColor(group.attendancePct);
 
-    return GestureDetector(
-      onTap: () => context.push('/teacher/groups/${group.id}'),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFFEFEFEF)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                AlochiPill(label: group.code, variant: AlochiPillVariant.brand),
-                const SizedBox(width: AppSpacing.m),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        group.subjectName,
-                        style: AppTextStyles.titleM.copyWith(
-                          color: AppColors.ink,
-                          fontSize: 14,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        "${group.studentsCount} o'quvchi"
-                        "${group.nextLessonAt != null ? ' · ${group.nextLessonAt}' : ''}",
-                        style: AppTextStyles.caption
-                            .copyWith(color: const Color(0xFF6B7280)),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right_rounded,
-                    color: Color(0xFFD1D5DB)),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Davomat',
-                              style: AppTextStyles.caption
-                                  .copyWith(color: const Color(0xFF6B7280))),
-                          Text(
-                            '${group.attendancePct.toStringAsFixed(0)}%',
-                            style: AppTextStyles.caption.copyWith(
-                                color: attColor, fontWeight: FontWeight.w600),
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: () => context.push('/teacher/groups/${group.id}'),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFEFEFEF)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  AlochiPill(label: group.code, variant: AlochiPillVariant.brand),
+                  const SizedBox(width: AppSpacing.m),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          group.subjectName,
+                          style: AppTextStyles.bodyS.copyWith(
+                            color: AppColors.ink,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          "${group.studentsCount} o'quvchi"
+                          "${group.nextLessonAt != null ? ' · ${group.nextLessonAt}' : ''}",
+                          style: AppTextStyles.caption
+                              .copyWith(color: const Color(0xFF6B7280)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded,
+                      color: Color(0xFFD1D5DB)),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Davomat',
+                                style: AppTextStyles.caption
+                                    .copyWith(color: const Color(0xFF6B7280))),
+                            Text(
+                              '${group.attendancePct.toStringAsFixed(0)}%',
+                              style: AppTextStyles.caption.copyWith(
+                                  color: attColor, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        _ProgressBar(
+                            value: group.attendancePct / 100, color: attColor),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text("O'rtacha",
+                          style: AppTextStyles.caption
+                              .copyWith(color: const Color(0xFF6B7280))),
+                      Text(
+                        group.avgGrade.toStringAsFixed(1),
+                        style: AppTextStyles.body.copyWith(
+                          color: AppColors.brand,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      const SizedBox(height: 6),
-                      _ProgressBar(
-                          value: group.attendancePct / 100, color: attColor),
                     ],
                   ),
-                ),
-                const SizedBox(width: 24),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text("O'rtacha",
-                        style: AppTextStyles.caption
-                            .copyWith(color: const Color(0xFF6B7280))),
-                    Text(
-                      group.avgGrade.toStringAsFixed(1),
-                      style: AppTextStyles.titleM.copyWith(
-                        color: AppColors.brand,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

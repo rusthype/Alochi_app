@@ -262,7 +262,6 @@ class _StatTile extends StatelessWidget {
               count.toString(),
               style: AppTextStyles.titleL.copyWith(
                 color: textColor,
-                fontSize: 20,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -270,7 +269,6 @@ class _StatTile extends StatelessWidget {
               label,
               style: AppTextStyles.caption.copyWith(
                 color: textColor.withValues(alpha: 0.8),
-                fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -355,7 +353,6 @@ class _StudentAttendanceRow extends StatelessWidget {
               student.fullName,
               style: AppTextStyles.titleM.copyWith(
                 color: AppColors.ink,
-                fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
               maxLines: 1,
@@ -413,10 +410,7 @@ class _StickySaveButton extends StatelessWidget {
                 children: [
                   const Text(
                     'Saqlash',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.titleM,
                   ),
                   const SizedBox(width: 10),
                   Container(
@@ -428,9 +422,9 @@ class _StickySaveButton extends StatelessWidget {
                     ),
                     child: Text(
                       '${state.markedCount}/${state.students.length}',
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: AppTextStyles.label.copyWith(
                         fontWeight: FontWeight.w600,
+                        color: Colors.white,
                       ),
                     ),
                   ),

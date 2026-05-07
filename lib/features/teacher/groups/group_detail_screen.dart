@@ -275,7 +275,7 @@ class _MetricCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(subtitle, style: AppTextStyles.caption.copyWith(fontSize: 10, color: AppColors.gray2)),
+          Text(subtitle, style: AppTextStyles.caption.copyWith(color: AppColors.gray2)),
         ],
       ),
     );

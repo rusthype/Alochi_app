@@ -146,8 +146,7 @@ class _AiChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             children: [
               Text(
                 'AI Yordamchi',
-                style: AppTextStyles.titleM
-                    .copyWith(color: AppColors.ink, fontSize: 14),
+                style: AppTextStyles.titleM.copyWith(color: AppColors.ink),
               ),
               Text(
                 'Pedagogik yordamchi',
@@ -370,7 +369,6 @@ class _AiMessageBubble extends StatelessWidget {
                       color: isUser
                           ? AppColors.brandMuted
                           : AppColors.accentInk.withValues(alpha: 0.7),
-                      fontSize: 10,
                     ),
                   ),
                 ],
