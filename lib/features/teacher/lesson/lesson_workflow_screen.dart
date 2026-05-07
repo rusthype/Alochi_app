@@ -13,7 +13,12 @@ import '../../../core/models/student_model.dart';
 import '../../../core/models/attendance_model.dart';
 import '../attendance/attendance_provider.dart';
 import '../homework/homework_provider.dart';
+import '../dashboard/dashboard_provider.dart';
 import 'lesson_provider.dart';
+
+// Topic grade per student (2-5) — saved to grades/set endpoint
+final topicGradeProvider =
+    StateProvider.autoDispose.family<Map<String, int>, String>((ref, id) => {});
 
 final homeworkCheckProvider =
     StateProvider.autoDispose.family<Set<String>, String>((ref, id) => {});
@@ -651,9 +656,9 @@ class _Step2HomeworkCheck extends ConsumerWidget {
   }
 }
 
-// ─── Step 3 — Aktivlik baholash ───────────────────────────────────────────────
+// ─── Step 3 — Baholash (mavzu baho + aktivlik) ───────────────────────────────
 
-class _Step3ActivityContent extends ConsumerWidget {
+class _Step3ActivityContent extends ConsumerStatefulWidget {
   final LessonDetailModel lesson;
   final String groupId;
   final LessonWorkflowNotifier notifier;
@@ -665,12 +670,63 @@ class _Step3ActivityContent extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ratings = ref.watch(activityRatingProvider(groupId));
-    final ratingNotifier = ref.read(activityRatingProvider(groupId).notifier);
+  ConsumerState<_Step3ActivityContent> createState() =>
+      _Step3ActivityContentState();
+}
+
+class _Step3ActivityContentState extends ConsumerState<_Step3ActivityContent> {
+  bool _isSaving = false;
+
+  String _today() {
+    final n = DateTime.now();
+    return '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _saveAndNext(List<StudentModel> students) async {
+    final grades = ref.read(topicGradeProvider(widget.groupId));
+    if (grades.isEmpty) {
+      widget.notifier.completeStep(WorkflowStep.grading);
+      return;
+    }
+    setState(() => _isSaving = true);
+    final api = ref.read(teacherApiProvider);
     final today = _today();
-    final attAsync =
-        ref.watch(attendanceMarkingProvider((classId: groupId, date: today)));
+    final subject = widget.lesson.subjectName.isNotEmpty
+        ? widget.lesson.subjectName
+        : 'Matematika';
+
+    for (final s in students) {
+      final g = grades[s.id] ?? 0;
+      if (g == 0) continue;
+      try {
+        await api.setGrade(
+          studentId: s.id,
+          grade: g,
+          date: today,
+          groupId: widget.groupId,
+          subject: subject,
+        );
+      } catch (e) {
+        debugPrint('setGrade error for \${s.id}: \$e');
+      }
+    }
+    if (mounted) {
+      setState(() => _isSaving = false);
+      widget.notifier.completeStep(WorkflowStep.grading);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final grades = ref.watch(topicGradeProvider(widget.groupId));
+    final gradeNotifier = ref.read(topicGradeProvider(widget.groupId).notifier);
+    final ratings = ref.watch(activityRatingProvider(widget.groupId));
+    final ratingNotifier =
+        ref.read(activityRatingProvider(widget.groupId).notifier);
+
+    final today = _today();
+    final attAsync = ref.watch(
+        attendanceMarkingProvider((classId: widget.groupId, date: today)));
 
     final students = attAsync.valueOrNull?.students.where((s) {
           final st = attAsync.valueOrNull?.statuses[s.id];
@@ -681,33 +737,142 @@ class _Step3ActivityContent extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Section: Mavzu bahosi (topic grade)
+        Row(children: [
+          const Icon(Icons.grade_rounded, size: 16, color: AppColors.brand),
+          const SizedBox(width: 6),
+          Text(
+            'Mavzu bahosi (2-5)',
+            style: AppTextStyles.label
+                .copyWith(color: AppColors.brand, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            widget.lesson.subjectName.isNotEmpty
+                ? widget.lesson.subjectName
+                : '',
+            style: AppTextStyles.caption.copyWith(color: AppColors.gray),
+          ),
+        ]),
+        const SizedBox(height: AppSpacing.s),
         if (students.isEmpty)
           Text("Darsda o'quvchilar yo'q",
               style: AppTextStyles.bodyS.copyWith(color: AppColors.gray))
         else
-          ...students.map((s) => _ActivityRow(
-                student: s,
-                rating: ratings[s.id] ?? 0,
-                onChanged: (r) {
-                  final c = Map<String, int>.from(ratings);
-                  c[s.id] = r;
-                  ratingNotifier.state = c;
-                },
-              )),
+          ...students.map((s) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.s),
+              child: Row(
+                children: [
+                  AlochiAvatar(name: s.fullName, size: 32),
+                  const SizedBox(width: AppSpacing.m),
+                  Expanded(
+                    child: Text(s.fullName,
+                        style:
+                            AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                  ),
+                  // Grade buttons 2-3-4-5
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [2, 3, 4, 5].map((g) {
+                      final isSelected = grades[s.id] == g;
+                      final color = _gradeColor(g);
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: GestureDetector(
+                          onTap: () {
+                            final c = Map<String, int>.from(grades);
+                            c[s.id] = isSelected ? 0 : g;
+                            gradeNotifier.state = c;
+                          },
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color:
+                                  isSelected ? color : const Color(0xFFF3F4F6),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '$g',
+                              style: AppTextStyles.label.copyWith(
+                                color: isSelected
+                                    ? Colors.white
+                                    : const Color(0xFF6B7280),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            );
+          }),
+
+        const SizedBox(height: AppSpacing.l),
+        const Divider(height: 1, color: Color(0xFFE5E7EB)),
         const SizedBox(height: AppSpacing.m),
+
+        // Section: Aktivlik (activity rating)
+        Row(children: [
+          const Icon(Icons.bolt_rounded, size: 16, color: AppColors.accent),
+          const SizedBox(width: 6),
+          Text(
+            'Dars aktivligi',
+            style: AppTextStyles.label
+                .copyWith(color: AppColors.accent, fontWeight: FontWeight.w600),
+          ),
+        ]),
+        const SizedBox(height: AppSpacing.s),
+        ...students.map((s) => Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.s),
+              child: Row(
+                children: [
+                  AlochiAvatar(name: s.fullName, size: 32),
+                  const SizedBox(width: AppSpacing.m),
+                  Expanded(
+                    child: Text(s.fullName,
+                        style:
+                            AppTextStyles.bodyS.copyWith(color: AppColors.ink),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                  ),
+                  _RatingButtons(
+                    value: ratings[s.id] ?? 0,
+                    onChanged: (r) {
+                      final c = Map<String, int>.from(ratings);
+                      c[s.id] = r;
+                      ratingNotifier.state = c;
+                    },
+                  ),
+                ],
+              ),
+            )),
+
+        const SizedBox(height: AppSpacing.l),
         Row(
           children: [
             Expanded(
               child: AlochiButton.secondary(
                 label: 'Orqaga',
-                onPressed: () => notifier.backStep(WorkflowStep.grading),
+                onPressed: _isSaving
+                    ? null
+                    : () => widget.notifier.backStep(WorkflowStep.grading),
               ),
             ),
             const SizedBox(width: AppSpacing.m),
             Expanded(
               child: AlochiButton.primary(
-                label: "Keyingisi ›",
-                onPressed: () => notifier.completeStep(WorkflowStep.grading),
+                label: "Saqlash ›",
+                isLoading: _isSaving,
+                onPressed: _isSaving ? null : () => _saveAndNext(students),
               ),
             ),
           ],
@@ -716,41 +881,19 @@ class _Step3ActivityContent extends ConsumerWidget {
     );
   }
 
-  String _today() {
-    final n = DateTime.now();
-    return '${n.year}-${n.month.toString().padLeft(2, '0')}-${n.day.toString().padLeft(2, '0')}';
-  }
-}
-
-class _ActivityRow extends StatelessWidget {
-  final StudentModel student;
-  final int rating;
-  final ValueChanged<int> onChanged;
-
-  const _ActivityRow({
-    required this.student,
-    required this.rating,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.s),
-      child: Row(
-        children: [
-          AlochiAvatar(name: student.fullName, size: 32),
-          const SizedBox(width: AppSpacing.m),
-          Expanded(
-            child: Text(student.fullName,
-                style: AppTextStyles.bodyS.copyWith(color: AppColors.ink),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-          ),
-          _RatingButtons(value: rating, onChanged: onChanged),
-        ],
-      ),
-    );
+  Color _gradeColor(int g) {
+    switch (g) {
+      case 5:
+        return const Color(0xFF0F9A6E);
+      case 4:
+        return AppColors.brand;
+      case 3:
+        return const Color(0xFFD97706);
+      case 2:
+        return AppColors.danger;
+      default:
+        return AppColors.brandMuted;
+    }
   }
 }
 

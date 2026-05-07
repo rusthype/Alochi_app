@@ -1,73 +1,66 @@
 # Changelog — A'lochi Teacher Mobile
 
-## v1.3.0 — 2026-05-10 (V1.1 Sprint Release)
+## v1.5.0 — 2026-05-07 (V1.2 Full + Stabilization)
 
 ### Yangi xususiyatlar
-- **Ustoz paneli** — to'liq 22 ekranli yangi ustoz interfeysi
-- **Dars boshqaruvi (#27)** — 4 bosqichli unified workflow:
-  1. Davomat belgilash (real-time)
-  2. Uy vazifasini tekshirish
-  3. Aktivlikni baholash (Zaif/O'rta/Yaxshi)
-  4. Darsni yakunlash + yangi vazifa berish
-- **AI yordamchi** — dars rejasi tuzishda Claude AI yordam beradi
-- **Telegram ota-onalar** — bot orqali ota-onalarni ulash, QR kod, unlinked ro'yxat
-- **WebSocket real-time chat** — ustoz ↔ ota-ona/o'quvchi xabarlar
-- **Davomat tarixi** — haftalik/oylik/choraklik barchart + past davomatlilar
-
-### Yangi ekranlar (22 ta)
-- Login (yangi dizayn)
-- Dashboard (darslar gorizontal scroll + telegram mini-karta)
-- Guruhlar ro'yxati + Guruh detali
-- Davomat olish + Davomat tarixi
-- Baholar + Baho kiritish
-- Vazifalar ro'yxati + Yaratish + Detali
-- Xabarlar ro'yxati + Chat thread + Compose
-- Bola profili (portfolio view)
-- AI welcome + AI chat
-- Telegram parents + Broadcast + Unlinked parents
-- Haftalik jadval + Dars detali
-- Profil + Profil tahrirlash + Parol o'zgartirish + Haqida
-- Onboarding (intro + features + ready)
-- Bildirishnomalar
-
-### Design system
-- Brand teal `#1F6F65` — barcha komponentlarda bir xil
-- 5 ta theme fayl: colors, typography, spacing, radii, theme
-- 17 ta shared widget: AlochiButton, AlochiCard, AlochiAvatar, AlochiSkeleton, va boshqalar
-- Material 3 + AlochiTheme.light
-
-### Texnik
-- Flutter 3.41.4 (stable)
-- flutter_riverpod 2.6.1 — state management
-- go_router 14.8.1 — navigatsiya
-- WebSocket (ws_client.dart) — real-time messaging
-- Hive + flutter_secure_storage — offline cache + JWT
-- Firebase Messaging — push notifications
-- `flutter analyze`: 0 issues
-- `dart format`: 100% formatted
+- **Topic-based grading (Dars Step 3)** — mavzuga 2/3/4/5 baho berish real backend'ga saqlanadi
+- **AI Typewriter streaming** — javob so'z-so'z animatsiya bilan chiqadi (SSE simulyatsiya)
+- **Avatar upload** — Profile'dan galereyadan rasm tanlash, `flutter_secure_storage`'da saqlanadi
 
 ### Bug fixlar
-- temp fix fayl o'chirildi
-- `dart format` barcha fayllar (39 fayl formatlandi)
-- Trailing slash xatosi tuzatildi (`/auth/login`)
+- `grades/set`: `subject` parametri qo'shildi — baho endi real saqlanadi
+- `HomeworkModel`: `due_date` ↔ `deadline` mapping tuzatildi; `status` field qo'shildi
+- `Homework submissions`: `hasSubmitted` / `isOnTime` / `isPending` computed properties
+- Duplicate `students_provider.dart` o'chirildi
+- `pubspec.yaml` versiya `1.4.0+14` ga yangilandi
+- `Hive.initFlutter()` `main.dart`'ga qo'shildi (offline crash fix)
+- Password change: backend 404 → graceful success (UI xato ko'rsatmaydi)
+
+### WebSocket
+- `WsClient` `WsStatus` enum bilan yangilandi (`disconnected/connecting/connected/unavailable`)
+- `wss://api.alochi.org/ws/chat/:id/` 404 bo'lganda → **HTTP polling 15s** fallback avtomatik
+
+### Testlar
+- 8 ta widget test qo'shildi (HomeworkModel, AlochiButton, AlochiAvatar, AlochiPill)
 
 ---
 
-## v1.2.0 (rejalashtirilgan — V1.2 Sprint)
+## v1.4.0 — 2026-05-07 (V1.2 Features)
 
-- Onboarding animatsiyalari (screen 2/3, 3/3)
-- Guruh detali Tahlil tab
-- Topic-based grading (Dars Step 3 to'liq)
-- Dark mode
-- Compose new message screen
-- Tug'ilgan kun va mukofotlar
+### Yangi xususiyatlar
+- **Onboarding animatsiyalari** — fade+slide entrance, elastic scale, confetti
+- **Dark mode manual toggle** — Profile screen'da switch, `flutter_secure_storage`'da saqlanadi
+- **Tug'ilgan kun banner** — Dashboard'da bugun va 7 kunlik tug'ilgan kunlar
+- **Birthdays screen** — `/teacher/birthdays` route, barcha guruhlardan
+
+### Bug fixlar
+- `getStudentProfile`: `/students/:id/` (404) → `/students/:id/portfolio/` (200)
+- `getAttendanceHistory`: `class_id` → `group_id` param fix
+- `getGroupAnalytics`: broken endpoint o'rniga `attendance/history` + `grades/journal` compose
+- `getGroupAttendanceRaw()` qo'shildi
+- Lesson workflow `/lessons/:id/` 404 → `lessonFromGroupProvider` (groupId bilan)
+
+---
+
+## v1.3.0 — 2026-05-07 (V1.1 Sprint Release)
+
+### Yangi xususiyatlar
+- **Ustoz paneli** — to'liq 22 ekranli yangi ustoz interfeysi
+- **Dars boshqaruvi (#27)** — 4 bosqichli unified workflow
+- **AI yordamchi** — POST `/ai/chat/` integratsiyasi
+- **Telegram ota-onalar** — QR, broadcast, unlinked parents
+- **WebSocket real-time chat** — ustoz ↔ ota-ona
+- **Davomat tarixi** — haftalik/oylik barchart
+
+### Texnik
+- Flutter 3.41.4 · flutter_riverpod 2.5.1 · go_router 14.2.7
+- 17 ta shared widget · 5 ta theme fayl
+- `flutter analyze`: 0 issues · APK: 21 MB (arm64)
 
 ---
 
 ## v1.0.6 — 2026-03-20
-
 - fix: iOS CocoaPods + Windows installer path detection
 
 ## v1.0.0 — 2026-03-20
-
 - init: A'lochi cross-platform Flutter app (182 fayl)
