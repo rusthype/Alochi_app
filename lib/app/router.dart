@@ -183,8 +183,13 @@ final routerProvider = Provider<GoRouter>((ref) {
               builder: (_, __) => const BirthdaysScreen()),
           GoRoute(
             path: '/teacher/lesson/:id',
-            builder: (context, state) => LessonWorkflowScreen(
-                lessonId: state.pathParameters['id'] ?? ''),
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>?;
+              return LessonWorkflowScreen(
+                lessonId: state.pathParameters['id'] ?? '',
+                extra: extra,
+              );
+            },
           ),
           GoRoute(
             path: '/teacher/lesson/:id/attendance',
