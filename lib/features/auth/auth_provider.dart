@@ -93,7 +93,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   /// Clear the needsOnboarding flag after user completes/skips onboarding.
-  void clearOnboardingFlag() {
+  Future<void> clearOnboardingFlag() async {
+    await AppStorage.writeKey('first_login_complete', 'true');
     state = state.copyWith(needsOnboarding: false);
   }
 

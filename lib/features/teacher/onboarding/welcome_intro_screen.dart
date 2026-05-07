@@ -30,7 +30,7 @@ class WelcomeIntroScreen extends ConsumerWidget {
 
   Future<void> _skip(BuildContext context, WidgetRef ref) async {
     await markOnboardingComplete();
-    ref.read(authProvider.notifier).clearOnboardingFlag();
+    await ref.read(authProvider.notifier).clearOnboardingFlag();
     if (context.mounted) {
       context.go('/teacher/dashboard');
     }

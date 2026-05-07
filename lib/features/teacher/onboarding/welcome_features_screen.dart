@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../theme/colors.dart';
 import '../../../theme/typography.dart';
 import '../../../theme/spacing.dart';
 import '../../../shared/widgets/alochi_button.dart';
 import '../../../shared/widgets/alochi_card.dart';
+import '../../auth/auth_provider.dart';
 import 'onboarding_widgets.dart';
 import 'welcome_intro_screen.dart';
 
-class WelcomeFeaturesScreen extends StatelessWidget {
+class WelcomeFeaturesScreen extends ConsumerWidget {
   const WelcomeFeaturesScreen({super.key});
 
-  Future<void> _skip(BuildContext context) async {
+  Future<void> _skip(BuildContext context, WidgetRef ref) async {
     await markOnboardingComplete();
+    await ref.read(authProvider.notifier).clearOnboardingFlag();
     if (context.mounted) {
       context.go('/teacher/dashboard');
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -30,7 +33,7 @@ class WelcomeFeaturesScreen extends StatelessWidget {
               top: AppSpacing.s,
               right: AppSpacing.l,
               child: TextButton(
-                onPressed: () => _skip(context),
+                onPressed: () => _skip(context, ref),
                 child: Text(
                   "O'tkazib yuborish",
                   style: AppTextStyles.bodyS.copyWith(

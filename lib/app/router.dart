@@ -94,7 +94,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         // Show onboarding for first-time teacher logins
         if (role == 'teacher' &&
             authState.needsOnboarding &&
-            loc != '/teacher/onboarding/intro') {
+            !loc.startsWith('/teacher/onboarding/')) {
           return '/teacher/onboarding/intro';
         }
         // If on teacher login while authenticated as teacher, go to dashboard
@@ -133,6 +133,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/teacher/onboarding/intro',
+        builder: (context, state) => const WelcomeIntroScreen(),
+      ),
+      GoRoute(
+        path: '/teacher/onboarding/features',
+        builder: (context, state) => const WelcomeFeaturesScreen(),
+      ),
+      GoRoute(
+        path: '/teacher/onboarding/ready',
+        builder: (context, state) => const WelcomeReadyScreen(),
       ),
 
       // Teacher shell
@@ -278,18 +290,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/teacher/about',
             builder: (context, state) => const AboutScreen(),
-          ),
-          GoRoute(
-            path: '/teacher/onboarding/intro',
-            builder: (context, state) => const WelcomeIntroScreen(),
-          ),
-          GoRoute(
-            path: '/teacher/onboarding/features',
-            builder: (context, state) => const WelcomeFeaturesScreen(),
-          ),
-          GoRoute(
-            path: '/teacher/onboarding/ready',
-            builder: (context, state) => const WelcomeReadyScreen(),
           ),
           GoRoute(
             path: '/teacher/ai',
