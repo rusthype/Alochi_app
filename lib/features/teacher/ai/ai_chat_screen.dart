@@ -537,7 +537,7 @@ class _AiComposerState extends State<_AiComposer> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        border: const Border(top: BorderSide(color: Color(0xFFE5E7EB))),
       ),
       padding: EdgeInsets.only(
         left: AppSpacing.m,

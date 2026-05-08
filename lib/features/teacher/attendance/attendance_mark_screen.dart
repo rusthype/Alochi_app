@@ -386,10 +386,10 @@ class _StickySaveButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final canSave = state.canSave;
     return Container(
-      padding: EdgeInsets.fromLTRB(14, 14, 14, 30),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 30),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 10,

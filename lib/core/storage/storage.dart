@@ -5,11 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// - Tokens: FlutterSecureStorage (encrypted) with SharedPreferences fallback
 /// - Feature flags (onboarding, theme): SharedPreferences (reliable on all Android)
 class AppStorage {
-  static const _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
-  );
+  static const _storage = FlutterSecureStorage();
 
   static const _accessKey = 'access_token';
   static const _refreshKey = 'refresh_token';

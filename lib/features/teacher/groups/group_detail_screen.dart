@@ -971,12 +971,7 @@ class _AttendanceTab extends ConsumerWidget {
         ref.watch(groupDetailProvider(groupId)).valueOrNull?.code ?? '';
     final now = DateTime.now();
     final today =
-        // ignore: prefer_interpolation_to_compose_strings
-        now.year.toString() +
-            '-' +
-            now.month.toString().padLeft(2, '0') +
-            '-' +
-            now.day.toString().padLeft(2, '0');
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.l),

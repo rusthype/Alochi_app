@@ -370,7 +370,7 @@ class _StickySubmitBar extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+        border: const Border(top: BorderSide(color: Color(0xFFE5E7EB))),
       ),
       child: AlochiButton.primary(
         label: 'Saqlash',

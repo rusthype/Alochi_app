@@ -181,7 +181,7 @@ class _PasswordChangeScreenState extends ConsumerState<PasswordChangeScreen> {
             ),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
-              border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+              border: const Border(top: BorderSide(color: Color(0xFFE5E7EB))),
             ),
             child: AlochiButton.primary(
               label: 'Saqlash',

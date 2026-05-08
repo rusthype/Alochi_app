@@ -50,7 +50,7 @@ class LessonDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(l?.subject ?? 'Dars', style: AppTextStyles.titleL),
-                if (l != null && l.groupName != null && l.groupName!.isNotEmpty)
+                if (l != null && l.groupName.isNotEmpty)
                   Text(l.groupName,
                       style: AppTextStyles.bodyS
                           .copyWith(color: AppColors.brandMuted)),

@@ -149,7 +149,7 @@ void main() {
 
     testWidgets('AlochiButton null onPressed renders', (tester) async {
       await tester.pumpWidget(themed(
-        AlochiButton.primary(label: 'Saqla', onPressed: null),
+        const AlochiButton.primary(label: 'Saqla', onPressed: null),
       ));
       expect(find.text('Saqla'), findsOneWidget);
     });

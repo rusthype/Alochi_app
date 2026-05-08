@@ -15,7 +15,6 @@ import '../attendance/attendance_provider.dart';
 import '../dashboard/dashboard_provider.dart';
 import '../groups/groups_provider.dart';
 import '../grades/grades_provider.dart';
-import '../grades/grades_provider.dart';
 
 class GradesEntryScreen extends ConsumerStatefulWidget {
   final String groupId;
